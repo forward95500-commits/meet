@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v12.0)</title>
+    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 </title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -24,7 +24,7 @@
         #map { height: calc(100vh - 360px); width: 100%; z-index: 1; background-color: #f8fafc !important; }
         @media (min-width: 768px) { #map { height: calc(100vh - 300px); } }
 
-        /* 커스텀 마커 스타일 */
+        /* 마커 스타일 */
         .my-custom-marker {
             width: 32px; height: 32px; background-color: #10B981; border: 3px solid #ffffff;
             border-radius: 50%; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); text-align: center;
@@ -48,7 +48,7 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌟 첫 화면 헤더 CSS 애니메이션 효과 */
+        /* 🌟 첫 화면 헤더 100% CSS 애니메이션 (사진 전면 대체) */
         .animated-header-bg {
             background: linear-gradient(-45deg, #10b981, #14b8a6, #06b6d4, #3b82f6);
             background-size: 400% 400%;
@@ -83,7 +83,7 @@
             <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 min-w-0">
                     <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">v12.0</span>
+                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">v13.0</span>
                 </div>
                 <p id="gps-status-text" class="text-[10px] text-emerald-600 font-medium truncate">🟢 GPS 연결됨</p>
             </div>
@@ -105,31 +105,29 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (생동감 있는 CSS 애니메이션 헤더 적용) -->
+    <!-- 📱 1단계: 모임 개설 모달 (사진 전면 제거 ➔ 애니메이션 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
             <!-- 🌟 동적 그라데이션 & 핑 애니메이션 헤더 -->
             <div class="relative h-40 animated-header-bg flex flex-col justify-end p-5 text-white overflow-hidden">
                 
-                <!-- 애니메이션 그래픽 요소들 -->
                 <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
                     <div class="ping-circle" style="animation-delay: 0s;"></div>
                     <div class="ping-circle" style="animation-delay: 0.8s;"></div>
                     <div class="ping-circle" style="animation-delay: 1.6s;"></div>
                 </div>
                 
-                <!-- 떠다니는 모션 아이콘들 -->
-                <div class="absolute top-4 right-6 text-white/30 text-2xl animate-bounce" style="animation-duration: 2.2s;">
+                <div class="absolute top-4 right-6 text-white/40 text-2xl animate-bounce" style="animation-duration: 2.2s;">
                     <i class="fa-solid fa-location-dot"></i>
                 </div>
-                <div class="absolute top-10 right-16 text-white/25 text-xl animate-bounce" style="animation-duration: 1.7s;">
+                <div class="absolute top-10 right-16 text-white/30 text-xl animate-bounce" style="animation-duration: 1.7s;">
                     <i class="fa-solid fa-paper-plane"></i>
                 </div>
 
                 <div class="relative z-10">
                     <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 border border-white/30 shadow-sm">
-                        <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티
+                        <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 약속 & 모임
                     </div>
                     <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
                     <p class="text-[11px] text-emerald-50 mt-0.5 font-medium drop-shadow">실시간 위치 공유, 약속 장소, 1/N 회비 정산까지 한번에!</p>
@@ -137,6 +135,7 @@
             </div>
 
             <div class="p-5 space-y-3 bg-white">
+                <!-- 1. 모임 이름 -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-users text-emerald-500"></i> 1. 모임 이름
@@ -144,6 +143,7 @@
                     <input type="text" id="init-roomtitle" placeholder="예: 즐거운 주말 모임 ☕" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                 </div>
 
+                <!-- 2. 약속장소 -->
                 <div class="relative">
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-location-dot text-rose-500"></i> 2. 약속장소 (상호명 또는 도로명/지번 주소)
@@ -157,9 +157,12 @@
                     </div>
                 </div>
 
+                <!-- 3. 정원 & 4. 약속 날짜/시간 (이모티콘 아이콘 추가) -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">3. 정원</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-user-group text-indigo-500"></i> 3. 정원
+                        </label>
                         <select id="init-maxmembers" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
                             <option value="2">2명</option>
                             <option value="3" selected>3명</option>
@@ -169,11 +172,14 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">4. 약속 날짜 & 시간</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-calendar-days text-amber-500"></i> 4. 약속 날짜 & 시간
+                        </label>
                         <input type="datetime-local" id="init-meettime" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-[11px] text-slate-800 focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
+                <!-- 5. 내 이름 -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-user text-emerald-500"></i> 5. 내 이름 (닉네임)
@@ -181,6 +187,7 @@
                     <input type="text" id="init-username" placeholder="예: 홍길동" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                 </div>
 
+                <!-- 6. 동의 체크박스 -->
                 <div class="flex items-start gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
                     <input type="checkbox" id="agree-gps" checked class="mt-0.5 w-4 h-4 text-emerald-500 bg-white border-slate-300 rounded focus:ring-emerald-500">
                     <label for="agree-gps" class="text-[11px] text-slate-600 leading-snug cursor-pointer font-medium">
@@ -225,7 +232,6 @@
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         <div id="map" class="relative"></div>
 
-        <!-- 🎯 지도 오른쪽 밑 [내 위치 찾기] 아이콘 -->
         <button onclick="panToMyLocation()" class="absolute bottom-4 right-4 z-20 bg-white border border-slate-300 text-emerald-600 w-11 h-11 rounded-2xl shadow-lg flex items-center justify-center font-bold transition hover:bg-slate-50 active:scale-95" title="내 위치 찾기">
             <i class="fa-solid fa-crosshairs text-lg"></i>
         </button>
@@ -492,7 +498,7 @@
         }
 
         function initApp() {
-            document.getElementById('room-tag').innerText = `v12.0 방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `v13.0 방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
