@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 </title>
+    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -48,7 +48,7 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌟 첫 화면 헤더 100% CSS 애니메이션 (사진 전면 대체) */
+        /* 🌟 첫 화면 헤더 100% CSS 애니메이션 (사진 완전 제거) */
         .animated-header-bg {
             background: linear-gradient(-45deg, #10b981, #14b8a6, #06b6d4, #3b82f6);
             background-size: 400% 400%;
@@ -74,7 +74,7 @@
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
-    <!-- 상단 헤더 -->
+    <!-- 상단 헤더 (버전 표기 완전 삭제) -->
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-emerald-500/20 shrink-0">
@@ -83,7 +83,7 @@
             <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 min-w-0">
                     <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">v13.0</span>
+                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">실시간</span>
                 </div>
                 <p id="gps-status-text" class="text-[10px] text-emerald-600 font-medium truncate">🟢 GPS 연결됨</p>
             </div>
@@ -105,7 +105,7 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (사진 전면 제거 ➔ 애니메이션 적용) -->
+    <!-- 📱 1단계: 모임 개설 모달 (사진 대신 오로라 애니메이션 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
@@ -498,7 +498,7 @@
         }
 
         function initApp() {
-            document.getElementById('room-tag').innerText = `v13.0 방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
