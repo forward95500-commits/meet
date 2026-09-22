@@ -48,24 +48,20 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌟 움직이는 구름 배경 + 캐릭터 애니메이션 */
-        .animated-sky-bg {
-            background: linear-gradient(135deg, #38bdf8, #3b82f6, #10b981);
-            background-size: 200% 200%;
-            animation: skyFlow 6s ease infinite alternate;
+        /* 🌐 스마트 지도 그리드 패턴 & 네온 글로우 헤더 */
+        .grid-map-bg {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.3) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.3) 0px, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
+            animation: gridMove 20s linear infinite;
         }
-        @keyframes skyFlow {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-
-        .floating-cloud {
-            animation: cloudMove 12s linear infinite;
-        }
-        @keyframes cloudMove {
-            0% { transform: translateX(-60px); opacity: 0.3; }
-            50% { opacity: 0.8; }
-            100% { transform: translateX(380px); opacity: 0.3; }
+        @keyframes gridMove {
+            0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+            100% { background-position: 0 0, 0 0, 20px 20px, 20px 20px; }
         }
 
         .char-bounce {
@@ -73,18 +69,18 @@
         }
         @keyframes charHop {
             0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-10px) rotate(2deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
         }
 
-        .ping-wave {
+        .radar-ping {
             position: absolute;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            animation: wavePulse 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+            border: 2px solid rgba(16, 185, 129, 0.6);
+            animation: radarPulse 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
         }
-        @keyframes wavePulse {
-            0% { width: 10px; height: 10px; opacity: 1; }
-            100% { width: 120px; height: 120px; opacity: 0; }
+        @keyframes radarPulse {
+            0% { width: 20px; height: 20px; opacity: 1; }
+            100% { width: 140px; height: 140px; opacity: 0; }
         }
     </style>
 </head>
@@ -121,39 +117,39 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 -->
-    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/25 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <!-- 📱 1단계: 모임 개설 모달 (네온 지도 그리드 애니메이션 헤더) -->
+    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- 🌟 이미지 일러스트 + 구름 + 캐릭터 애니메이션 헤더 -->
-            <div class="relative h-44 animated-sky-bg flex flex-col justify-between p-4 text-white overflow-hidden">
-                
-                <i class="fa-solid fa-cloud absolute top-3 text-white/40 text-3xl floating-cloud"></i>
-                <i class="fa-solid fa-cloud absolute top-10 text-white/30 text-2xl floating-cloud" style="animation-delay: -5s;"></i>
+            <!-- 🌐 네온 지도 그리드 & 레이더 파동 애니메이션 -->
+            <div class="relative h-44 grid-map-bg flex flex-col justify-between p-4 text-white overflow-hidden">
                 
                 <div class="flex justify-between items-start z-10">
-                    <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/30 shadow-sm">
-                        <i class="fa-solid fa-sparkles text-amber-300"></i> 올인원 약속 모빌리티
+                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/30">
+                        <i class="fa-solid fa-satellite text-amber-300 animate-spin" style="animation-duration: 6s;"></i> 실시간 위치 매핑
                     </div>
-                    <div class="text-amber-300 text-xs animate-spin" style="animation-duration: 8s;">
-                        <i class="fa-solid fa-sun text-lg"></i>
-                    </div>
+                    <span class="text-[10px] text-slate-400 font-mono tracking-wider">LIVE GPS</span>
                 </div>
 
-                <!-- 🤖 캐릭터 요소 -->
+                <!-- 🤖 레이더 파동 + 캐릭터 카드 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
-                    <div class="ping-wave"></div>
-                    <div class="ping-wave" style="animation-delay: 1.2s;"></div>
+                    <div class="radar-ping"></div>
+                    <div class="radar-ping" style="animation-delay: 1.2s;"></div>
                     
-                    <div class="char-bounce bg-white text-emerald-600 px-3 py-1.5 rounded-2xl shadow-lg border-2 border-amber-300 flex items-center gap-2">
-                        <i class="fa-solid fa-location-dot text-rose-500 text-base animate-bounce"></i>
-                        <span class="text-xs font-black text-slate-800 tracking-tight">지도로 연결되는 우리!</span>
+                    <div class="char-bounce bg-slate-900/90 text-white px-3.5 py-2 rounded-2xl shadow-xl border border-emerald-500/40 flex items-center gap-2.5 backdrop-blur-sm">
+                        <div class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-md shadow-emerald-500/50">
+                            <i class="fa-solid fa-location-crosshairs"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-extrabold text-emerald-400 leading-tight">스마트 약속 모임</div>
+                            <div class="text-[10px] text-slate-300">내 친구 실시간 위치 한눈에</div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="relative z-10">
                     <h2 class="text-xl font-black tracking-tight text-white drop-shadow">여기서 만나</h2>
-                    <p class="text-[11px] text-emerald-50 font-medium">실시간 위치 공유부터 회비 정산까지 한눈에!</p>
+                    <p class="text-[11px] text-slate-300 font-medium">위치 공유부터 1/N 회비 정산까지 손쉽게!</p>
                 </div>
             </div>
 
@@ -221,10 +217,10 @@
     </div>
 
     <!-- 💌 2단계: 초대받은 지인 전용 모임 정보 확인 & 입장 모달 -->
-    <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-900/25 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <div class="bg-gradient-to-br from-indigo-500 via-teal-500 to-emerald-500 p-5 text-white text-center relative">
+            <div class="bg-gradient-to-br from-indigo-600 via-teal-600 to-emerald-600 p-5 text-white text-center relative">
                 <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
                     <i class="fa-solid fa-envelope-open-text text-amber-300"></i> 모임 초대장이 도착했습니다
                 </div>
@@ -272,7 +268,7 @@
     </div>
 
     <!-- 💰 1/N 정산 계산 모달 -->
-    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/25 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 class="text-xs font-bold text-amber-600 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
