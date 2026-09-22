@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼</title>
-    <!-- Pretendard 고급 웹 폰트 -->
+    <title>여기서 만나 - 스마트 실시간 약속 플랫폼</title>
+    <!-- Pretendard 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,7 +24,7 @@
         #map { height: calc(100vh - 360px); width: 100%; z-index: 1; background-color: #f8fafc !important; }
         @media (min-width: 768px) { #map { height: calc(100vh - 300px); } }
 
-        /* 마커 스타일 */
+        /* 지도 마커 스타일 */
         .my-custom-marker {
             width: 32px; height: 32px; background-color: #10B981; border: 3px solid #ffffff;
             border-radius: 50%; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); text-align: center;
@@ -48,33 +48,26 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌟 첫 화면 헤더 100% CSS 애니메이션 (사진 완전 제거) */
-        .animated-header-bg {
-            background: linear-gradient(-45deg, #10b981, #14b8a6, #06b6d4, #3b82f6);
-            background-size: 400% 400%;
-            animation: gradientBG 8s ease infinite;
+        /* 🤖 캐릭터 애니메이션 스타일 */
+        .char-head {
+            animation: charFloat 3s ease-in-out infinite;
         }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        @keyframes charFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(3deg); }
         }
-
-        .ping-circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            animation: pingWave 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        .char-eye {
+            animation: charBlink 4s infinite;
         }
-        @keyframes pingWave {
-            0% { width: 0px; height: 0px; opacity: 1; }
-            100% { width: 140px; height: 140px; opacity: 0; }
+        @keyframes charBlink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
         }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
-    <!-- 상단 헤더 (버전 표기 완전 삭제) -->
+    <!-- 상단 헤더 -->
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-emerald-500/20 shrink-0">
@@ -105,37 +98,30 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (사진 대신 오로라 애니메이션 적용) -->
+    <!-- 📱 1단계: 모임 개설 모달 (귀여운 마커 캐릭터 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- 🌟 동적 그라데이션 & 핑 애니메이션 헤더 -->
-            <div class="relative h-40 animated-header-bg flex flex-col justify-end p-5 text-white overflow-hidden">
+            <!-- 🌟 귀여운 위치 캐릭터 헤더 영역 -->
+            <div class="relative h-40 bg-gradient-to-br from-emerald-400 via-teal-500 to-indigo-500 flex flex-col items-center justify-center p-4 text-white overflow-hidden text-center">
                 
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
-                    <div class="ping-circle" style="animation-delay: 0s;"></div>
-                    <div class="ping-circle" style="animation-delay: 0.8s;"></div>
-                    <div class="ping-circle" style="animation-delay: 1.6s;"></div>
-                </div>
-                
-                <div class="absolute top-4 right-6 text-white/40 text-2xl animate-bounce" style="animation-duration: 2.2s;">
-                    <i class="fa-solid fa-location-dot"></i>
-                </div>
-                <div class="absolute top-10 right-16 text-white/30 text-xl animate-bounce" style="animation-duration: 1.7s;">
-                    <i class="fa-solid fa-paper-plane"></i>
+                <!-- 🤖 핑핑이(마커) 캐릭터 -->
+                <div class="char-head relative w-16 h-16 bg-white rounded-full border-4 border-amber-300 shadow-lg flex items-center justify-center mb-1">
+                    <div class="flex gap-2">
+                        <div class="char-eye w-2.5 h-3.5 bg-slate-800 rounded-full"></div>
+                        <div class="char-eye w-2.5 h-3.5 bg-slate-800 rounded-full"></div>
+                    </div>
+                    <div class="absolute bottom-2.5 w-3 h-1.5 border-b-2 border-slate-800 rounded-full"></div>
+                    <div class="absolute -top-3 bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full border border-white">GPS</div>
                 </div>
 
                 <div class="relative z-10">
-                    <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 border border-white/30 shadow-sm">
-                        <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 약속 & 모임
-                    </div>
-                    <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
-                    <p class="text-[11px] text-emerald-50 mt-0.5 font-medium drop-shadow">실시간 위치 공유, 약속 장소, 1/N 회비 정산까지 한번에!</p>
+                    <h2 class="text-xl font-black tracking-tight text-white drop-shadow">여기서 만나</h2>
+                    <p class="text-[11px] text-emerald-100 font-medium">실시간 위치 공유부터 정산까지 스마트하게!</p>
                 </div>
             </div>
 
             <div class="p-5 space-y-3 bg-white">
-                <!-- 1. 모임 이름 -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-users text-emerald-500"></i> 1. 모임 이름
@@ -143,7 +129,6 @@
                     <input type="text" id="init-roomtitle" placeholder="예: 즐거운 주말 모임 ☕" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                 </div>
 
-                <!-- 2. 약속장소 -->
                 <div class="relative">
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-location-dot text-rose-500"></i> 2. 약속장소 (상호명 또는 도로명/지번 주소)
@@ -157,7 +142,6 @@
                     </div>
                 </div>
 
-                <!-- 3. 정원 & 4. 약속 날짜/시간 (이모티콘 아이콘 추가) -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
@@ -179,7 +163,6 @@
                     </div>
                 </div>
 
-                <!-- 5. 내 이름 -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-user text-emerald-500"></i> 5. 내 이름 (닉네임)
@@ -187,7 +170,6 @@
                     <input type="text" id="init-username" placeholder="예: 홍길동" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                 </div>
 
-                <!-- 6. 동의 체크박스 -->
                 <div class="flex items-start gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
                     <input type="checkbox" id="agree-gps" checked class="mt-0.5 w-4 h-4 text-emerald-500 bg-white border-slate-300 rounded focus:ring-emerald-500">
                     <label for="agree-gps" class="text-[11px] text-slate-600 leading-snug cursor-pointer font-medium">
@@ -197,6 +179,58 @@
 
                 <button onclick="submitRoomCreation()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-emerald-500/20 transition text-xs flex items-center justify-center gap-2 active:scale-98">
                     <i class="fa-solid fa-rocket"></i> 모임방 바로 개설하기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💌 2단계: 초대받은 지인 전용 모임 정보 확인 & 입장 모달 -->
+    <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
+            
+            <div class="bg-gradient-to-br from-indigo-500 via-teal-500 to-emerald-500 p-5 text-white text-center relative">
+                <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
+                    <i class="fa-solid fa-envelope-open-text text-amber-300"></i> 초대장이 도착했습니다
+                </div>
+                <h2 id="join-room-title" class="text-xl font-black tracking-tight text-white truncate drop-shadow">모임에 초대되었습니다!</h2>
+            </div>
+
+            <div class="p-5 space-y-3 bg-white">
+                <!-- 정보 보기 카드 -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 text-xs">
+                    <div class="flex items-center gap-2 text-slate-700">
+                        <i class="fa-solid fa-location-dot text-rose-500 w-4 text-center"></i>
+                        <span class="font-bold">약속장소:</span>
+                        <span id="join-target-name" class="font-semibold text-slate-900 truncate">지정 중...</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-700">
+                        <i class="fa-solid fa-calendar-days text-amber-500 w-4 text-center"></i>
+                        <span class="font-bold">약속일시:</span>
+                        <span id="join-meet-time" class="font-semibold text-slate-900">확인 중...</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-slate-700">
+                        <i class="fa-solid fa-user-group text-indigo-500 w-4 text-center"></i>
+                        <span class="font-bold">정원:</span>
+                        <span id="join-max-members" class="font-semibold text-slate-900">3명</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-user text-emerald-500"></i> 모임에서 사용할 내 닉네임
+                    </label>
+                    <input type="text" id="join-username" placeholder="예: 길동이" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                </div>
+
+                <div class="flex items-start gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                    <input type="checkbox" id="join-agree-gps" checked class="mt-0.5 w-4 h-4 text-emerald-500 bg-white border-slate-300 rounded focus:ring-emerald-500">
+                    <label for="join-agree-gps" class="text-[11px] text-slate-600 leading-snug cursor-pointer font-medium">
+                        입장 시 내 실시간 위치 공유에 동의합니다. (지도에서 언제든지 중지 가능)
+                    </label>
+                </div>
+
+                <button onclick="submitRoomJoin()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-extrabold py-3.5 rounded-xl shadow-lg shadow-emerald-500/20 transition text-xs flex items-center justify-center gap-2 active:scale-98">
+                    <i class="fa-solid fa-right-to-bracket"></i> 모임방 지도로 참여하기
                 </button>
             </div>
         </div>
@@ -315,10 +349,34 @@
             if (roomIdParam) {
                 currentRoomId = roomIdParam;
                 document.getElementById('create-modal').classList.add('hidden');
-                myNickName = prompt("모임방 참여 닉네임을 입력해주세요:", "길동이") || "참여자";
-                initApp();
+                document.getElementById('join-modal').classList.remove('hidden');
+
+                // 방 정보 불러와서 지인에게 미리 보여주기
+                db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
+                    const info = snapshot.val() || {};
+                    if (info.title) document.getElementById('join-room-title').innerText = info.title;
+                    if (info.time) document.getElementById('join-meet-time').innerText = info.time.replace('T', ' ');
+                    if (info.max) document.getElementById('join-max-members').innerText = `${info.max}명`;
+                });
+
+                db.ref(`rooms/${currentRoomId}/target`).once('value', snapshot => {
+                    const target = snapshot.val();
+                    if (target && target.name) {
+                        document.getElementById('join-target-name').innerText = target.name;
+                    }
+                });
             }
         };
+
+        function submitRoomJoin() {
+            if (!document.getElementById('join-agree-gps').checked) {
+                return alert("위치 공유 동의에 체크해주세요.");
+            }
+
+            myNickName = document.getElementById('join-username').value.trim() || "참여자";
+            document.getElementById('join-modal').classList.add('hidden');
+            initApp();
+        }
 
         async function searchPlaces() {
             const rawQuery = document.getElementById('init-target-input').value.trim();
