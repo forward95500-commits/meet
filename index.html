@@ -98,14 +98,14 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (귀여운 마커 캐릭터 적용) -->
+    <!-- 📱 1단계: 모임 개설 모달 (귀여운 마커 캐릭터 헤더 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
             <!-- 🌟 귀여운 위치 캐릭터 헤더 영역 -->
             <div class="relative h-40 bg-gradient-to-br from-emerald-400 via-teal-500 to-indigo-500 flex flex-col items-center justify-center p-4 text-white overflow-hidden text-center">
                 
-                <!-- 🤖 핑핑이(마커) 캐릭터 -->
+                <!-- 🤖 위치 캐릭터 -->
                 <div class="char-head relative w-16 h-16 bg-white rounded-full border-4 border-amber-300 shadow-lg flex items-center justify-center mb-1">
                     <div class="flex gap-2">
                         <div class="char-eye w-2.5 h-3.5 bg-slate-800 rounded-full"></div>
@@ -190,13 +190,13 @@
             
             <div class="bg-gradient-to-br from-indigo-500 via-teal-500 to-emerald-500 p-5 text-white text-center relative">
                 <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
-                    <i class="fa-solid fa-envelope-open-text text-amber-300"></i> 초대장이 도착했습니다
+                    <i class="fa-solid fa-envelope-open-text text-amber-300"></i> 모임 초대장이 도착했습니다
                 </div>
                 <h2 id="join-room-title" class="text-xl font-black tracking-tight text-white truncate drop-shadow">모임에 초대되었습니다!</h2>
             </div>
 
             <div class="p-5 space-y-3 bg-white">
-                <!-- 정보 보기 카드 -->
+                <!-- 초대 정보 카드 -->
                 <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 text-xs">
                     <div class="flex items-center gap-2 text-slate-700">
                         <i class="fa-solid fa-location-dot text-rose-500 w-4 text-center"></i>
@@ -351,7 +351,7 @@
                 document.getElementById('create-modal').classList.add('hidden');
                 document.getElementById('join-modal').classList.remove('hidden');
 
-                // 방 정보 불러와서 지인에게 미리 보여주기
+                // 초대받은 지인에게 미리 정보 보여주기
                 db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
                     const info = snapshot.val() || {};
                     if (info.title) document.getElementById('join-room-title').innerText = info.title;
