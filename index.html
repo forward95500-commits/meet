@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v5.0)</title>
+    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v6.0)</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -21,7 +21,7 @@
 
     <style>
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
-        #map { height: calc(100vh - 340px); width: 100%; z-index: 1; background-color: #f8fafc; }
+        #map { height: calc(100vh - 340px); width: 100%; z-index: 1; background-color: #ffffff !important; }
         @media (min-width: 768px) { #map { height: calc(100vh - 280px); } }
 
         /* 선명하고 밝은 프리미엄 마커 스타일 */
@@ -62,7 +62,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="room-title-display" class="text-base font-extrabold text-white tracking-tight">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">v5.0 밝은지도</span>
+                    <span id="room-tag" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">v6.0 선명한지도</span>
                 </div>
                 <p id="gps-status-text" class="text-[11px] text-emerald-400 font-medium">🟢 GPS 연결됨</p>
             </div>
@@ -92,7 +92,7 @@
         <div class="bg-slate-900 border border-slate-800/80 rounded-3xl max-w-sm w-full shadow-2xl shadow-emerald-900/10 my-auto overflow-hidden">
             <div class="bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 p-6 text-white relative">
                 <div class="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-white/10 text-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
-                    <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티 (v5.0)
+                    <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티 (v6.0)
                 </div>
                 <h2 class="text-2xl font-black tracking-tight text-white">여기서 만나</h2>
                 <p class="text-xs text-emerald-100/90 mt-1 font-medium">모임명과 약속 장소를 설정하고 실시간 위치를 공유하세요.</p>
@@ -113,7 +113,7 @@
                         <i class="fa-solid fa-location-dot text-rose-400"></i> 2. 약속장소 (상호명/주소)
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 강남 스타벅스, 오산 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') searchPlaces()">
+                        <input type="text" id="init-target-input" placeholder="예: 오산 스타벅스, 강남역, 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') searchPlaces()">
                         <button onclick="searchPlaces()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
 
@@ -454,15 +454,16 @@
             initApp();
         }
 
-        // 🌟 선명하고 깔끔한 표준 밝은 지도 적용
+        // 🌟 캐시를 강력하게 방지하는 100% 라이트 고화질 지도 세팅
         function initApp() {
-            document.getElementById('room-tag').innerText = `v5.0 방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `v6.0 방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // 선명한 OpenStreetMap 고화질 라이트 타일
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // 캐시 방지 파라미터(time-stamp)가 적용된 선명한 백지도 타일
+            const cacheBuster = Date.now();
+            L.tileLayer(`https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?nocache=${cacheBuster}`, {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
