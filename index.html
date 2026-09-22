@@ -48,9 +48,9 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌅 밝고 화사한 감성 자연/친구들 배경 이미지 스타일 */
-        .hero-banner-bg {
-            background-image: url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1000&q=80');
+        /* ☀️ 확실하게 밝고 화사한 자연 감성 이미지 클래스 */
+        .bright-nature-banner {
+            background-image: url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1000&q=80');
             background-size: cover;
             background-position: center;
         }
@@ -89,21 +89,21 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (밝고 화사한 감성 이미지 적용) -->
+    <!-- 📱 1단계: 모임 개설 모달 (화사한 밝은 이미지 배경) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- 🌅 밝고 화사한 자연/친구 감성 이미지 배너 -->
-            <div class="relative h-44 hero-banner-bg flex flex-col justify-end p-5 text-white overflow-hidden">
-                <!-- 글자 가독성을 위한 부드러운 어두운 그라데이션 오버레이 -->
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent"></div>
+            <!-- ☀️ 밝고 화사한 채광/모임 감성 이미지 영역 -->
+            <div class="relative h-44 bright-nature-banner flex flex-col justify-end p-5 text-white overflow-hidden">
+                <!-- 글자 가독성을 위한 부드러운 그라데이션 -->
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
 
                 <div class="relative z-10">
                     <div class="inline-flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1.5 shadow-sm">
                         <i class="fa-solid fa-sparkles"></i> 신나는 약속 & 모임
                     </div>
                     <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
-                    <p class="text-[11px] text-slate-200 font-medium mt-0.5 drop-shadow">실시간 위치 공유, 약속 장소, 1/N 회비 정산까지 한번에!</p>
+                    <p class="text-[11px] text-slate-100 font-medium mt-0.5 drop-shadow">실시간 위치 공유부터 회비 정산까지 한번에!</p>
                 </div>
             </div>
 
