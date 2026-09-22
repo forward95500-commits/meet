@@ -48,16 +48,16 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* ✨ 밝고 화사한 움직이는 일러스트 패턴 배경 */
-        .animated-emoji-bg {
+        /* ✨ 실사 대신 움직이는 역동적인 그리드 일러스트 패턴 배경 */
+        .live-moving-banner {
             background-color: #0f172a;
             background-image: 
-                radial-gradient(at 10% 20%, rgba(52, 211, 153, 0.4) 0px, transparent 50%),
-                radial-gradient(at 90% 80%, rgba(59, 130, 246, 0.4) 0px, transparent 50%),
-                linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+                radial-gradient(at 15% 20%, rgba(16, 185, 129, 0.45) 0px, transparent 50%),
+                radial-gradient(at 85% 80%, rgba(59, 130, 246, 0.45) 0px, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
             background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-            animation: gridMove 15s linear infinite;
+            animation: gridMove 12s linear infinite;
         }
         @keyframes gridMove {
             0% { background-position: 0 0, 0 0, 0 0, 0 0; }
@@ -75,12 +75,12 @@
         .radar-ping {
             position: absolute;
             border-radius: 50%;
-            border: 2px solid rgba(52, 211, 153, 0.6);
+            border: 2px solid rgba(16, 185, 129, 0.7);
             animation: radarPulse 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
         }
         @keyframes radarPulse {
             0% { width: 20px; height: 20px; opacity: 1; }
-            100% { width: 130px; height: 130px; opacity: 0; }
+            100% { width: 140px; height: 140px; opacity: 0; }
         }
     </style>
 </head>
@@ -117,18 +117,18 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (움직이는 이모티콘/캐릭터 감성 배너) -->
+    <!-- 📱 1단계: 모임 개설 모달 (실사 제거, 움직이는 캐릭터/이모티콘 일러스트 배너) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- ✨ 움직이는 일러스트 패턴 & 캐릭터 카드 배너 -->
-            <div class="relative h-44 animated-emoji-bg flex flex-col justify-between p-4 text-white overflow-hidden">
+            <!-- ✨ 움직이는 일러스트 배경 + 캐릭터 이모티콘 영역 -->
+            <div class="relative h-44 live-moving-banner flex flex-col justify-between p-4 text-white overflow-hidden">
                 
                 <div class="flex justify-between items-start z-10">
                     <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/40">
-                        <i class="fa-solid fa-face-smile text-amber-300"></i> 친구들과 실시간 연결
+                        <i class="fa-solid fa-face-smile text-amber-300"></i> 스마트 실시간 매핑
                     </div>
-                    <span class="text-[12px] animate-bounce">📍</span>
+                    <span class="text-[14px] animate-bounce">📍</span>
                 </div>
 
                 <!-- 🤖 귀여운 움직이는 캐릭터 카드 -->
@@ -136,7 +136,7 @@
                     <div class="radar-ping"></div>
                     <div class="radar-ping" style="animation-delay: 1.2s;"></div>
                     
-                    <div class="char-bounce bg-slate-900/90 text-white px-4 py-2 rounded-2xl shadow-xl border border-emerald-400/50 flex items-center gap-3 backdrop-blur-md">
+                    <div class="char-bounce bg-slate-900/95 text-white px-4 py-2.5 rounded-2xl shadow-xl border border-emerald-400/50 flex items-center gap-3 backdrop-blur-md">
                         <div class="w-8 h-8 bg-gradient-to-tr from-emerald-500 to-teal-400 text-white rounded-full flex items-center justify-center text-sm font-black shadow-lg shadow-emerald-500/40">
                             🏃‍♂️
                         </div>
