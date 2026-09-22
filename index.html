@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v2.1)</title>
+    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v4.0)</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -23,6 +23,11 @@
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
         #map { height: calc(100vh - 340px); width: 100%; z-index: 1; background-color: #0f172a; }
         @media (min-width: 768px) { #map { height: calc(100vh - 280px); } }
+
+        /* 다크 지도 타일 어둡게 필터링 적용 (100% 무료 완전 안정 방식) */
+        .dark-tiles {
+            filter: brightness(0.65) invert(1) contrast(2.8) hue-rotate(200deg) saturate(0.3);
+        }
 
         /* 아이쉐어링 스타일 커스텀 마커 */
         .my-custom-marker {
@@ -62,7 +67,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="room-title-display" class="text-base font-extrabold text-white tracking-tight">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">대기</span>
+                    <span id="room-tag" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">v4.0 최종완성</span>
                 </div>
                 <p id="gps-status-text" class="text-[11px] text-emerald-400 font-medium">🟢 GPS 연결됨</p>
             </div>
@@ -92,7 +97,7 @@
         <div class="bg-slate-900 border border-slate-800/80 rounded-3xl max-w-sm w-full shadow-2xl shadow-emerald-900/10 my-auto overflow-hidden">
             <div class="bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 p-6 text-white relative">
                 <div class="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-white/10 text-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
-                    <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티
+                    <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티 (v4.0)
                 </div>
                 <h2 class="text-2xl font-black tracking-tight text-white">여기서 만나</h2>
                 <p class="text-xs text-emerald-100/90 mt-1 font-medium">모임명과 약속 장소를 설정하고 실시간 위치를 공유하세요.</p>
@@ -107,13 +112,13 @@
                     <input type="text" id="init-roomtitle" placeholder="예: 금요일 저녁 모임 ⚡" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
                 </div>
 
-                <!-- 2. 약속장소 (다중 지점 드롭다운) -->
+                <!-- 2. 약속장소 (개선된 지점 검색 기능) -->
                 <div class="relative">
                     <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1">
-                        <i class="fa-solid fa-location-dot text-rose-400"></i> 2. 약속장소 (상호명/주소)
+                        <i class="fa-solid fa-location-dot text-rose-400"></i> 2. 약속장소 (지역명+상호명 권장)
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 스타벅스, 강남역, 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') searchPlaces()">
+                        <input type="text" id="init-target-input" placeholder="예: 강남 스타벅스, 오산 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') searchPlaces()">
                         <button onclick="searchPlaces()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
 
@@ -276,68 +281,62 @@
             }
         };
 
-        // 💡 카카오 및 오픈 데이터 교차 수집 다중 지점 검색 함수
+        // 💡 단일 상호 검색 시 전국 주요 지점 다중 자동 수집 알고리즘
         async function searchPlaces() {
-            const query = document.getElementById('init-target-input').value.trim();
-            if (!query) return alert("검색할 약속장소를 입력하세요.");
+            const rawQuery = document.getElementById('init-target-input').value.trim();
+            if (!rawQuery) return alert("검색할 약속장소를 입력하세요.");
 
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">전국 지점 검색 중...</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">전국 지점 다중 검색 중...</div>';
             dropdown.classList.remove('hidden');
 
-            try {
-                // Kakao Open API
-                const kakaoRes = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}&size=10`, {
-                    headers: { Authorization: "KakaoAK 23a9d94185bc0aa8c33a4d334546682b" }
-                });
+            let queries = [rawQuery];
+            // '스타벅스'처럼 단일 브랜드 키워드 입력 시 주요 도시 자동 조합
+            if (["스타벅스", "투썸플레이스", "메가커피", "이디야"].includes(rawQuery)) {
+                queries = [
+                    `${rawQuery} 강남`, `${rawQuery} 명동`, `${rawQuery} 홍대`,
+                    `${rawQuery} 수원`, `${rawQuery} 동탄`, `${rawQuery} 부산`
+                ];
+            }
 
-                if (kakaoRes.ok) {
-                    const kData = await kakaoRes.json();
-                    if (kData.documents && kData.documents.length > 0) {
-                        dropdown.innerHTML = '';
-                        kData.documents.forEach(item => {
-                            const nameStr = item.place_name;
-                            const addrStr = item.road_address_name || item.address_name;
+            try {
+                let allResults = [];
+                const promises = queries.map(q => 
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=kr&accept-language=ko&limit=5`)
+                    .then(res => res.json()).catch(() => [])
+                );
+
+                const resultsArray = await Promise.all(promises);
+                resultsArray.forEach(arr => { if(Array.isArray(arr)) allResults = allResults.concat(arr); });
+
+                if (allResults.length > 0) {
+                    dropdown.innerHTML = '';
+                    const seenKeys = new Set();
+
+                    allResults.forEach(item => {
+                        const rawParts = item.display_name.split(',');
+                        const nameStr = rawParts[0].trim();
+                        const addrParts = rawParts.slice(1).map(p => p.trim()).filter(p => !/[a-zA-Z]/.test(p)).reverse().join(' ');
+                        
+                        const uniqueKey = `${nameStr}_${addrParts.slice(0, 10)}`;
+                        if (!seenKeys.has(uniqueKey)) {
+                            seenKeys.add(uniqueKey);
+
                             const div = document.createElement('div');
                             div.className = "p-2.5 hover:bg-slate-800 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-800/40 last:border-0";
-                            div.onclick = () => selectDropdownPlace({ name: nameStr, address: addrStr, lat: item.y, lng: item.x });
+                            div.onclick = () => selectDropdownPlace({ name: nameStr, address: addrParts || nameStr, lat: item.lat, lng: item.lon });
                             div.innerHTML = `
                                 <div class="pr-2 min-w-0">
                                     <div class="text-xs font-bold text-white truncate">${nameStr}</div>
-                                    <div class="text-[10px] text-slate-400 mt-0.5 truncate">${addrStr}</div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5 truncate">${addrParts || nameStr}</div>
                                 </div>
                                 <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-500/30">선택</span>
                             `;
                             dropdown.appendChild(div);
-                        });
-                        return;
-                    }
-                }
-            } catch(e) {}
-
-            // OpenStreetMap 백업 다중 검색
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=kr&accept-language=ko&limit=10`);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    dropdown.innerHTML = '';
-                    data.forEach(item => {
-                        const rawParts = item.display_name.split(',');
-                        const nameStr = rawParts[0].trim();
-                        const addrParts = rawParts.slice(1).map(p => p.trim()).filter(p => !/[a-zA-Z]/.test(p)).reverse().join(' ');
-                        const div = document.createElement('div');
-                        div.className = "p-2.5 hover:bg-slate-800 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-800/40 last:border-0";
-                        div.onclick = () => selectDropdownPlace({ name: nameStr, address: addrParts || nameStr, lat: item.lat, lng: item.lon });
-                        div.innerHTML = `
-                            <div class="pr-2 min-w-0">
-                                <div class="text-xs font-bold text-white truncate">${nameStr}</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5 truncate">${addrParts || nameStr}</div>
-                            </div>
-                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-500/30">선택</span>
-                        `;
-                        dropdown.appendChild(div);
+                        }
                     });
-                    return;
+
+                    if (dropdown.children.length > 0) return;
                 }
             } catch(e) {}
 
@@ -348,7 +347,7 @@
             tempTargetPos = { lat: parseFloat(item.lat), lng: parseFloat(item.lng), name: item.name };
             document.getElementById('init-target-input').value = item.name;
             document.getElementById('search-dropdown').classList.add('hidden');
-            alert(`'${item.name}' 지점이 성공적으로 선택되었습니다!`);
+            alert(`'${item.name}' 지점이 지정되었습니다!`);
         }
 
         function savePaymentOnly() {
@@ -462,18 +461,18 @@
             initApp();
         }
 
-        // 🌟 아이쉐어링 다크 지도가 반드시 로드되는 지도 초기화 로직
+        // 🌟 깔끔한 다크 스타일 지도
         function initApp() {
-            document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `v4.0 방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // CartoDB Dark Matter 다크 타일
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            // API Key가 전혀 필요 없는 무료 다크 필터 스타일
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                subdomains: 'abcd',
-                attribution: '&copy; CartoDB & OpenStreetMap'
+                className: 'dark-tiles',
+                attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
             db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
