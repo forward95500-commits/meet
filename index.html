@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 즐거운 실시간 약속 플랫폼 (v9.0)</title>
+    <title>여기서 만나 - 화사하고 즐거운 실시간 약속 플랫폼 (v10.0)</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -24,7 +24,7 @@
         #map { height: calc(100vh - 340px); width: 100%; z-index: 1; background-color: #f8fafc !important; }
         @media (min-width: 768px) { #map { height: calc(100vh - 280px); } }
 
-        /* 선명하고 밝은 프리미엄 마커 스타일 */
+        /* 선명하고 화사한 마커 스타일 */
         .my-custom-marker {
             width: 32px; height: 32px; background-color: #10B981; border: 3px solid #ffffff;
             border-radius: 50%; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); text-align: center;
@@ -49,10 +49,10 @@
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
+<body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
-    <!-- 상단 헤더 (밝은 화이트 디자인) -->
-    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between z-30 shadow-sm">
+    <!-- 상단 헤더 (밝은 백색) -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between z-30 shadow-sm">
         <div class="flex items-center gap-3">
             <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-9 h-9 rounded-xl flex items-center justify-center font-black text-base shadow-md shadow-emerald-500/20">
                 <i class="fa-solid fa-location-arrow"></i>
@@ -60,7 +60,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="room-title-display" class="text-base font-extrabold text-slate-900 tracking-tight">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">v9.0 밝은테마</span>
+                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">v10.0 화사한테마</span>
                 </div>
                 <p id="gps-status-text" class="text-[11px] text-emerald-600 font-medium">🟢 GPS 연결됨</p>
             </div>
@@ -85,30 +85,30 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (따뜻한 감성 사진 & 밝은 배경) -->
-    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white border border-slate-100 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
+    <!-- 📱 1단계: 모임 개설 모달 (화사하고 따뜻한 파티/카페 감성 사진) -->
+    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- 🌟 친근하고 따뜻한 카페/모임 감성 배경 이미지 -->
-            <div class="relative h-40 bg-cover bg-center flex flex-col justify-end p-5 text-white overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=800&q=80');">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent"></div>
+            <!-- 🌟 밝고 화사한 카페 & 모임 감성 배경 사진 -->
+            <div class="relative h-44 bg-cover bg-center flex flex-col justify-end p-5 text-white overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80');">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent"></div>
                 
                 <div class="relative z-10">
-                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-sm">
-                        <i class="fa-solid fa-heart text-amber-300"></i> 우리들의 즐거운 모임
+                    <div class="inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-md">
+                        <i class="fa-solid fa-sparkles text-amber-300"></i> 신나는 약속 & 모임
                     </div>
-                    <h2 class="text-2xl font-black tracking-tight text-white drop-shadow">여기서 만나</h2>
-                    <p class="text-[11px] text-slate-100 mt-0.5 font-medium drop-shadow">위치 공유부터 맛집 약속, 1/N 정산까지 스마트하게!</p>
+                    <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
+                    <p class="text-[11px] text-slate-100 mt-0.5 font-medium drop-shadow">실시간 위치 공유, 약속 장소, 1/N 회비 정산까지 한번에!</p>
                 </div>
             </div>
 
-            <div class="p-5 space-y-3">
+            <div class="p-5 space-y-3 bg-white">
                 <!-- 1. 모임 이름 -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-users text-emerald-500"></i> 1. 모임 이름
                     </label>
-                    <input type="text" id="init-roomtitle" placeholder="예: 주말 맛집 탐방 ☕" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                    <input type="text" id="init-roomtitle" placeholder="예: 즐거운 주말 모임 ☕" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 focus:bg-white transition">
                 </div>
 
                 <!-- 2. 약속장소 -->
@@ -168,7 +168,7 @@
     </div>
 
     <!-- 💰 1/N 정산 계산 모달 -->
-    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 class="text-xs font-bold text-amber-600 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
@@ -193,7 +193,7 @@
         <div id="member-items-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
     </div>
 
-    <!-- 2단계: 메인 지도 + 하단 회비 장부 영역 (밝은 테마) -->
+    <!-- 2단계: 메인 지도 + 하단 회비 장부 영역 (밝은 라이트 테마) -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         <div id="map"></div>
 
@@ -458,9 +458,9 @@
             initApp();
         }
 
-        // 🌟 지도 세팅 (밝은 기본 지도)
+        // 🌟 지도 세팅 (밝은 기본 백지도)
         function initApp() {
-            document.getElementById('room-tag').innerText = `v9.0 방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `v10.0 방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
