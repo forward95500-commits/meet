@@ -48,20 +48,12 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌐 스마트 지도 그리드 패턴 & 네온 글로우 헤더 */
-        .grid-map-bg {
-            background-color: #0f172a;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.3) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.3) 0px, transparent 50%),
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 20px 20px, 20px 20px;
-            animation: gridMove 20s linear infinite;
-        }
-        @keyframes gridMove {
-            0% { background-position: 0 0, 0 0, 0 0, 0 0; }
-            100% { background-position: 0 0, 0 0, 20px 20px, 20px 20px; }
+        /* 🗺️ 은은한 은색 지도 이미지 패턴 배경 */
+        .map-pattern-bg {
+            background-color: #1e293b;
+            background-image: url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
         }
 
         .char-bounce {
@@ -117,26 +109,28 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (네온 지도 그리드 애니메이션 헤더) -->
+    <!-- 📱 1단계: 모임 개설 모달 (은은한 지도 이미지 배경 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- 🌐 네온 지도 그리드 & 레이더 파동 애니메이션 -->
-            <div class="relative h-44 grid-map-bg flex flex-col justify-between p-4 text-white overflow-hidden">
+            <!-- 🌟 지도 배경 이미지 층 + 반투명 오버레이 헤더 -->
+            <div class="relative h-44 map-pattern-bg flex flex-col justify-between p-4 text-white overflow-hidden">
+                <!-- 이미지 위 어두운 오버레이 레이어 (이미지감을 은은하게 만듦) -->
+                <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-[1px]"></div>
                 
                 <div class="flex justify-between items-start z-10">
                     <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/30">
-                        <i class="fa-solid fa-satellite text-amber-300 animate-spin" style="animation-duration: 6s;"></i> 실시간 위치 매핑
+                        <i class="fa-solid fa-satellite text-amber-300 animate-spin" style="animation-duration: 6s;"></i> 약속 지점 매핑 중
                     </div>
-                    <span class="text-[10px] text-slate-400 font-mono tracking-wider">LIVE GPS</span>
+                    <span class="text-[10px] text-slate-400 font-mono tracking-wider">MAP VIEW</span>
                 </div>
 
-                <!-- 🤖 레이더 파동 + 캐릭터 카드 -->
+                <!-- 🤖 캐릭터 요소 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
                     <div class="radar-ping"></div>
                     <div class="radar-ping" style="animation-delay: 1.2s;"></div>
                     
-                    <div class="char-bounce bg-slate-900/90 text-white px-3.5 py-2 rounded-2xl shadow-xl border border-emerald-500/40 flex items-center gap-2.5 backdrop-blur-sm">
+                    <div class="char-bounce bg-slate-900/90 text-white px-3.5 py-2 rounded-2xl shadow-xl border border-emerald-500/50 flex items-center gap-2.5 backdrop-blur-md">
                         <div class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-md shadow-emerald-500/50">
                             <i class="fa-solid fa-location-crosshairs"></i>
                         </div>
