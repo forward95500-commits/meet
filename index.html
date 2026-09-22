@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>여기서 만나 - 실시간 약속장소 & 위치 메이트</title>
+    <title>여기서 만나 - 실시간 위치 공유 & 모임 메이트</title>
     <!-- Tailwind CSS & Leaflet -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -15,120 +15,145 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        #map { height: calc(100vh - 130px); width: 100%; z-index: 1; }
+        #map { height: 100vh; width: 100%; z-index: 1; }
         .user-marker {
-            width: 30px; height: 30px; background-color: #10B981; border: 3px solid #fff;
-            border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.3); text-align: center;
-            line-height: 24px; color: white; font-weight: bold; font-size: 11px;
+            width: 28px; height: 28px; background-color: #10B981; border: 3px solid #ffffff;
+            border-radius: 50%; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); text-align: center;
+            line-height: 22px; color: white; font-weight: bold; font-size: 11px;
+            animation: pulse 2s infinite;
         }
         .target-marker {
-            width: 36px; height: 36px; background-color: #EF4444; border: 3px solid #fff;
-            border-radius: 50%; box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); text-align: center;
-            line-height: 30px; color: white; font-size: 16px; animation: bounce 1s infinite alternate;
+            width: 34px; height: 34px; background-color: #EF4444; border: 3px solid #ffffff;
+            border-radius: 50%; box-shadow: 0 0 14px rgba(239, 68, 68, 0.8); text-align: center;
+            line-height: 28px; color: white; font-size: 16px; animation: bounce 1s infinite alternate;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen flex flex-col font-sans overflow-hidden">
+<body class="bg-gray-900 text-slate-100 h-screen w-screen overflow-hidden font-sans">
 
-    <!-- 상단 로고 헤더 -->
-    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm z-30">
-        <div class="flex items-center gap-3">
-            <div class="bg-emerald-500 text-white p-2 rounded-xl flex items-center justify-center w-10 h-10 shadow-md">
-                <i class="fa-solid fa-crosshairs text-xl"></i>
+    <!-- 상단 고정 스마트 대시보드 바 -->
+    <header class="fixed top-0 left-0 right-0 z-30 bg-gray-900/90 backdrop-blur-md border-b border-gray-800 px-4 py-2.5 flex items-center justify-between shadow-lg">
+        <div class="flex items-center space-x-3">
+            <div class="bg-emerald-500 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold shadow">
+                <i class="fa-solid fa-location-crosshairs"></i>
             </div>
             <div>
                 <div class="flex items-center gap-2">
-                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">여기서 만나</h1>
-                    <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Live GPS</span>
+                    <h1 class="text-base font-extrabold text-white tracking-tight">여기서 만나</h1>
+                    <span id="room-tag" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full">방 없음</span>
                 </div>
-                <p class="text-xs text-slate-500">실시간 약속장소 & 위치 메이트</p>
+                <p id="room-subtext" class="text-[11px] text-gray-400">실시간 약속장소 & 위치 메이트</p>
             </div>
         </div>
-        <div id="room-header-info" class="hidden flex items-center gap-2">
-            <span id="room-title-tag" class="bg-slate-100 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-slate-200"></span>
-            <span id="member-count" class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-3 py-1.5 rounded-lg"></span>
-            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-share-nodes"></i> 초대의 링크 복사
+
+        <div class="flex items-center space-x-2">
+            <span id="member-badge" class="hidden sm:flex bg-gray-800 text-gray-300 text-xs px-2.5 py-1.5 rounded-lg border border-gray-700 items-center gap-1 font-semibold">
+                <i class="fa-solid fa-users text-emerald-400"></i> <span id="member-count">1</span>명
+            </span>
+            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-share-nodes"></i> <span class="hidden md:inline">초대링크</span> 복사
+            </button>
+            <button onclick="openDutchPayModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-calculator"></i> 회비 정산
+            </button>
+            <button onclick="openAddressModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-magnifying-glass"></i> 장소 지정
+            </button>
+            <button onclick="explodeRoom()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-bomb"></i> 방 폭파
             </button>
         </div>
     </header>
 
-    <!-- 1단계: 모임방 생성 폼 화면 (첨부해주신 이미지와 동일한 화면) -->
-    <main id="create-room-view" class="flex-1 overflow-y-auto p-4 flex items-center justify-center bg-slate-100">
-        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 max-w-lg w-full overflow-hidden my-auto">
-            <!-- 상단 헤더 카드 -->
-            <div class="bg-slate-900 text-white p-6 relative overflow-hidden">
-                <span class="bg-emerald-500/20 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/30">
-                    📍 초간단 모임방 생성
-                </span>
-                <h2 class="text-2xl font-black mt-3 mb-1">여기서 만나</h2>
-                <p class="text-xs text-slate-300">닉네임과 약속 장소를 정하면 실시간 공유 가능한 방이 생성됩니다.</p>
+    <!-- 1단계: 개설 대시보드 모달 (초기 접속 시 표시) -->
+    <div id="create-modal" class="fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-6 text-white">
+                <span class="bg-black/20 text-emerald-100 text-xs font-bold px-3 py-1 rounded-full">📍 초간단 모임방 생성</span>
+                <h2 class="text-2xl font-black mt-2">여기서 만나</h2>
+                <p class="text-xs text-emerald-100 mt-1">닉네임과 약속 장소를 정하면 실시간 위치 공유방이 생성됩니다.</p>
             </div>
-
-            <!-- 입력 폼 -->
             <div class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">내 닉네임</label>
-                    <input type="text" id="user-name" placeholder="예: 길동이" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 bg-slate-50/50">
+                    <label class="block text-xs font-bold text-gray-300 mb-1">내 닉네임</label>
+                    <input type="text" id="init-username" placeholder="예: 길동이" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">모임 이름</label>
-                    <input type="text" id="room-name" placeholder="예: 번개 모임 ⚡" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 bg-slate-50/50">
+                    <label class="block text-xs font-bold text-gray-300 mb-1">모임 이름</label>
+                    <input type="text" id="init-roomtitle" placeholder="예: 번개 모임 ⚡" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">약속 장소 검색</label>
+                    <label class="block text-xs font-bold text-gray-300 mb-1">약속 장소 (상호명/주소)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="target-search-input" placeholder="예: 동탄역, 강남역, 병점역, 성수동" class="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 bg-slate-50/50">
-                        <button onclick="searchPlace()" class="bg-slate-900 text-white font-bold px-5 py-3 rounded-xl text-sm hover:bg-slate-800 transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-magnifying-glass"></i> 검색
-                        </button>
+                        <input type="text" id="init-target-input" placeholder="예: 동탄역, 강남역, 병점역 스타벅스" class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <button onclick="searchInitTarget()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">검색</button>
                     </div>
+                    <p id="search-result-text" class="text-[11px] text-emerald-400 mt-1 hidden"></p>
                 </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">정원</label>
-                        <select id="max-members" class="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 bg-slate-50/50">
-                            <option value="2">2명</option>
-                            <option value="3" selected>3명</option>
-                            <option value="4">4명</option>
-                            <option value="5">5명</option>
-                            <option value="10">10명</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">약속 날짜 & 시간</label>
-                        <input type="datetime-local" id="meet-time" class="w-full border border-slate-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-emerald-500 bg-slate-50/50">
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-3">
-                    <input type="checkbox" id="gps-agree" checked class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 border-slate-300">
-                    <label for="gps-agree" class="text-xs font-bold text-slate-700 cursor-pointer">입장 시 내 실시간 위치 공유 동의</label>
-                </div>
-
-                <button onclick="createRoom()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg transition text-base flex items-center justify-center gap-2">
+                <button onclick="submitRoomCreation()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg transition text-sm flex items-center justify-center gap-2 mt-2">
                     <i class="fa-solid fa-rocket"></i> 모임방 바로 개설하기
                 </button>
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- 2단계: 실시간 지도 & 위치 공유 화면 -->
-    <div id="room-map-view" class="hidden flex-1 relative">
+    <!-- 2단계: 메인 지도 영역 -->
+    <main class="relative w-full h-full pt-14">
         <div id="map"></div>
 
-        <!-- 하단 실시간 채팅 & 상태창 -->
-        <div class="absolute bottom-3 left-3 right-3 z-10 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-3 shadow-2xl max-w-lg mx-auto flex flex-col gap-2">
-            <div id="chat-box" class="h-20 overflow-y-auto text-xs text-slate-700 flex flex-col gap-1 pr-1 font-medium">
-                <div class="text-emerald-600 font-bold">👋 약속 장소가 지정된 실시간 방이 개설되었습니다. 초대 링크로 메이트들을 불러보세요!</div>
+        <!-- 하단 오버레이 실시간 채팅창 -->
+        <div class="absolute bottom-4 left-4 right-4 md:left-6 md:w-96 z-20 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-3 shadow-2xl flex flex-col gap-2">
+            <div id="chat-box" class="h-24 overflow-y-auto text-xs text-gray-300 flex flex-col gap-1 pr-1 font-sans">
+                <div class="text-emerald-400 font-semibold">👋 실시간 모임방에 오신 것을 환영합니다! 초대 링크를 공유해 보세요.</div>
             </div>
             <div class="flex gap-2">
-                <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') sendChat()">
-                <button onclick="sendChat()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold">전송</button>
+                <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') sendChat()">
+                <button onclick="sendChat()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold">전송</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 회비 정산 모달 -->
+    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-5 max-w-sm w-full shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-calculator text-amber-400"></i> 회비 1/N 정산기</h3>
+                <button onclick="closeDutchModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">총 지출 금액 (원)</label>
+                    <input type="number" id="total-amount" placeholder="예: 60000" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">정산 인원 (명)</label>
+                    <input type="number" id="dutch-count" value="3" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <button onclick="calculateDutch()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl text-xs transition">정산 금액 계산</button>
+                <div id="dutch-result" class="hidden bg-gray-900 border border-amber-500/30 p-3 rounded-xl text-center">
+                    <p class="text-xs text-gray-400">1인당 보내야 할 금액</p>
+                    <p id="dutch-price" class="text-lg font-black text-amber-400 mt-0.5">0원</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 약속장소 재검색 모달 -->
+    <div id="address-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-5 max-w-sm w-full shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-map-pin text-emerald-400"></i> 약속 장소 변경</h3>
+                <button onclick="closeAddressModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex gap-2 mb-2">
+                <input type="text" id="address-input" placeholder="상호명/주소 검색..." class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="changeTargetLocation()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold">변경</button>
             </div>
         </div>
     </div>
@@ -141,95 +166,73 @@
         let map, myMarker, targetMarker;
         let userMarkers = {};
         let myPos = { lat: 37.5665, lng: 126.9780 };
-        let selectedTargetPos = null;
+        let tempTargetPos = null;
         let currentRoomId = null;
-        let myNickName = "익명";
+        let myNickName = "참여자";
 
-        // 오늘 날짜 기본 세팅
-        document.getElementById('meet-time').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-
-        // URL 파라미터 체크 (초대 링크로 진입한 경우 바로 지도 화면으로 전환)
         const urlParams = new URLSearchParams(window.location.search);
         const roomIdParam = urlParams.get('room');
 
-        if (roomIdParam) {
-            currentRoomId = roomIdParam;
-            const enteredName = prompt("모임방 참여 닉네임을 입력해주세요:", "길동이") || "참여자";
-            myNickName = enteredName;
-            startRoomSession();
+        window.onload = () => {
+            if (roomIdParam) {
+                currentRoomId = roomIdParam;
+                document.getElementById('create-modal').classList.add('hidden');
+                myNickName = prompt("모임방 닉네임을 입력해주세요:", "길동이") || "참여자";
+                initApp();
+            }
+        };
+
+        async function searchInitTarget() {
+            const query = document.getElementById('init-target-input').value.trim();
+            if (!query) return alert("검색할 약속장소를 입력하세요.");
+            const pos = await fetchLocation(query);
+            if (pos) {
+                tempTargetPos = pos;
+                const el = document.getElementById('search-result-text');
+                el.innerText = `✓ '${pos.name}' 위치 지정 완료`;
+                el.classList.remove('hidden');
+            } else {
+                alert("해당 장소를 찾을 수 없습니다.");
+            }
         }
 
-        async function searchPlace() {
-            const query = document.getElementById('target-search-input').value.trim();
-            if (!query) return alert("검색할 약속 장소를 입력하세요.");
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                if (data.length > 0) {
-                    selectedTargetPos = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-                    alert(`'${data[0].display_name.split(',')[0]}' 위치로 지정되었습니다.`);
-                } else {
-                    alert("장소를 찾을 수 없습니다.");
-                }
-            } catch(e) { alert("검색 중 오류가 발생했습니다."); }
-        }
-
-        function createRoom() {
-            myNickName = document.getElementById('user-name').value.trim() || "모임장";
-            const roomName = document.getElementById('room-name').value.trim() || "즐거운 모임";
-            const maxMemb = document.getElementById('max-members').value;
-            const meetTime = document.getElementById('meet-time').value;
+        function submitRoomCreation() {
+            myNickName = document.getElementById('init-username').value.trim() || "모임장";
+            const title = document.getElementById('init-roomtitle').value.trim() || "번개 모임";
 
             currentRoomId = Math.random().toString(36).substring(2, 8);
             window.history.replaceState({}, '', `?room=${currentRoomId}`);
 
-            // Firebase 방 데이터 저장
-            db.ref(`rooms/${currentRoomId}/info`).set({
-                title: roomName,
-                max: maxMemb,
-                time: meetTime
-            });
-
-            if (selectedTargetPos) {
-                db.ref(`rooms/${currentRoomId}/target`).set(selectedTargetPos);
+            db.ref(`rooms/${currentRoomId}/info`).set({ title, owner: myNickName });
+            if (tempTargetPos) {
+                db.ref(`rooms/${currentRoomId}/target`).set(tempTargetPos);
             }
 
-            startRoomSession();
+            document.getElementById('create-modal').classList.add('hidden');
+            initApp();
         }
 
-        function startRoomSession() {
-            document.getElementById('create-room-view').classList.add('hidden');
-            document.getElementById('room-map-view').classList.remove('hidden');
-            document.getElementById('room-header-info').classList.remove('hidden');
+        function initApp() {
+            document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
 
-            // 방 정보 받아오기
-            db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
-                const info = snapshot.val() || {};
-                document.getElementById('room-title-tag').innerText = info.title || "모임방";
-            });
-
-            initMap();
-        }
-
-        function initMap() {
             map = L.map('map', { zoomControl: false }).setView([myPos.lat, myPos.lng], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-            // 실시간 내 GPS 트래킹
+            // 실시간 내 GPS 자동 추적
             if ("geolocation" in navigator) {
                 navigator.geolocation.watchPosition((pos) => {
                     myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    updateMyLocation();
+                    syncMyLocation();
                 }, null, { enableHighAccuracy: true });
             }
 
-            // 접속 모임원 실시간 동기화
+            // 모임원 실시간 마커 연동
             db.ref(`rooms/${currentRoomId}/users`).on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 const uKeys = Object.keys(users);
-                document.getElementById('member-count').innerText = `접속: ${uKeys.length}명`;
+                document.getElementById('member-count').innerText = uKeys.length;
 
                 uKeys.forEach(uid => {
                     const uData = users[uid];
@@ -244,7 +247,7 @@
                 });
             });
 
-            // 약속 장소 핀 동기화
+            // 약속 장소 핀 연동
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
                 if (target) {
@@ -255,18 +258,18 @@
                 }
             });
 
-            // 채팅 수신
+            // 실시간 채팅 동기화
             db.ref(`rooms/${currentRoomId}/chats`).limitToLast(10).on('child_added', (snapshot) => {
                 const chat = snapshot.val();
                 const chatBox = document.getElementById('chat-box');
                 const msg = document.createElement('div');
-                msg.innerHTML = `<span class="font-bold text-slate-900">${chat.sender}:</span> ${chat.text}`;
+                msg.innerHTML = `<span class="font-bold text-emerald-400">${chat.sender}:</span> ${chat.text}`;
                 chatBox.appendChild(msg);
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
         }
 
-        function updateMyLocation() {
+        function syncMyLocation() {
             const myUid = 'user_' + myNickName;
             if (!myMarker) {
                 const icon = L.divIcon({ className: 'user-marker', html: myNickName[0] });
@@ -275,23 +278,63 @@
                 myMarker.setLatLng([myPos.lat, myPos.lng]);
             }
             db.ref(`rooms/${currentRoomId}/users/${myUid}`).set({
-                name: myNickName,
-                lat: myPos.lat,
-                lng: myPos.lng
+                name: myNickName, lat: myPos.lat, lng: myPos.lng
             });
+        }
+
+        async function fetchLocation(query) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if (data.length > 0) {
+                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), name: data[0].display_name.split(',')[0] };
+                }
+            } catch(e) {}
+            return null;
         }
 
         function sendChat() {
             const input = document.getElementById('chat-input');
             const text = input.value.trim();
-            if (!text) return;
+            if (!text || !currentRoomId) return;
             db.ref(`rooms/${currentRoomId}/chats`).push({ sender: myNickName, text });
             input.value = '';
         }
 
         function copyShareLink() {
             navigator.clipboard.writeText(window.location.href);
-            alert("모임방 초대 링크가 복사되었습니다! 카카오톡에 전송해 보세요.");
+            alert("초대 링크가 복사되었습니다! 카카오톡방에 공유하세요.");
+        }
+
+        function explodeRoom() {
+            if (confirm("정말로 방을 폭파하시겠습니까? 방 안의 모든 실시간 데이터가 삭제됩니다.")) {
+                if (currentRoomId) db.ref(`rooms/${currentRoomId}`).remove();
+                alert("방이 정상 폭파되었습니다.");
+                window.location.href = window.location.pathname;
+            }
+        }
+
+        function openDutchPayModal() { document.getElementById('dutch-modal').classList.remove('hidden'); }
+        function closeDutchModal() { document.getElementById('dutch-modal').classList.add('hidden'); }
+        function calculateDutch() {
+            const total = parseInt(document.getElementById('total-amount').value);
+            const count = parseInt(document.getElementById('dutch-count').value);
+            if (!total || !count) return alert("금액과 인원수를 정확히 입력해주세요.");
+            const price = Math.ceil((total / count) / 100) * 100;
+            document.getElementById('dutch-price').innerText = `${price.toLocaleString()} 원`;
+            document.getElementById('dutch-result').classList.remove('hidden');
+        }
+
+        function openAddressModal() { document.getElementById('address-modal').classList.remove('hidden'); }
+        function closeAddressModal() { document.getElementById('address-modal').classList.add('hidden'); }
+        async function changeTargetLocation() {
+            const q = document.getElementById('address-input').value.trim();
+            if (!q) return;
+            const pos = await fetchLocation(q);
+            if (pos) {
+                db.ref(`rooms/${currentRoomId}/target`).set(pos);
+                closeAddressModal();
+            } else alert("장소를 찾을 수 없습니다.");
         }
     </script>
 </body>
