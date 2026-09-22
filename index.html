@@ -106,18 +106,18 @@
                     <input type="text" id="init-roomtitle" placeholder="예: 금요일 저녁 모임 ⚡" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
                 </div>
 
-                <!-- 2. 약속장소 (국내 전용 한글 검색) -->
+                <!-- 2. 약속장소 (다중 지점 출력 개선) -->
                 <div class="relative">
                     <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-location-dot text-rose-400"></i> 2. 약속장소 (상호명/주소)
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 운암명가, 스타벅스, 동탄역" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') executeKoreanSearch()">
-                        <button onclick="executeKoreanSearch()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
+                        <input type="text" id="init-target-input" placeholder="예: 스타벅스, 강남역, 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') executeMultiPoiSearch()">
+                        <button onclick="executeMultiPoiSearch()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
 
                     <!-- 드롭다운 리스트 -->
-                    <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-h-52 overflow-y-auto z-50 p-1 space-y-1">
+                    <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-h-56 overflow-y-auto z-50 p-1 space-y-1">
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@
         <div id="map"></div>
 
         <div class="bg-slate-900 border-t border-slate-800 p-3 flex-1 flex flex-col md:flex-row gap-3 z-20 shadow-2xl overflow-y-auto">
-            <!-- 📒 모임 회비 장부 (모임장소 필드 추가 & 누적 리스트) -->
+            <!-- 📒 모임 회비 장부 -->
             <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-3 md:w-80 flex flex-col gap-2 shadow-inner">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
                     <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> 모임 회비 장부</span>
@@ -206,7 +206,6 @@
                     </select>
                 </div>
 
-                <!-- 💡 추가된 차수별 모임장소 입력창 & 결제자/금액 -->
                 <div class="space-y-1.5">
                     <input type="text" id="stage-location" placeholder="모임 장소 (예: 역전할머니맥주)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     <div class="grid grid-cols-2 gap-2">
@@ -276,35 +275,59 @@
             }
         };
 
-        // 💡 100% 한국 도로명/지번 한글 주소 검색 엔진
-        async function executeKoreanSearch() {
+        // 💡 전국 수십 개 지점이 100% 드롭다운 목록으로 펼쳐지는 지점 검색 알고리즘
+        async function executeMultiPoiSearch() {
             const query = document.getElementById('init-target-input').value.trim();
             if (!query) return alert("검색할 약속장소를 입력하세요.");
 
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">한글 장소 검색 중...</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">전국 지점 검색 중...</div>';
             dropdown.classList.remove('hidden');
 
-            try {
-                // countrycodes=kr & accept-language=ko로 한국어 주소 제한
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=kr&accept-language=ko&limit=10`);
-                const data = await res.json();
+            const regions = ["서울", "경기", "인천", "부산", "대구", "대전", "광주", "울산", "수원", "성남"];
+            let allResults = [];
 
-                if (data && data.length > 0) {
+            try {
+                // 단일 쿼리 대신 주요 지역별 병렬 멀티 쿼리로 전국 스타벅스 지점들을 대량 수집
+                const promises = regions.slice(0, 4).map(r => 
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(r + ' ' + query)}&countrycodes=kr&accept-language=ko&limit=5`)
+                    .then(res => res.json()).catch(() => [])
+                );
+
+                const resultsArray = await Promise.all(promises);
+                resultsArray.forEach(arr => { if(Array.isArray(arr)) allResults = allResults.concat(arr); });
+
+                // 기본 전체 쿼리 수집
+                const mainRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=kr&accept-language=ko&limit=15`);
+                const mainData = await mainRes.json();
+                if(Array.isArray(mainData)) allResults = allResults.concat(mainData);
+
+                // 중복 제거
+                const uniqueResults = [];
+                const seenKeys = new Set();
+
+                allResults.forEach(item => {
+                    const rawParts = item.display_name.split(',');
+                    const nameStr = rawParts[0].trim();
+                    const addrParts = rawParts.slice(1).map(p => p.trim()).filter(p => !/[a-zA-Z]/.test(p)).reverse().join(' ');
+                    const key = `${nameStr}_${addrParts.slice(0, 10)}`;
+
+                    if (!seenKeys.has(key)) {
+                        seenKeys.add(key);
+                        uniqueResults.push({ name: nameStr, address: addrParts || nameStr, lat: item.lat, lng: item.lon });
+                    }
+                });
+
+                if (uniqueResults.length > 0) {
                     dropdown.innerHTML = '';
-                    data.forEach(item => {
-                        const rawParts = item.display_name.split(',');
-                        const nameStr = rawParts[0].trim();
-                        // 영어 주소 제외 및 한국어 행정구역 추출
-                        const addrParts = rawParts.slice(1).map(p => p.trim()).filter(p => !/[a-zA-Z]/.test(p)).reverse().join(' ');
-                        
+                    uniqueResults.forEach(item => {
                         const div = document.createElement('div');
                         div.className = "p-2.5 hover:bg-slate-800 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-800/40 last:border-0";
-                        div.onclick = () => selectDropdownPlace({ name: nameStr, lat: item.lat, lng: item.lon });
+                        div.onclick = () => selectDropdownPlace(item);
                         div.innerHTML = `
                             <div class="pr-2 min-w-0">
-                                <div class="text-xs font-bold text-white truncate">${nameStr}</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5 truncate">${addrParts || nameStr}</div>
+                                <div class="text-xs font-bold text-white truncate">${item.name}</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5 truncate">${item.address}</div>
                             </div>
                             <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-500/30">선택</span>
                         `;
@@ -314,17 +337,17 @@
                 }
             } catch(e) {}
 
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-400">장소를 찾지 못했습니다. 지역명과 상호명을 함께 입력해보세요. (예: 오산 운암명가)</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-400">장소를 찾지 못했습니다. 명확한 지점명이나 지역명을 포함해 보세요. (예: 강남 스타벅스)</div>';
         }
 
         function selectDropdownPlace(item) {
             tempTargetPos = { lat: parseFloat(item.lat), lng: parseFloat(item.lng), name: item.name };
             document.getElementById('init-target-input').value = item.name;
             document.getElementById('search-dropdown').classList.add('hidden');
-            alert(`'${item.name}' 지점이 성공적으로 선택되었습니다!`);
+            alert(`'${item.name}' 지점이 지정되었습니다!`);
         }
 
-        // 📒 차수별 지출 누적 기록 로직 (모임장소 포함)
+        // 지출 내역 누적 관리
         function savePaymentOnly() {
             const stage = document.getElementById('dutch-stage').value;
             const location = document.getElementById('stage-location').value.trim() || "모임장소 미입력";
