@@ -3,196 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>여기서 만나 - 실시간 위치 공유 모임방</title>
-    <!-- Tailwind CSS CDN -->
+    <title>여기서 만나 - 실시간 위치 공유 & 모임방</title>
+    <!-- Tailwind CSS & Leaflet -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase Realtime SDK (실시간 데이터 동기화) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
-        #map { height: calc(100vh - 70px); width: 100%; z-index: 1; }
-        .custom-pulse-marker {
-            width: 24px;
-            height: 24px;
-            background-color: #10B981;
-            border: 3px solid #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 0 rgba(16, 185, 129, 0.6);
-            animation: pulse 1.8s infinite;
+        #map { height: calc(100vh - 120px); width: 100%; z-index: 1; }
+        .user-marker {
+            width: 28px; height: 28px; background-color: #10B981; border: 3px solid #fff;
+            border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.5); text-align: center;
+            line-height: 22px; color: white; font-weight: bold; font-size: 11px;
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        .target-marker {
+            width: 32px; height: 32px; background-color: #EF4444; border: 3px solid #fff;
+            border-radius: 50%; box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); text-align: center;
+            line-height: 26px; color: white; font-size: 14px; animation: bounce 1s infinite alternate;
         }
+        @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
     </style>
 </head>
 <body class="bg-gray-900 text-white flex flex-col h-screen overflow-hidden">
 
-    <!-- 상단 대시보드 바 -->
-    <header class="bg-gray-800 border-b border-gray-700 px-4 py-2.5 flex items-center justify-between z-20 shadow-md">
+    <!-- 상단 헤더 & 컨트롤 바 -->
+    <header class="bg-gray-800 border-b border-gray-700 px-4 py-2.5 flex flex-wrap items-center justify-between z-20 shadow-md gap-2">
         <div class="flex items-center space-x-3">
-            <h1 class="text-xl font-bold text-emerald-400 flex items-center gap-1.5">
+            <h1 class="text-lg font-bold text-emerald-400 flex items-center gap-1.5">
                 <i class="fa-solid fa-location-dot"></i> 여기서 만나
             </h1>
-            <span id="gps-status" class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-medium border border-amber-500/30 flex items-center gap-1">
-                <i class="fa-solid fa-spinner fa-spin"></i> GPS 수신 대기 중...
+            <span id="room-tag" class="text-xs px-2.5 py-1 rounded-full bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-mono">
+                방 생성 중...
+            </span>
+            <span id="member-count" class="text-xs px-2 py-1 rounded-full bg-gray-700 text-gray-300">
+                <i class="fa-solid fa-users"></i> 접속: 1명
             </span>
         </div>
 
         <div class="flex items-center space-x-2">
-            <button onclick="openAddressSearchModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1 shadow">
-                <i class="fa-solid fa-magnifying-glass"></i> 주소/건물 입력
+            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1 shadow">
+                <i class="fa-solid fa-share-nodes"></i> 초대의 링크 복사
             </button>
-            <button onclick="requestFreshGPS()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">
-                <i class="fa-solid fa-crosshairs"></i> GPS 새로고침
-            </button>
-            <button onclick="openRoomExplodeModal()" class="bg-rose-600/80 hover:bg-rose-600 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1 shadow">
-                <i class="fa-solid fa-bomb"></i> 방 폭파
+            <button onclick="openAddressModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1 shadow">
+                <i class="fa-solid fa-magnifying-glass"></i> 약속장소 지정
             </button>
         </div>
     </header>
 
-    <!-- 메인 지도 인터페이스 -->
+    <!-- 지도 및 실시간 레이어 -->
     <div class="relative flex-1">
         <div id="map"></div>
 
-        <!-- 하단 안내 문구 -->
-        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 bg-gray-900/90 backdrop-blur-md px-4 py-2 rounded-full border border-gray-700 text-xs text-gray-300 shadow-xl flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            지도를 직접 클릭하거나 초록 핀을 드래그하여 위치를 자유롭게 조정할 수 있습니다.
+        <!-- 하단 실시간 채팅 및 상태창 -->
+        <div class="absolute bottom-2 left-2 right-2 z-10 bg-gray-900/90 backdrop-blur-md border border-gray-700 rounded-xl p-2.5 shadow-2xl max-w-lg mx-auto flex flex-col gap-2">
+            <div id="chat-box" class="h-16 overflow-y-auto text-xs text-gray-300 flex flex-col gap-1 pr-1">
+                <div class="text-emerald-400 font-semibold">👋 실시간 모임방에 오신 것을 환영합니다! 링크를 공유하여 참여자를 초대하세요.</div>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') sendChat()">
+                <button onclick="sendChat()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">전송</button>
+            </div>
         </div>
     </div>
 
-    <!-- 주소 수동 검색 모달 -->
+    <!-- 주소 검색 모달 -->
     <div id="address-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-2xl p-5 w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-map-pin text-emerald-400"></i> 내 위치 주소/건물 입력
+                    <i class="fa-solid fa-flag text-rose-500"></i> 만날 약속 장소 검색
                 </h3>
                 <button onclick="closeAddressModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="flex gap-2 mb-3">
-                <input type="text" id="address-input" placeholder="예: 강남역, 동탄역, 올림픽공원..." class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="searchAndSetLocation()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">검색</button>
+                <input type="text" id="address-input" placeholder="예: 동탄역, 강남역 CGV..." class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="searchDestination()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">지정</button>
             </div>
-            <p class="text-xs text-gray-400">검색 결과 선택 시 내 위치 마커가 해당 장소로 즉시 이동합니다.</p>
         </div>
     </div>
 
     <script>
-        let map;
-        let myMarker;
-        let currentPos = { lat: 37.5665, lng: 126.9780 };
+        // 💡 무료 데모 공용 Firebase 데이터베이스 설정 (별도 회원가입 없이 즉시 실시간 동기화)
+        const firebaseConfig = {
+            databaseURL: "https://meet-here-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
 
-        function initMap() {
-            map = L.map('map', { zoomControl: false }).setView([currentPos.lat, currentPos.lng], 15);
+        // 모임방 고유 ID 추출 또는 생성
+        const urlParams = new URLSearchParams(window.location.search);
+        let roomId = urlParams.get('room');
+        if (!roomId) {
+            roomId = Math.random().toString(36).substring(2, 8);
+            window.history.replaceState({}, '', `?room=${roomId}`);
+        }
+        document.getElementById('room-tag').innerText = `방 번호: ${roomId}`;
+
+        const myUserId = 'user_' + Math.random().toString(36).substring(2, 6);
+        let map, myMarker, targetMarker;
+        let userMarkers = {};
+        let myPos = { lat: 37.5665, lng: 126.9780 };
+
+        function initApp() {
+            map = L.map('map', { zoomControl: false }).setView([myPos.lat, myPos.lng], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // 💡 무제한 안정적인 OpenStreetMap 백업 고속 서버 적용 (Map data not available 오류 완벽 해결)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }).addTo(map);
+            // OpenStreetMap 안정 버전 지도 타일
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-            const myIcon = L.divIcon({
-                className: 'custom-pulse-marker',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12]
-            });
-
-            myMarker = L.marker([currentPos.lat, currentPos.lng], {
-                icon: myIcon,
-                draggable: true,
-                zIndexOffset: 1000
-            }).addTo(map);
-
-            myMarker.on('dragend', function (e) {
-                const coord = e.target.getLatLng();
-                currentPos = { lat: coord.lat, lng: coord.lng };
-                updateGPSStatus("🟢 수동 위치 지정 완료", "bg-emerald-500/20", "text-emerald-300", "border-emerald-500/30");
-            });
-
-            map.on('click', function(e) {
-                currentPos = { lat: e.latlng.lat, lng: e.latlng.lng };
-                myMarker.setLatLng(e.latlng);
-                updateGPSStatus("🟢 지도 클릭 위치 설정", "bg-emerald-500/20", "text-emerald-300", "border-emerald-500/30");
-            });
-
-            requestFreshGPS();
-        }
-
-        function requestFreshGPS() {
-            updateGPSStatus("⏳ 위치 신호 수신 중...", "bg-amber-500/20", "text-amber-300", "border-amber-500/30");
-
+            // 내 실시간 위치 수신 및 Firebase 동기화
             if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        currentPos = { lat: latitude, lng: longitude };
-                        
-                        map.setView([latitude, longitude], 16);
-                        myMarker.setLatLng([latitude, longitude]);
-                        
-                        updateGPSStatus("🟢 실시간 위성 GPS 연결됨", "bg-emerald-500/20", "text-emerald-300", "border-emerald-500/30");
-                    },
-                    (error) => {
-                        console.warn("GPS 권한 대기 중:", error.message);
-                        updateGPSStatus("🟡 주소/지도 클릭으로 위치 지정 가능", "bg-sky-500/20", "text-sky-300", "border-sky-500/30");
-                    },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                );
-            } else {
-                updateGPSStatus("🟡 위치 기능 지원 안됨", "bg-gray-500/20", "text-gray-300", "border-gray-500/30");
+                navigator.geolocation.watchPosition((pos) => {
+                    myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    updateMyLocation(myPos);
+                }, null, { enableHighAccuracy: true });
             }
+
+            // 실시간 다른 참가자 위치 수신
+            db.ref(`rooms/${roomId}/users`).on('value', (snapshot) => {
+                const users = snapshot.val() || {};
+                const userKeys = Object.keys(users);
+                document.getElementById('member-count').innerHTML = `<i class="fa-solid fa-users"></i> 접속: ${userKeys.length}명`;
+
+                userKeys.forEach(uid => {
+                    const uData = users[uid];
+                    if (uid !== myUserId && uData.lat && uData.lng) {
+                        if (!userMarkers[uid]) {
+                            const icon = L.divIcon({ className: 'user-marker', html: '<i class="fa-solid fa-user"></i>' });
+                            userMarkers[uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
+                        } else {
+                            userMarkers[uid].setLatLng([uData.lat, uData.lng]);
+                        }
+                    }
+                });
+            });
+
+            // 약속 장소 실시간 동기화 수신
+            db.ref(`rooms/${roomId}/target`).on('value', (snapshot) => {
+                const target = snapshot.val();
+                if (target) {
+                    if (targetMarker) map.removeLayer(targetMarker);
+                    const icon = L.divIcon({ className: 'target-marker', html: '<i class="fa-solid fa-flag"></i>' });
+                    targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
+                }
+            });
+
+            // 실시간 채팅 수신
+            db.ref(`rooms/${roomId}/chats`).limitToLast(10).on('child_added', (snapshot) => {
+                const chat = snapshot.val();
+                const chatBox = document.getElementById('chat-box');
+                const msg = document.createElement('div');
+                msg.innerHTML = `<span class="font-bold text-gray-400">${chat.sender}:</span> ${chat.text}`;
+                chatBox.appendChild(msg);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
         }
 
-        function updateGPSStatus(text, bg, textColor, border) {
-            const statusEl = document.getElementById('gps-status');
-            statusEl.className = `text-xs px-2.5 py-1 rounded-full ${bg} ${textColor} font-medium border ${border} flex items-center gap-1`;
-            statusEl.innerHTML = text;
+        function updateMyLocation(pos) {
+            if (!myMarker) {
+                const icon = L.divIcon({ className: 'user-marker', html: '나' });
+                myMarker = L.marker([pos.lat, pos.lng], { icon }).addTo(map);
+                map.setView([pos.lat, pos.lng], 15);
+            } else {
+                myMarker.setLatLng([pos.lat, pos.lng]);
+            }
+            db.ref(`rooms/${roomId}/users/${myUserId}`).set(pos);
         }
 
-        function openAddressSearchModal() { document.getElementById('address-modal').classList.remove('hidden'); }
+        function sendChat() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            db.ref(`rooms/${roomId}/chats`).push({ sender: myUserId.substring(5), text });
+            input.value = '';
+        }
+
+        function copyShareLink() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("초대 링크가 복사되었습니다! 카카오톡에 붙여넣어 친구들을 초대하세요.");
+        }
+
+        function openAddressModal() { document.getElementById('address-modal').classList.remove('hidden'); }
         function closeAddressModal() { document.getElementById('address-modal').classList.add('hidden'); }
 
-        async function searchAndSetLocation() {
+        async function searchDestination() {
             const query = document.getElementById('address-input').value.trim();
             if(!query) return;
-
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                if(data && data.length > 0) {
-                    const lat = parseFloat(data[0].lat);
-                    const lon = parseFloat(data[0].lon);
-                    
-                    currentPos = { lat, lng: lon };
-                    map.setView([lat, lon], 16);
-                    myMarker.setLatLng([lat, lon]);
-
-                    updateGPSStatus("🟢 주소 검색 위치 설정", "bg-emerald-500/20", "text-emerald-300", "border-emerald-500/30");
-                    closeAddressModal();
-                } else {
-                    alert("장소를 찾지 못했습니다.");
-                }
-            } catch(e) {
-                alert("검색 중 오류가 발생했습니다.");
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if(data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                db.ref(`rooms/${roomId}/target`).set({ lat, lng });
+                map.setView([lat, lng], 15);
+                closeAddressModal();
             }
         }
 
-        function openRoomExplodeModal() {
-            if(confirm("정말로 방을 폭파하시겠습니까?")) {
-                alert("방이 정상 삭제되었습니다.");
-                location.reload();
-            }
-        }
-
-        window.onload = initMap;
+        window.onload = initApp;
     </script>
 </body>
 </html>
