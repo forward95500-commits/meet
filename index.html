@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v7.0)</title>
+    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v8.1)</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -62,7 +62,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 id="room-title-display" class="text-base font-extrabold text-white tracking-tight">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">v7.0 완벽해결</span>
+                    <span id="room-tag" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">v8.1</span>
                 </div>
                 <p id="gps-status-text" class="text-[11px] text-emerald-400 font-medium">🟢 GPS 연결됨</p>
             </div>
@@ -87,18 +87,24 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 -->
+    <!-- 📱 1단계: 모임 개설 모달 (대표 이미지 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800/80 rounded-3xl max-w-sm w-full shadow-2xl shadow-emerald-900/10 my-auto overflow-hidden">
-            <div class="bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 p-6 text-white relative">
-                <div class="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-white/10 text-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
-                    <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티 (v7.0)
+            
+            <!-- 🌟 감성 대표 이미지 영역 -->
+            <div class="relative h-36 bg-cover bg-center flex flex-col justify-end p-5 text-white overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80');">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
+                        <i class="fa-solid fa-sparkles text-amber-300"></i> 올인원 약속 모빌리티
+                    </div>
+                    <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
+                    <p class="text-[11px] text-slate-200 mt-0.5 font-medium drop-shadow">실시간 위치 공유부터 약속장소, 1/N 회비 정산까지 한번에!</p>
                 </div>
-                <h2 class="text-2xl font-black tracking-tight text-white">여기서 만나</h2>
-                <p class="text-xs text-emerald-100/90 mt-1 font-medium">모임명과 약속 장소를 설정하고 실시간 위치를 공유하세요.</p>
             </div>
 
-            <div class="p-6 space-y-3.5">
+            <div class="p-5 space-y-3">
                 <!-- 1. 모임 이름 -->
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1">
@@ -454,14 +460,13 @@
             initApp();
         }
 
-        // 🌟 100% 밝고 선명한 기본 지도
+        // 🌟 지도 세팅
         function initApp() {
-            document.getElementById('room-tag').innerText = `v7.0 방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `v8.1 방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
-            // 기본 밝은 OpenStreetMap 표준 타일만 사용
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
@@ -537,7 +542,8 @@
 
             db.ref(`rooms/${currentRoomId}/chats`).limitToLast(10).on('child_added', (snapshot) => {
                 const chat = snapshot.val();
-                const chatBox = document.createElement('div');
+                const chatBox = document.getElementById('chat-box');
+                const msg = document.createElement('div');
                 msg.innerHTML = `<span class="font-bold text-emerald-400">${chat.sender}:</span> ${chat.text}`;
                 chatBox.appendChild(msg);
                 chatBox.scrollTop = chatBox.scrollHeight;
