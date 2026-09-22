@@ -21,23 +21,24 @@
 
     <style>
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
-        #map { height: calc(100vh - 340px); width: 100%; z-index: 1; }
+        #map { height: calc(100vh - 340px); width: 100%; z-index: 1; background-color: #0f172a; }
         @media (min-width: 768px) { #map { height: calc(100vh - 280px); } }
 
+        /* 아이쉐어링 스타일 커스텀 마커 */
         .my-custom-marker {
             width: 32px; height: 32px; background-color: #10B981; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); text-align: center;
+            border-radius: 50%; box-shadow: 0 0 18px rgba(16, 185, 129, 0.9); text-align: center;
             line-height: 26px; color: white; font-weight: 800; font-size: 13px;
             animation: pulse 1.8s infinite; z-index: 1000 !important;
         }
         .user-marker {
             width: 30px; height: 30px; background-color: #3B82F6; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 0 10px rgba(59, 130, 246, 0.6); text-align: center;
+            border-radius: 50%; box-shadow: 0 0 12px rgba(59, 130, 246, 0.8); text-align: center;
             line-height: 24px; color: white; font-weight: 700; font-size: 12px; cursor: pointer;
         }
         .target-marker {
             width: 36px; height: 36px; background-color: #EF4444; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 0 16px rgba(239, 68, 68, 0.8); text-align: center;
+            border-radius: 50%; box-shadow: 0 0 18px rgba(239, 68, 68, 0.9); text-align: center;
             line-height: 30px; color: white; font-size: 16px; animation: bounce 1s infinite alternate;
         }
         @keyframes pulse {
@@ -91,7 +92,7 @@
         <div class="bg-slate-900 border border-slate-800/80 rounded-3xl max-w-sm w-full shadow-2xl shadow-emerald-900/10 my-auto overflow-hidden">
             <div class="bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 p-6 text-white relative">
                 <div class="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-white/10 text-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
-                    <i class="fa-solid fa-sparkles text-amber-300"></i> 프리미엄 위치 공유
+                    <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티
                 </div>
                 <h2 class="text-2xl font-black tracking-tight text-white">여기서 만나</h2>
                 <p class="text-xs text-emerald-100/90 mt-1 font-medium">모임명과 약속 장소를 설정하고 실시간 위치를 공유하세요.</p>
@@ -106,13 +107,13 @@
                     <input type="text" id="init-roomtitle" placeholder="예: 금요일 저녁 모임 ⚡" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
                 </div>
 
-                <!-- 2. 약속장소 (다중 지점 출력 개선) -->
+                <!-- 2. 약속장소 (한글 도로명 전용 드롭다운) -->
                 <div class="relative">
                     <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-location-dot text-rose-400"></i> 2. 약속장소 (상호명/주소)
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 스타벅스, 강남역, 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') executeMultiPoiSearch()">
+                        <input type="text" id="init-target-input" placeholder="예: 운암명가, 스타벅스, 동탄역" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') executeMultiPoiSearch()">
                         <button onclick="executeMultiPoiSearch()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
 
@@ -275,7 +276,7 @@
             }
         };
 
-        // 💡 전국 수십 개 지점이 100% 드롭다운 목록으로 펼쳐지는 지점 검색 알고리즘
+        // 💡 아이쉐어링 스타일 다크 모드 지점 검색
         async function executeMultiPoiSearch() {
             const query = document.getElementById('init-target-input').value.trim();
             if (!query) return alert("검색할 약속장소를 입력하세요.");
@@ -288,7 +289,6 @@
             let allResults = [];
 
             try {
-                // 단일 쿼리 대신 주요 지역별 병렬 멀티 쿼리로 전국 스타벅스 지점들을 대량 수집
                 const promises = regions.slice(0, 4).map(r => 
                     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(r + ' ' + query)}&countrycodes=kr&accept-language=ko&limit=5`)
                     .then(res => res.json()).catch(() => [])
@@ -297,12 +297,10 @@
                 const resultsArray = await Promise.all(promises);
                 resultsArray.forEach(arr => { if(Array.isArray(arr)) allResults = allResults.concat(arr); });
 
-                // 기본 전체 쿼리 수집
                 const mainRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=kr&accept-language=ko&limit=15`);
                 const mainData = await mainRes.json();
                 if(Array.isArray(mainData)) allResults = allResults.concat(mainData);
 
-                // 중복 제거
                 const uniqueResults = [];
                 const seenKeys = new Set();
 
@@ -347,7 +345,6 @@
             alert(`'${item.name}' 지점이 지정되었습니다!`);
         }
 
-        // 지출 내역 누적 관리
         function savePaymentOnly() {
             const stage = document.getElementById('dutch-stage').value;
             const location = document.getElementById('stage-location').value.trim() || "모임장소 미입력";
@@ -459,13 +456,19 @@
             initApp();
         }
 
+        // 🌟 아이쉐어링 스타일 프리미엄 다크 지도 세팅
         function initApp() {
             document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+            // 💡 CartoDB Dark Matter 프리미엄 다크 지도 타일 연동
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                subdomains: 'abcd',
+                attribution: '&copy; CartoDB & OpenStreetMap'
+            }).addTo(map);
 
             db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
                 const info = snapshot.val() || {};
