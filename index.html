@@ -48,11 +48,39 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* ☀️ 확실하게 밝고 화사한 자연 감성 이미지 클래스 */
-        .bright-nature-banner {
-            background-image: url('https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=1000&q=80');
-            background-size: cover;
-            background-position: center;
+        /* ✨ 밝고 화사한 움직이는 일러스트 패턴 배경 */
+        .animated-emoji-bg {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(52, 211, 153, 0.4) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(59, 130, 246, 0.4) 0px, transparent 50%),
+                linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
+            animation: gridMove 15s linear infinite;
+        }
+        @keyframes gridMove {
+            0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+            100% { background-position: 0 0, 0 0, 24px 24px, 24px 24px; }
+        }
+
+        .char-bounce {
+            animation: charHop 2s ease-in-out infinite;
+        }
+        @keyframes charHop {
+            0%, 100% { transform: translateY(0) rotate(-1deg); }
+            50% { transform: translateY(-6px) rotate(1deg); }
+        }
+
+        .radar-ping {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(52, 211, 153, 0.6);
+            animation: radarPulse 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        }
+        @keyframes radarPulse {
+            0% { width: 20px; height: 20px; opacity: 1; }
+            100% { width: 130px; height: 130px; opacity: 0; }
         }
     </style>
 </head>
@@ -89,21 +117,39 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (화사한 밝은 이미지 배경) -->
+    <!-- 📱 1단계: 모임 개설 모달 (움직이는 이모티콘/캐릭터 감성 배너) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- ☀️ 밝고 화사한 채광/모임 감성 이미지 영역 -->
-            <div class="relative h-44 bright-nature-banner flex flex-col justify-end p-5 text-white overflow-hidden">
-                <!-- 글자 가독성을 위한 부드러운 그라데이션 -->
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
+            <!-- ✨ 움직이는 일러스트 패턴 & 캐릭터 카드 배너 -->
+            <div class="relative h-44 animated-emoji-bg flex flex-col justify-between p-4 text-white overflow-hidden">
+                
+                <div class="flex justify-between items-start z-10">
+                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/40">
+                        <i class="fa-solid fa-face-smile text-amber-300"></i> 친구들과 실시간 연결
+                    </div>
+                    <span class="text-[12px] animate-bounce">📍</span>
+                </div>
+
+                <!-- 🤖 귀여운 움직이는 캐릭터 카드 -->
+                <div class="relative flex items-center justify-center my-1 z-10">
+                    <div class="radar-ping"></div>
+                    <div class="radar-ping" style="animation-delay: 1.2s;"></div>
+                    
+                    <div class="char-bounce bg-slate-900/90 text-white px-4 py-2 rounded-2xl shadow-xl border border-emerald-400/50 flex items-center gap-3 backdrop-blur-md">
+                        <div class="w-8 h-8 bg-gradient-to-tr from-emerald-500 to-teal-400 text-white rounded-full flex items-center justify-center text-sm font-black shadow-lg shadow-emerald-500/40">
+                            🏃‍♂️
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-extrabold text-emerald-400 leading-tight">어디서 만날까?</div>
+                            <div class="text-[10px] text-slate-300">실시간 위치로 한방에 모이기 ✨</div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="relative z-10">
-                    <div class="inline-flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1.5 shadow-sm">
-                        <i class="fa-solid fa-sparkles"></i> 신나는 약속 & 모임
-                    </div>
-                    <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
-                    <p class="text-[11px] text-slate-100 font-medium mt-0.5 drop-shadow">실시간 위치 공유부터 회비 정산까지 한번에!</p>
+                    <h2 class="text-xl font-black tracking-tight text-white drop-shadow">여기서 만나</h2>
+                    <p class="text-[11px] text-slate-300 font-medium">위치 공유부터 1/N 회비 정산까지 손쉽게!</p>
                 </div>
             </div>
 
