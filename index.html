@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v11.0)</title>
+    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼 (v12.0)</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -47,11 +47,34 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
+
+        /* 🌟 첫 화면 헤더 CSS 애니메이션 효과 */
+        .animated-header-bg {
+            background: linear-gradient(-45deg, #10b981, #14b8a6, #06b6d4, #3b82f6);
+            background-size: 400% 400%;
+            animation: gradientBG 8s ease infinite;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .ping-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            animation: pingWave 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+        }
+        @keyframes pingWave {
+            0% { width: 0px; height: 0px; opacity: 1; }
+            100% { width: 140px; height: 140px; opacity: 0; }
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
-    <!-- 상단 헤더 (모바일 모임명 두 줄 현상 수정) -->
+    <!-- 상단 헤더 -->
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-emerald-500/20 shrink-0">
@@ -60,7 +83,7 @@
             <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 min-w-0">
                     <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">v11.0</span>
+                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">v12.0</span>
                 </div>
                 <p id="gps-status-text" class="text-[10px] text-emerald-600 font-medium truncate">🟢 GPS 연결됨</p>
             </div>
@@ -73,29 +96,43 @@
             <button onclick="toggleMemberListModal()" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-indigo-600 text-[11px] px-2 py-1.5 rounded-xl font-bold transition flex items-center gap-1">
                 <i class="fa-solid fa-users text-[10px]"></i> <span id="member-count-badge">1명</span>
             </button>
-            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] px-2 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-sm">
+            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] px-2 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-md">
                 <i class="fa-solid fa-share-nodes text-[10px]"></i> 초대
             </button>
-            <!-- 방 폭파 명확한 글자 버튼 -->
             <button id="explode-btn" onclick="explodeRoom()" class="hidden bg-rose-500 hover:bg-rose-600 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-extrabold transition shadow-sm">
                 방 폭파
             </button>
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 -->
+    <!-- 📱 1단계: 모임 개설 모달 (생동감 있는 CSS 애니메이션 헤더 적용) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <div class="relative h-40 bg-cover bg-center flex flex-col justify-end p-5 text-white overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80');">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/10 to-transparent"></div>
+            <!-- 🌟 동적 그라데이션 & 핑 애니메이션 헤더 -->
+            <div class="relative h-40 animated-header-bg flex flex-col justify-end p-5 text-white overflow-hidden">
                 
+                <!-- 애니메이션 그래픽 요소들 -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40">
+                    <div class="ping-circle" style="animation-delay: 0s;"></div>
+                    <div class="ping-circle" style="animation-delay: 0.8s;"></div>
+                    <div class="ping-circle" style="animation-delay: 1.6s;"></div>
+                </div>
+                
+                <!-- 떠다니는 모션 아이콘들 -->
+                <div class="absolute top-4 right-6 text-white/30 text-2xl animate-bounce" style="animation-duration: 2.2s;">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <div class="absolute top-10 right-16 text-white/25 text-xl animate-bounce" style="animation-duration: 1.7s;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </div>
+
                 <div class="relative z-10">
-                    <div class="inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 shadow-md">
-                        <i class="fa-solid fa-sparkles text-amber-300"></i> 신나는 약속 & 모임
+                    <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1 border border-white/30 shadow-sm">
+                        <i class="fa-solid fa-sparkles text-amber-300"></i> 실시간 모임 모빌리티
                     </div>
                     <h2 class="text-2xl font-black tracking-tight text-white drop-shadow-md">여기서 만나</h2>
-                    <p class="text-[11px] text-slate-100 mt-0.5 font-medium drop-shadow">실시간 위치 공유, 약속 장소, 1/N 회비 정산까지 한번에!</p>
+                    <p class="text-[11px] text-emerald-50 mt-0.5 font-medium drop-shadow">실시간 위치 공유, 약속 장소, 1/N 회비 정산까지 한번에!</p>
                 </div>
             </div>
 
@@ -193,10 +230,9 @@
             <i class="fa-solid fa-crosshairs text-lg"></i>
         </button>
 
-        <!-- 하단 영역: 채팅창이 위로, 모임 회비 장부가 밑으로 배치 변경 -->
         <div class="bg-white border-t border-slate-200 p-3 flex-1 flex flex-col gap-3 z-20 shadow-lg overflow-y-auto">
             
-            <!-- 💬 1. 실시간 채팅창 (상단 배치) -->
+            <!-- 💬 1. 실시간 채팅창 -->
             <div class="flex-1 flex flex-col min-h-[140px] bg-slate-50 border border-slate-200 rounded-2xl p-3 shadow-sm">
                 <div id="chat-box" class="flex-1 overflow-y-auto text-xs text-slate-700 flex flex-col gap-1.5 pr-1 font-sans">
                     <div class="text-emerald-600 font-bold">👋 실시간 위치 공유방입니다! 상단 초대 링크로 모임원들을 초대하세요.</div>
@@ -207,7 +243,7 @@
                 </div>
             </div>
 
-            <!-- 📒 2. 모임 회비 장부 (하단 배치) -->
+            <!-- 📒 2. 모임 회비 장부 -->
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
                 <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
                     <span class="text-xs font-bold text-amber-600 flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> 모임 회비 장부</span>
@@ -278,7 +314,6 @@
             }
         };
 
-        // 💡 도로명 / 지번 주소 및 상호명 완전 통합 검색 엔진
         async function searchPlaces() {
             const rawQuery = document.getElementById('init-target-input').value.trim();
             if (!rawQuery) return alert("검색할 약속장소 또는 주소를 입력하세요.");
@@ -457,7 +492,7 @@
         }
 
         function initApp() {
-            document.getElementById('room-tag').innerText = `v11.0 방: ${currentRoomId}`;
+            document.getElementById('room-tag').innerText = `v12.0 방: ${currentRoomId}`;
 
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
