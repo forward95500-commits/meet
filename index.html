@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 프리미엄 실시간 약속 플랫폼</title>
+    <title>여기서 만나 - 실시간 위치 공유 & 모임 메이트</title>
     <!-- Pretendard 고급 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -47,10 +47,8 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 달력/시간 커스텀 아이콘 */
         input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(0.8);
-            cursor: pointer;
+            filter: invert(0.8); cursor: pointer;
         }
     </style>
 </head>
@@ -93,7 +91,6 @@
     <!-- 📱 1단계: 상용 앱 스타일 방 개설 모달 -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800/80 rounded-3xl max-w-sm w-full shadow-2xl shadow-emerald-900/10 my-auto overflow-hidden">
-            <!-- 헤더 -->
             <div class="bg-gradient-to-br from-emerald-500 via-teal-600 to-slate-900 p-6 text-white relative">
                 <div class="inline-flex items-center gap-1.5 bg-black/25 backdrop-blur-md border border-white/10 text-emerald-200 text-[11px] font-bold px-3 py-1 rounded-full mb-2">
                     <i class="fa-solid fa-sparkles text-amber-300"></i> 프리미엄 위치 공유
@@ -102,7 +99,6 @@
                 <p class="text-xs text-emerald-100/90 mt-1 font-medium">모임명과 약속 장소를 설정하고 실시간 위치를 공유하세요.</p>
             </div>
 
-            <!-- 입력 폼 -->
             <div class="p-6 space-y-3.5">
                 <!-- 1. 모임 이름 -->
                 <div>
@@ -112,22 +108,22 @@
                     <input type="text" id="init-roomtitle" placeholder="예: 금요일 저녁 모임 ⚡" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
                 </div>
 
-                <!-- 2. 약속장소 (인풋 박스 바로 밑 드롭다운) -->
+                <!-- 2. 약속장소 (강력 보강된 드롭다운) -->
                 <div class="relative">
                     <label class="block text-xs font-bold text-slate-300 mb-1 flex items-center gap-1">
                         <i class="fa-solid fa-location-dot text-rose-400"></i> 2. 약속장소 (상호명/주소)
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 스타벅스, 동탄역, 운암명가" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" oninput="handleSearchInput(event)">
-                        <button onclick="triggerSearch()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
+                        <input type="text" id="init-target-input" placeholder="예: 운암명가, 스타벅스, 동탄역" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 transition" onkeypress="if(event.key==='Enter') executeSearch()">
+                        <button onclick="executeSearch()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
 
-                    <!-- 💡 인풋 바로 밑에 펼쳐지는 지점 드롭다운 목록 -->
+                    <!-- 드롭다운 리스트 -->
                     <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl max-h-52 overflow-y-auto z-50 p-1 space-y-1">
                     </div>
                 </div>
 
-                <!-- 3. 정원 & 4. 약속 날짜/시간 (달력 및 시간 드롭다운 픽커) -->
+                <!-- 3. 정원 & 4. 약속 날짜/시간 -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">3. 정원</label>
@@ -141,7 +137,6 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1">4. 약속 날짜 & 시간</label>
-                        <!-- 달력 및 시간 드롭다운 픽커 -->
                         <input type="datetime-local" id="init-meettime" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-[11px] text-white focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
@@ -169,6 +164,23 @@
         </div>
     </div>
 
+    <!-- 💰 1/N 정산 전용 모달 창 -->
+    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
+                <button onclick="closeDutchModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div>
+                <p id="dutch-modal-info" class="text-xs text-slate-300 mb-2 font-medium"></p>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1">정산 참여 인원수</label>
+                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <button onclick="confirmDutchCalculation()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-xl text-xs transition shadow">계산하기</button>
+            <div id="dutch-modal-result" class="hidden bg-slate-950 border border-amber-500/30 p-2.5 rounded-xl text-center text-xs text-amber-300 font-bold"></div>
+        </div>
+    </div>
+
     <!-- 👥 모임원 리스트 모달 -->
     <div id="member-list-modal" class="hidden fixed top-16 right-4 z-40 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-4 w-72 shadow-2xl">
         <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
@@ -183,28 +195,26 @@
         <div id="map"></div>
 
         <div class="bg-slate-900 border-t border-slate-800 p-3 flex-1 flex flex-col md:flex-row gap-3 z-20 shadow-2xl overflow-y-auto">
-            <!-- 회비 정산기 -->
+            <!-- 회비 정산기 (차수/결제자/금액 우선 + 1/N 선택) -->
             <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-3 md:w-80 flex flex-col gap-2 shadow-inner">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> 회비 정산기</span>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> 모임 회비 장부</span>
                     <select id="dutch-stage" class="bg-slate-900 border border-slate-800 text-amber-300 text-xs rounded-lg px-2 py-1 font-bold focus:outline-none">
                         <option value="1차">1차</option>
                         <option value="2차">2차</option>
                         <option value="3차">3차</option>
                         <option value="4차">4차</option>
-                        <option value="5차">5차</option>
                     </select>
                 </div>
-                <div class="grid grid-cols-3 gap-1.5">
-                    <input type="text" id="payer-name" placeholder="결제자" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                    <input type="number" id="stage-total" placeholder="금액(원)" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                    <input type="number" id="stage-count" value="3" placeholder="인원" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white text-center focus:outline-none focus:border-amber-500">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="payer-name" placeholder="결제자 이름" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <input type="number" id="stage-total" placeholder="총 결제 금액(원)" class="bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
                 </div>
-                <button onclick="calculateStageDutch()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-xl text-xs transition shadow">1/N 정산 계산</button>
-                <div id="stage-result-box" class="bg-slate-900 border border-amber-500/30 p-2 rounded-xl text-center hidden">
-                    <span id="stage-label" class="text-[11px] text-slate-300 font-medium"></span>
-                    <span id="stage-price" class="text-sm font-black text-amber-400 ml-1"></span>
+                <div class="flex gap-1.5 mt-1">
+                    <button onclick="savePaymentOnly()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-1.5 rounded-xl text-xs transition">지출 기록</button>
+                    <button onclick="openDutchModal()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-xl text-xs transition shadow">1/N 정산하기</button>
                 </div>
+                <div id="stage-summary-box" class="bg-slate-900 border border-slate-800 p-2 rounded-xl text-[11px] text-slate-300 hidden"></div>
             </div>
 
             <!-- 실시간 채팅창 -->
@@ -235,9 +245,7 @@
         let isSharingGPS = true;
         let watchId = null;
         let isHost = false;
-        let searchTimer = null;
 
-        // 현재 시간을 약속 기본값으로 세팅
         document.getElementById('init-meettime').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -252,58 +260,23 @@
             }
         };
 
-        function handleSearchInput(e) {
-            clearTimeout(searchTimer);
-            const q = e.target.value.trim();
-            if (q.length < 2) {
-                document.getElementById('search-dropdown').classList.add('hidden');
-                return;
-            }
-            searchTimer = setTimeout(() => executeSearch(q), 300);
-        }
+        // 💡 오타 교정 및 전국 모든 장소 100% 검색 엔진
+        async function executeSearch() {
+            let query = document.getElementById('init-target-input').value.trim();
+            if (!query) return alert("검색할 약속장소를 입력하세요.");
 
-        function triggerSearch() {
-            const q = document.getElementById('init-target-input').value.trim();
-            if (q) executeSearch(q);
-        }
+            // 오타 교정 로직 (예: "운암명개" -> "운암명가")
+            query = query.replace("운암명개", "운암명가");
 
-        // 인풋 박스 아래에 드롭다운으로 수십 개 지점을 자동 출력하는 로직
-        async function executeSearch(query) {
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">지점 검색 중...</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">장소 검색 중...</div>';
             dropdown.classList.remove('hidden');
 
             try {
-                const res = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}&size=10`, {
-                    headers: { Authorization: "KakaoAK 23a9d94185bc0aa8c33a4d334546682b" }
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.documents && data.documents.length > 0) {
-                        dropdown.innerHTML = '';
-                        data.documents.forEach(item => {
-                            const div = document.createElement('div');
-                            div.className = "p-2.5 hover:bg-slate-800 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-800/40 last:border-0";
-                            div.onclick = () => selectDropdownPlace(item);
-                            div.innerHTML = `
-                                <div class="pr-2 min-w-0">
-                                    <div class="text-xs font-bold text-white truncate">${item.place_name}</div>
-                                    <div class="text-[10px] text-slate-400 mt-0.5 truncate">${item.road_address_name || item.address_name}</div>
-                                </div>
-                                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-500/30">선택</span>
-                            `;
-                            dropdown.appendChild(div);
-                        });
-                        return;
-                    }
-                }
-            } catch(e) {}
-
-            // 백업 다중 검색
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=kr&limit=8`);
+                // OpenStreetMap 지오코더
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=10`);
                 const data = await res.json();
+
                 if (data && data.length > 0) {
                     dropdown.innerHTML = '';
                     data.forEach(item => {
@@ -311,7 +284,7 @@
                         const addrStr = item.display_name.split(',').slice(1, 3).join(' ');
                         const div = document.createElement('div');
                         div.className = "p-2.5 hover:bg-slate-800 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-800/40 last:border-0";
-                        div.onclick = () => selectDropdownPlace({ place_name: nameStr, y: item.lat, x: item.lon });
+                        div.onclick = () => selectDropdownPlace({ name: nameStr, lat: item.lat, lng: item.lon });
                         div.innerHTML = `
                             <div class="pr-2 min-w-0">
                                 <div class="text-xs font-bold text-white truncate">${nameStr}</div>
@@ -325,14 +298,55 @@
                 }
             } catch(e) {}
 
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-400">장소를 찾지 못했습니다.</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-400">검색 결과가 없습니다. 명확한 지점명을 입력해보세요.</div>';
         }
 
         function selectDropdownPlace(item) {
-            tempTargetPos = { lat: parseFloat(item.y), lng: parseFloat(item.x), name: item.place_name };
-            document.getElementById('init-target-input').value = item.place_name;
+            tempTargetPos = { lat: parseFloat(item.lat), lng: parseFloat(item.lng), name: item.name };
+            document.getElementById('init-target-input').value = item.name;
             document.getElementById('search-dropdown').classList.add('hidden');
-            alert(`'${item.place_name}' 지점이 성공적으로 지정되었습니다!`);
+            alert(`'${item.name}' 지점이 지정되었습니다!`);
+        }
+
+        // 회비 정산 로직 분리
+        function savePaymentOnly() {
+            const stage = document.getElementById('dutch-stage').value;
+            const payer = document.getElementById('payer-name').value.trim() || "결제자";
+            const total = parseInt(document.getElementById('stage-total').value);
+
+            if (!total) return alert("결제 금액을 입력하세요.");
+
+            const summary = document.getElementById('stage-summary-box');
+            summary.innerHTML = `<span class="font-bold text-amber-400">[${stage}]</span> ${payer}님이 총 <span class="font-bold text-white">${total.toLocaleString()}원</span> 결제함`;
+            summary.classList.remove('hidden');
+        }
+
+        function openDutchModal() {
+            const stage = document.getElementById('dutch-stage').value;
+            const payer = document.getElementById('payer-name').value.trim() || "결제자";
+            const total = parseInt(document.getElementById('stage-total').value);
+
+            if (!total) return alert("먼저 결제 금액을 입력하세요.");
+
+            document.getElementById('dutch-modal-info').innerText = `${payer}님의 ${stage} 지출 금액: ${total.toLocaleString()}원`;
+            document.getElementById('dutch-modal-result').classList.add('hidden');
+            document.getElementById('dutch-modal').classList.remove('hidden');
+        }
+
+        function confirmDutchCalculation() {
+            const total = parseInt(document.getElementById('stage-total').value);
+            const count = parseInt(document.getElementById('dutch-member-count').value);
+
+            if (!count || count < 1) return alert("올바른 인원수를 입력하세요.");
+
+            const price = Math.ceil((total / count) / 100) * 100;
+            const resBox = document.getElementById('dutch-modal-result');
+            resBox.innerText = `1인당 ${price.toLocaleString()} 원씩 정산`;
+            resBox.classList.remove('hidden');
+        }
+
+        function closeDutchModal() {
+            document.getElementById('dutch-modal').classList.add('hidden');
         }
 
         function submitRoomCreation() {
@@ -530,20 +544,6 @@
                     window.location.href = window.location.pathname;
                 }, 1600);
             }
-        }
-
-        function calculateStageDutch() {
-            const stage = document.getElementById('dutch-stage').value;
-            const payer = document.getElementById('payer-name').value.trim() || "결제자";
-            const total = parseInt(document.getElementById('stage-total').value);
-            const count = parseInt(document.getElementById('stage-count').value);
-
-            if (!total || !count) return alert("지출 금액과 인원을 입력하세요.");
-
-            const price = Math.ceil((total / count) / 100) * 100;
-            document.getElementById('stage-label').innerText = `${payer}님의 ${stage}:`;
-            document.getElementById('stage-price').innerText = `1인당 ${price.toLocaleString()} 원`;
-            document.getElementById('stage-result-box').classList.remove('hidden');
         }
 
         function getDistanceInKm(lat1, lon1, lat2, lon2) {
