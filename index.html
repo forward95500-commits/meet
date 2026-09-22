@@ -48,7 +48,7 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* 🌟 이미지 일러스트 + 캐릭터 종합 애니메이션 배경 */
+        /* 🌟 움직이는 구름 배경 + 캐릭터 애니메이션 */
         .animated-sky-bg {
             background: linear-gradient(135deg, #38bdf8, #3b82f6, #10b981);
             background-size: 200% 200%;
@@ -90,7 +90,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
-    <!-- 상단 헤더 (화이트 디자인) -->
+    <!-- 상단 헤더 -->
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-emerald-500/20 shrink-0">
@@ -121,14 +121,13 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (움직이는 애니메이션 그래픽 헤더) -->
+    <!-- 📱 1단계: 모임 개설 모달 -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/25 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- 🌟 움직이는 구름 배경 + 캐릭터 애니메이션 헤더 -->
+            <!-- 🌟 이미지 일러스트 + 구름 + 캐릭터 애니메이션 헤더 -->
             <div class="relative h-44 animated-sky-bg flex flex-col justify-between p-4 text-white overflow-hidden">
                 
-                <!-- 흐르는 구름 요소들 -->
                 <i class="fa-solid fa-cloud absolute top-3 text-white/40 text-3xl floating-cloud"></i>
                 <i class="fa-solid fa-cloud absolute top-10 text-white/30 text-2xl floating-cloud" style="animation-delay: -5s;"></i>
                 
@@ -141,7 +140,7 @@
                     </div>
                 </div>
 
-                <!-- 🤖 중앙 통통 튀는 위치 캐릭터 핑핑이 -->
+                <!-- 🤖 캐릭터 요소 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
                     <div class="ping-wave"></div>
                     <div class="ping-wave" style="animation-delay: 1.2s;"></div>
