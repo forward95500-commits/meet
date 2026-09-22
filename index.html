@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>여기서 만나 - 실시간 위치 공유 & 모임 메이트</title>
+    <title>여기서 만나 - 실시간 약속장소 & 위치 메이트</title>
     <!-- Tailwind CSS & Leaflet -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -16,20 +16,25 @@
 
     <style>
         #map { height: 100vh; width: 100%; z-index: 1; }
+        .my-custom-marker {
+            width: 32px; height: 32px; background-color: #10B981; border: 3px solid #ffffff;
+            border-radius: 50%; box-shadow: 0 0 14px rgba(16, 185, 129, 0.8); text-align: center;
+            line-height: 26px; color: white; font-weight: bold; font-size: 13px;
+            animation: pulse 1.8s infinite; z-index: 1000 !important;
+        }
         .user-marker {
-            width: 28px; height: 28px; background-color: #10B981; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); text-align: center;
+            width: 28px; height: 28px; background-color: #3B82F6; border: 3px solid #ffffff;
+            border-radius: 50%; box-shadow: 0 0 10px rgba(59, 130, 246, 0.6); text-align: center;
             line-height: 22px; color: white; font-weight: bold; font-size: 11px;
-            animation: pulse 2s infinite;
         }
         .target-marker {
-            width: 34px; height: 34px; background-color: #EF4444; border: 3px solid #ffffff;
+            width: 36px; height: 36px; background-color: #EF4444; border: 3px solid #ffffff;
             border-radius: 50%; box-shadow: 0 0 14px rgba(239, 68, 68, 0.8); text-align: center;
-            line-height: 28px; color: white; font-size: 16px; animation: bounce 1s infinite alternate;
+            line-height: 30px; color: white; font-size: 16px; animation: bounce 1s infinite alternate;
         }
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
@@ -37,7 +42,7 @@
 </head>
 <body class="bg-gray-900 text-slate-100 h-screen w-screen overflow-hidden font-sans">
 
-    <!-- 상단 고정 스마트 대시보드 바 -->
+    <!-- 상단 대시보드 바 -->
     <header class="fixed top-0 left-0 right-0 z-30 bg-gray-900/90 backdrop-blur-md border-b border-gray-800 px-4 py-2.5 flex items-center justify-between shadow-lg">
         <div class="flex items-center space-x-3">
             <div class="bg-emerald-500 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold shadow">
@@ -46,24 +51,21 @@
             <div>
                 <div class="flex items-center gap-2">
                     <h1 class="text-base font-extrabold text-white tracking-tight">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full">방 없음</span>
+                    <span id="room-tag" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full">방 생성 대기</span>
                 </div>
-                <p id="room-subtext" class="text-[11px] text-gray-400">실시간 약속장소 & 위치 메이트</p>
+                <p id="gps-status-text" class="text-[11px] text-amber-400 font-medium">📍 위치 수신 대기 중...</p>
             </div>
         </div>
 
         <div class="flex items-center space-x-2">
-            <span id="member-badge" class="hidden sm:flex bg-gray-800 text-gray-300 text-xs px-2.5 py-1.5 rounded-lg border border-gray-700 items-center gap-1 font-semibold">
-                <i class="fa-solid fa-users text-emerald-400"></i> <span id="member-count">1</span>명
-            </span>
+            <button onclick="panToMyLocation()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-crosshairs"></i> 내 위치 찾기
+            </button>
             <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-share-nodes"></i> <span class="hidden md:inline">초대링크</span> 복사
+                <i class="fa-solid fa-share-nodes"></i> 초대링크
             </button>
             <button onclick="openDutchPayModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
                 <i class="fa-solid fa-calculator"></i> 회비 정산
-            </button>
-            <button onclick="openAddressModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-magnifying-glass"></i> 장소 지정
             </button>
             <button onclick="explodeRoom()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow">
                 <i class="fa-solid fa-bomb"></i> 방 폭파
@@ -71,7 +73,7 @@
         </div>
     </header>
 
-    <!-- 1단계: 개설 대시보드 모달 (초기 접속 시 표시) -->
+    <!-- 1단계: 모임방 개설 모달 -->
     <div id="create-modal" class="fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-gray-800 border border-gray-700 rounded-3xl max-w-md w-full shadow-2xl overflow-hidden">
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-6 text-white">
@@ -91,7 +93,7 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-300 mb-1">약속 장소 (상호명/주소)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 동탄역, 강남역, 병점역 스타벅스" class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="init-target-input" placeholder="예: 운암명가, 동탄역, 강남역 스타벅스" class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                         <button onclick="searchInitTarget()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition">검색</button>
                     </div>
                     <p id="search-result-text" class="text-[11px] text-emerald-400 mt-1 hidden"></p>
@@ -107,7 +109,7 @@
     <main class="relative w-full h-full pt-14">
         <div id="map"></div>
 
-        <!-- 하단 오버레이 실시간 채팅창 -->
+        <!-- 하단 실시간 채팅창 -->
         <div class="absolute bottom-4 left-4 right-4 md:left-6 md:w-96 z-20 bg-gray-900/90 backdrop-blur-md border border-gray-800 rounded-2xl p-3 shadow-2xl flex flex-col gap-2">
             <div id="chat-box" class="h-24 overflow-y-auto text-xs text-gray-300 flex flex-col gap-1 pr-1 font-sans">
                 <div class="text-emerald-400 font-semibold">👋 실시간 모임방에 오신 것을 환영합니다! 초대 링크를 공유해 보세요.</div>
@@ -144,20 +146,6 @@
         </div>
     </div>
 
-    <!-- 약속장소 재검색 모달 -->
-    <div id="address-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-gray-800 border border-gray-700 rounded-2xl p-5 max-w-sm w-full shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-map-pin text-emerald-400"></i> 약속 장소 변경</h3>
-                <button onclick="closeAddressModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="flex gap-2 mb-2">
-                <input type="text" id="address-input" placeholder="상호명/주소 검색..." class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="changeTargetLocation()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold">변경</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const firebaseConfig = { databaseURL: "https://meet-here-default-rtdb.asia-southeast1.firebasedatabase.app" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
@@ -165,10 +153,10 @@
 
         let map, myMarker, targetMarker;
         let userMarkers = {};
-        let myPos = { lat: 37.5665, lng: 126.9780 };
+        let myPos = null;
         let tempTargetPos = null;
         let currentRoomId = null;
-        let myNickName = "참여자";
+        let myNickName = "나";
 
         const urlParams = new URLSearchParams(window.location.search);
         const roomIdParam = urlParams.get('room');
@@ -182,9 +170,35 @@
             }
         };
 
+        async function fetchLocation(query) {
+            try {
+                const kakaoRes = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(query)}`, {
+                    headers: { Authorization: "KakaoAK 23a9d94185bc0aa8c33a4d334546682b" }
+                });
+                if (kakaoRes.ok) {
+                    const kData = await kakaoRes.json();
+                    if (kData.documents && kData.documents.length > 0) {
+                        const item = kData.documents[0];
+                        return { lat: parseFloat(item.y), lng: parseFloat(item.x), name: item.place_name };
+                    }
+                }
+            } catch (e) {}
+
+            try {
+                const osmRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                const oData = await osmRes.json();
+                if (oData && oData.length > 0) {
+                    return { lat: parseFloat(oData[0].lat), lng: parseFloat(oData[0].lon), name: oData[0].display_name.split(',')[0] };
+                }
+            } catch (e) {}
+
+            return null;
+        }
+
         async function searchInitTarget() {
             const query = document.getElementById('init-target-input').value.trim();
             if (!query) return alert("검색할 약속장소를 입력하세요.");
+            
             const pos = await fetchLocation(query);
             if (pos) {
                 tempTargetPos = pos;
@@ -215,46 +229,61 @@
         function initApp() {
             document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
 
-            map = L.map('map', { zoomControl: false }).setView([myPos.lat, myPos.lng], 15);
+            // 기본 초기화 위치
+            map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-            // 실시간 내 GPS 자동 추적
+            // 실시간 내 GPS 자동 트래킹 및 내 위치로 중심 이동
             if ("geolocation" in navigator) {
                 navigator.geolocation.watchPosition((pos) => {
+                    const isFirst = (myPos === null);
                     myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    
+                    document.getElementById('gps-status-text').className = "text-[11px] text-emerald-400 font-medium";
+                    document.getElementById('gps-status-text').innerText = "🟢 실시간 GPS 수신 중";
+
                     syncMyLocation();
-                }, null, { enableHighAccuracy: true });
+
+                    // 처음 위치를 잡았을 때 내 위치로 화면 자동 이동
+                    if (isFirst) {
+                        map.setView([myPos.lat, myPos.lng], 16);
+                    }
+                }, (err) => {
+                    document.getElementById('gps-status-text').className = "text-[11px] text-rose-400 font-medium";
+                    document.getElementById('gps-status-text').innerText = "⚠️ GPS 연결 안됨 (권한 허용 필요)";
+                }, { enableHighAccuracy: true, timeout: 10000 });
             }
 
-            // 모임원 실시간 마커 연동
+            // 모임원 마커 동기화
             db.ref(`rooms/${currentRoomId}/users`).on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 const uKeys = Object.keys(users);
-                document.getElementById('member-count').innerText = uKeys.length;
 
                 uKeys.forEach(uid => {
-                    const uData = users[uid];
-                    if (uData.lat && uData.lng) {
-                        if (!userMarkers[uid]) {
-                            const icon = L.divIcon({ className: 'user-marker', html: uData.name ? uData.name[0] : '유' });
-                            userMarkers[uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
-                        } else {
-                            userMarkers[uid].setLatLng([uData.lat, uData.lng]);
+                    if (uid !== 'user_' + myNickName) {
+                        const uData = users[uid];
+                        if (uData.lat && uData.lng) {
+                            if (!userMarkers[uid]) {
+                                const icon = L.divIcon({ className: 'user-marker', html: uData.name ? uData.name[0] : '유' });
+                                userMarkers[uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
+                            } else {
+                                userMarkers[uid].setLatLng([uData.lat, uData.lng]);
+                            }
                         }
                     }
                 });
             });
 
-            // 약속 장소 핀 연동
+            // 약속 장소 핀 동기화
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
                 if (target) {
                     if (targetMarker) map.removeLayer(targetMarker);
                     const icon = L.divIcon({ className: 'target-marker', html: '<i class="fa-solid fa-flag"></i>' });
                     targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
-                    map.setView([target.lat, target.lng], 15);
+                    if (!myPos) map.setView([target.lat, target.lng], 15);
                 }
             });
 
@@ -270,9 +299,10 @@
         }
 
         function syncMyLocation() {
+            if (!myPos) return;
             const myUid = 'user_' + myNickName;
             if (!myMarker) {
-                const icon = L.divIcon({ className: 'user-marker', html: myNickName[0] });
+                const icon = L.divIcon({ className: 'my-custom-marker', html: myNickName[0] });
                 myMarker = L.marker([myPos.lat, myPos.lng], { icon }).addTo(map);
             } else {
                 myMarker.setLatLng([myPos.lat, myPos.lng]);
@@ -282,15 +312,12 @@
             });
         }
 
-        async function fetchLocation(query) {
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                if (data.length > 0) {
-                    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), name: data[0].display_name.split(',')[0] };
-                }
-            } catch(e) {}
-            return null;
+        function panToMyLocation() {
+            if (myPos) {
+                map.setView([myPos.lat, myPos.lng], 16);
+            } else {
+                alert("GPS 위치 정보를 받아오는 중입니다. 브라우저 위치 권한을 '허용'했는지 확인해 주세요.");
+            }
         }
 
         function sendChat() {
@@ -323,18 +350,6 @@
             const price = Math.ceil((total / count) / 100) * 100;
             document.getElementById('dutch-price').innerText = `${price.toLocaleString()} 원`;
             document.getElementById('dutch-result').classList.remove('hidden');
-        }
-
-        function openAddressModal() { document.getElementById('address-modal').classList.remove('hidden'); }
-        function closeAddressModal() { document.getElementById('address-modal').classList.add('hidden'); }
-        async function changeTargetLocation() {
-            const q = document.getElementById('address-input').value.trim();
-            if (!q) return;
-            const pos = await fetchLocation(q);
-            if (pos) {
-                db.ref(`rooms/${currentRoomId}/target`).set(pos);
-                closeAddressModal();
-            } else alert("장소를 찾을 수 없습니다.");
         }
     </script>
 </body>
