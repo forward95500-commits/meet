@@ -21,24 +21,29 @@
 
     <style>
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
-        #map { height: calc(100vh - 360px); width: 100%; z-index: 1; background-color: #ffffff !important; }
-        @media (min-width: 768px) { #map { height: calc(100vh - 300px); } }
+        
+        /* 🌌 지도 화면 넘어왔을 때 딥 네이비 배경 적용 */
+        .bg-navy-dark { background-color: #0f172a !important; }
+        .bg-navy-card { background-color: #1e293b !important; }
+        .border-navy { border-color: #334155 !important; }
+
+        #map { height: 100%; width: 100%; z-index: 1; background-color: #0f172a !important; }
 
         /* 지도 마커 스타일 */
         .my-custom-marker {
-            width: 32px; height: 32px; background-color: #10B981; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); text-align: center;
-            line-height: 26px; color: white; font-weight: 800; font-size: 13px;
+            width: 34px; height: 34px; background-color: #10B981; border: 3px solid #ffffff;
+            border-radius: 50%; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5); text-align: center;
+            line-height: 28px; color: white; font-weight: 800; font-size: 13px;
             animation: pulse 1.8s infinite; z-index: 1000 !important;
         }
         .user-marker {
             width: 30px; height: 30px; background-color: #3B82F6; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); text-align: center;
+            border-radius: 50%; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4); text-align: center;
             line-height: 24px; color: white; font-weight: 700; font-size: 12px; cursor: pointer;
         }
         .target-marker {
             width: 36px; height: 36px; background-color: #EF4444; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); text-align: center;
+            border-radius: 50%; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5); text-align: center;
             line-height: 30px; color: white; font-size: 16px; animation: bounce 1s infinite alternate;
         }
         @keyframes pulse {
@@ -48,7 +53,7 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* ☀️ 밝고 화사한 라이트 감성 지도 그리드 배경 */
+        /* 라이트 감성 모달 배경 */
         .bright-grid-banner {
             background-color: #f1f5f9;
             background-image: 
@@ -64,17 +69,14 @@
             100% { background-position: 0 0, 0 0, 28px 28px, 28px 28px; }
         }
 
-        .char-bounce {
-            animation: charHop 2.2s ease-in-out infinite;
-        }
+        .char-bounce { animation: charHop 2.2s ease-in-out infinite; }
         @keyframes charHop {
             0%, 100% { transform: translateY(0) rotate(-1deg); }
             50% { transform: translateY(-5px) rotate(1deg); }
         }
 
         .radar-ping {
-            position: absolute;
-            border-radius: 50%;
+            position: absolute; border-radius: 50%;
             border: 2px solid rgba(16, 185, 129, 0.5);
             animation: radarPulse 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
         }
@@ -82,48 +84,47 @@
             0% { width: 20px; height: 20px; opacity: 1; }
             100% { width: 140px; height: 140px; opacity: 0; }
         }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
+<body class="bg-navy-dark text-slate-100 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
     <!-- 상단 헤더 -->
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
+    <header class="bg-navy-card border-b border-navy px-3 py-2.5 flex items-center justify-between z-30 shadow-md shrink-0">
         <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
             <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-emerald-500/20 shrink-0">
                 <i class="fa-solid fa-location-arrow"></i>
             </div>
             <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-1.5 min-w-0">
-                    <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">실시간</span>
+                    <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-white tracking-tight truncate">여기서 만나</h1>
+                    <span id="room-tag" class="bg-emerald-950 text-emerald-400 border border-emerald-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">실시간</span>
                 </div>
-                <p id="gps-status-text" class="text-[10px] text-emerald-600 font-medium truncate">🟢 GPS 연결됨</p>
+                <p id="gps-status-text" class="text-[10px] text-emerald-400 font-medium truncate">🟢 GPS 연결됨</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-1 shrink-0">
-            <button id="toggle-gps-btn" onclick="toggleGPSSharing()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] px-2 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm">
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button id="toggle-gps-btn" onclick="toggleGPSSharing()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm">
                 <i class="fa-solid fa-satellite-dish text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> ON
             </button>
-            <button onclick="toggleMemberListModal()" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-indigo-600 text-[11px] px-2 py-1.5 rounded-xl font-bold transition flex items-center gap-1">
-                <i class="fa-solid fa-users text-[10px]"></i> <span id="member-count-badge">1명</span>
-            </button>
-            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] px-2 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-md">
+            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-md">
                 <i class="fa-solid fa-share-nodes text-[10px]"></i> 초대
             </button>
-            <button id="explode-btn" onclick="explodeRoom()" class="hidden bg-rose-500 hover:bg-rose-600 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-extrabold transition shadow-sm">
+            <button id="explode-btn" onclick="explodeRoom()" class="hidden bg-rose-600 hover:bg-rose-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-extrabold transition shadow-sm">
                 방 폭파
             </button>
         </div>
     </header>
 
     <!-- 📱 1단계: 모임 개설 모달 -->
-    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
+    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden text-slate-800">
             
-            <!-- ☀️ 밝고 화사한 라이트 그리드 & 레이더 배너 영역 (실사 제거 완료) -->
             <div class="relative h-44 bright-grid-banner flex flex-col justify-between p-4 text-slate-800 overflow-hidden">
-                
                 <div class="flex justify-between items-start z-10">
                     <div class="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-md text-emerald-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm">
                         <i class="fa-solid fa-map-location-dot text-emerald-600"></i> 실시간 모임 지도
@@ -131,7 +132,6 @@
                     <span class="text-[10px] text-slate-500 font-mono tracking-wider bg-white/80 px-2 py-0.5 rounded-md shadow-sm">MAP MODE</span>
                 </div>
 
-                <!-- 🤖 중앙 레이더 & 타이틀 카드 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
                     <div class="radar-ping"></div>
                     <div class="radar-ping" style="animation-delay: 1.2s;"></div>
@@ -216,9 +216,9 @@
         </div>
     </div>
 
-    <!-- 💌 2단계: 초대받은 지인 전용 모임 정보 확인 & 입장 모달 -->
-    <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
+    <!-- 💌 2단계: 초대받은 지인 모달 -->
+    <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden text-slate-800">
             
             <div class="bg-gradient-to-br from-indigo-600 via-teal-600 to-emerald-600 p-5 text-white text-center relative">
                 <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
@@ -268,57 +268,65 @@
     </div>
 
     <!-- 💰 1/N 정산 계산 모달 -->
-    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <h3 class="text-xs font-bold text-amber-600 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
-                <button onclick="closeDutchModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-navy-card border border-navy rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3 text-slate-100">
+            <div class="flex justify-between items-center border-b border-navy pb-2">
+                <h3 class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
+                <button onclick="closeDutchModal()" class="text-slate-400 hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div>
-                <p id="dutch-modal-info" class="text-xs text-slate-600 mb-2 font-medium"></p>
-                <label class="block text-[11px] font-bold text-slate-500 mb-1">정산 참여 인원수</label>
-                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
+                <p id="dutch-modal-info" class="text-xs text-slate-300 mb-2 font-medium"></p>
+                <label class="block text-[11px] font-bold text-slate-400 mb-1">정산 참여 인원수</label>
+                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
             </div>
             <button onclick="confirmDutchCalculation()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm">계산하기</button>
-            <div id="dutch-modal-result" class="hidden bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center text-xs text-amber-700 font-bold"></div>
+            <div id="dutch-modal-result" class="hidden bg-amber-950/60 border border-amber-800 p-2.5 rounded-xl text-center text-xs text-amber-300 font-bold"></div>
         </div>
     </div>
 
-    <!-- 👥 모임원 리스트 모달 -->
-    <div id="member-list-modal" class="hidden fixed top-16 right-4 z-40 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-4 w-72 shadow-xl">
-        <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
-            <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1.5"><i class="fa-solid fa-users text-indigo-500"></i> 현재 모임원 리스트</h3>
-            <button onclick="toggleMemberListModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div id="member-items-container" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-    </div>
-
-    <!-- 2단계: 메인 지도 영역 -->
+    <!-- 🌌 2단계: 메인 지도 및 딥 네이비 패널 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
-        <div id="map" class="relative"></div>
+        
+        <!-- 지도 영역 -->
+        <div id="map" class="relative flex-1"></div>
 
-        <button onclick="panToMyLocation()" class="absolute bottom-4 right-4 z-20 bg-white border border-slate-300 text-emerald-600 w-11 h-11 rounded-2xl shadow-lg flex items-center justify-center font-bold transition hover:bg-slate-50 active:scale-95" title="내 위치 찾기">
+        <!-- 🎯 지도 우측 하단: 내 위치 바로가기 버튼 -->
+        <button onclick="panToMyLocation()" class="absolute bottom-36 right-4 z-20 bg-navy-card border border-navy text-emerald-400 hover:text-emerald-300 w-11 h-11 rounded-2xl shadow-xl flex items-center justify-center font-bold transition active:scale-95" title="내 위치 찾기">
             <i class="fa-solid fa-crosshairs text-lg"></i>
         </button>
 
-        <div class="bg-white border-t border-slate-200 p-3 flex-1 flex flex-col gap-3 z-20 shadow-lg overflow-y-auto">
+        <!-- 🟢 딥 네이비 하단 제어 패널 -->
+        <div class="bg-navy-card border-t border-navy p-3 flex flex-col gap-3 z-20 shadow-2xl shrink-0 max-h-[48dvh] overflow-y-auto">
             
+            <!-- 🚶 모임원 도착 현황 (목적지 기준 가까운 순 자동 정렬) -->
+            <div class="flex flex-col gap-1.5">
+                <div class="flex items-center justify-between px-1">
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-users"></i> 모임원 도착 현황 (가까운 순)
+                    </span>
+                    <span id="member-count-badge" class="text-[10px] font-extrabold text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800">1명 참여</span>
+                </div>
+                <div id="member-items-container" class="flex gap-2 overflow-x-auto pb-1 pt-0.5">
+                    <div class="text-xs text-slate-400 py-1">위치 정보를 불러오는 중...</div>
+                </div>
+            </div>
+
             <!-- 💬 1. 실시간 채팅창 -->
-            <div class="flex-1 flex flex-col min-h-[140px] bg-slate-50 border border-slate-200 rounded-2xl p-3 shadow-sm">
-                <div id="chat-box" class="flex-1 overflow-y-auto text-xs text-slate-700 flex flex-col gap-1.5 pr-1 font-sans">
-                    <div class="text-emerald-600 font-bold">👋 실시간 위치 공유방입니다! 상단 초대 링크로 모임원들을 초대하세요.</div>
+            <div class="flex flex-col min-h-[110px] bg-slate-900/80 border border-slate-800 rounded-2xl p-2.5 shadow-inner">
+                <div id="chat-box" class="flex-1 max-h-24 overflow-y-auto text-xs text-slate-200 flex flex-col gap-1 pr-1 font-sans">
+                    <div class="text-emerald-400 font-bold">👋 실시간 위치 공유방입니다! 상단 초대 버튼으로 링크를 공유하세요.</div>
                 </div>
                 <div class="flex gap-2 mt-2">
-                    <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') sendChat()">
-                    <button onclick="sendChat()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-xl text-xs font-bold transition shadow-sm">전송</button>
+                    <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') sendChat()">
+                    <button onclick="sendChat()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm shrink-0">전송</button>
                 </div>
             </div>
 
             <!-- 📒 2. 모임 회비 장부 -->
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
-                <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
-                    <span class="text-xs font-bold text-amber-600 flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> 모임 회비 장부</span>
-                    <select id="dutch-stage" class="bg-white border border-slate-200 text-amber-700 text-xs rounded-lg px-2 py-1 font-bold focus:outline-none">
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 shadow-inner">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-receipt"></i> 모임 회비 장부</span>
+                    <select id="dutch-stage" class="bg-slate-800 border border-slate-700 text-amber-300 text-xs rounded-lg px-2 py-1 font-bold focus:outline-none">
                         <option value="1차">1차</option>
                         <option value="2차">2차</option>
                         <option value="3차">3차</option>
@@ -328,25 +336,25 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <input type="text" id="stage-location" placeholder="모임 장소 (예: 역전할머니맥주)" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="stage-location" placeholder="모임 장소 (예: 역전할머니맥주)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="payer-name" placeholder="결제자 이름" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
-                        <input type="number" id="stage-total" placeholder="결제 금액(원)" class="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
+                        <input type="text" id="payer-name" placeholder="결제자 이름" class="bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <input type="number" id="stage-total" placeholder="결제 금액(원)" class="bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
 
                 <div class="flex gap-1.5 mt-0.5">
-                    <button onclick="savePaymentOnly()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-1.5 rounded-xl text-xs transition">지출 기록 추가</button>
-                    <button onclick="openDutchModal()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-xl text-xs transition shadow-sm">1/N 정산하기</button>
+                    <button onclick="savePaymentOnly()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-1.5 rounded-xl text-xs transition border border-slate-700">지출 기록 추가</button>
+                    <button onclick="openDutchModal()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded-xl text-xs transition shadow-sm">1/N 정산하기</button>
                 </div>
 
-                <div class="mt-1 border-t border-slate-200 pt-2">
+                <div class="mt-1 border-t border-slate-800 pt-2">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[11px] font-bold text-slate-500">지출 누적 내역</span>
-                        <span id="total-expense-badge" class="text-[11px] font-extrabold text-amber-600">총 0원</span>
+                        <span class="text-[11px] font-bold text-slate-400">지출 누적 내역</span>
+                        <span id="total-expense-badge" class="text-[11px] font-extrabold text-amber-400">총 0원</span>
                     </div>
                     <div id="payment-history-list" class="space-y-1.5 max-h-24 overflow-y-auto pr-1">
-                        <div class="text-[11px] text-slate-400 text-center py-2">등록된 지출 내역이 없습니다.</div>
+                        <div class="text-[11px] text-slate-500 text-center py-1">등록된 지출 내역이 없습니다.</div>
                     </div>
                 </div>
             </div>
@@ -501,7 +509,7 @@
             container.innerHTML = '';
 
             if (paymentHistory.length === 0) {
-                container.innerHTML = '<div class="text-[11px] text-slate-400 text-center py-2">등록된 지출 내역이 없습니다.</div>';
+                container.innerHTML = '<div class="text-[11px] text-slate-500 text-center py-1">등록된 지출 내역이 없습니다.</div>';
                 document.getElementById('total-expense-badge').innerText = '총 0원';
                 return;
             }
@@ -510,13 +518,13 @@
             paymentHistory.forEach(item => {
                 sumTotal += item.total;
                 const div = document.createElement('div');
-                div.className = "bg-white border border-slate-200 p-2 rounded-xl flex justify-between items-center text-xs shadow-sm";
+                div.className = "bg-slate-800 border border-slate-700 p-2 rounded-xl flex justify-between items-center text-xs shadow-sm";
                 div.innerHTML = `
                     <div class="flex items-center gap-1.5 min-w-0 pr-1">
-                        <span class="bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-amber-200 shrink-0">${item.stage}</span>
-                        <span class="font-semibold text-slate-700 truncate">${item.location} (${item.payer})</span>
+                        <span class="bg-amber-950 text-amber-300 font-bold px-1.5 py-0.5 rounded text-[10px] border border-amber-800 shrink-0">${item.stage}</span>
+                        <span class="font-semibold text-slate-200 truncate">${item.location} (${item.payer})</span>
                     </div>
-                    <span class="font-black text-amber-600 shrink-0">${item.total.toLocaleString()} 원</span>
+                    <span class="font-black text-amber-400 shrink-0">${item.total.toLocaleString()} 원</span>
                 `;
                 container.appendChild(div);
             });
@@ -615,39 +623,50 @@
             db.ref(`rooms/${currentRoomId}/users`).on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 const uKeys = Object.keys(users);
-                document.getElementById('member-count-badge').innerText = `${uKeys.length}명`;
+                document.getElementById('member-count-badge').innerText = `${uKeys.length}명 참여`;
 
-                const memberContainer = document.getElementById('member-items-container');
-                memberContainer.innerHTML = '';
-
+                let userList = [];
                 uKeys.forEach(uid => {
                     const uData = users[uid];
                     if (uData.lat && uData.lng) {
-                        let distText = "거리 계산 중";
+                        let distanceKm = 99999;
                         if (targetPos) {
-                            const d = getDistanceInKm(uData.lat, uData.lng, targetPos.lat, targetPos.lng);
-                            distText = d < 1 ? `${Math.round(d * 1000)}m 남음` : `${d.toFixed(1)}km 남음`;
+                            distanceKm = getDistanceInKm(uData.lat, uData.lng, targetPos.lat, targetPos.lng);
                         }
+                        userList.push({ uid, ...uData, distanceKm });
+                    }
+                });
 
-                        const mDiv = document.createElement('div');
-                        mDiv.className = "bg-slate-50 border border-slate-200 p-2 rounded-xl flex justify-between items-center cursor-pointer hover:border-emerald-500 transition";
-                        mDiv.onclick = () => focusUserLocation(uData.lat, uData.lng);
-                        mDiv.innerHTML = `
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">${uData.name[0]}</div>
-                                <span class="text-xs font-bold text-slate-800">${uData.name}</span>
-                            </div>
-                            <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">${distText}</span>
-                        `;
-                        memberContainer.appendChild(mDiv);
+                // 목적지 기준 가까운 거리순 정렬
+                userList.sort((a, b) => a.distanceKm - b.distanceKm);
 
-                        if (uid !== 'user_' + myNickName) {
-                            if (!userMarkers[uid]) {
-                                const icon = L.divIcon({ className: 'user-marker', html: uData.name[0] });
-                                userMarkers[uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
-                            } else {
-                                userMarkers[uid].setLatLng([uData.lat, uData.lng]);
-                            }
+                const container = document.getElementById('member-items-container');
+                container.innerHTML = '';
+
+                userList.forEach(uData => {
+                    let distText = "위치 확인 중";
+                    if (targetPos) {
+                        distText = uData.distanceKm < 1 ? `약 ${Math.round(uData.distanceKm * 1000)}m 남음` : `약 ${uData.distanceKm.toFixed(1)}km 남음`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 cursor-pointer hover:border-emerald-500 transition shadow-md";
+                    card.onclick = () => map.setView([uData.lat, uData.lng], 17);
+                    card.innerHTML = `
+                        <div class="w-6 h-6 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[10px] shadow">${uData.name[0]}</div>
+                        <div>
+                            <div class="font-extrabold text-white text-[11px] truncate max-w-[80px]">${uData.name}</div>
+                            <div class="text-[10px] text-emerald-400 font-medium">${distText}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+
+                    if (uData.uid !== 'user_' + myNickName) {
+                        if (!userMarkers[uData.uid]) {
+                            const icon = L.divIcon({ className: 'user-marker', html: uData.name[0] });
+                            userMarkers[uData.uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
+                        } else {
+                            userMarkers[uData.uid].setLatLng([uData.lat, uData.lng]);
                         }
                     }
                 });
@@ -668,7 +687,7 @@
                 const chat = snapshot.val();
                 const chatBox = document.getElementById('chat-box');
                 const msg = document.createElement('div');
-                msg.innerHTML = `<span class="font-bold text-emerald-600">${chat.sender}:</span> ${chat.text}`;
+                msg.innerHTML = `<span class="font-bold text-emerald-400">${chat.sender}:</span> ${chat.text}`;
                 chatBox.appendChild(msg);
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
@@ -681,13 +700,13 @@
                     const isFirst = (myPos === null);
                     myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     
-                    document.getElementById('gps-status-text').className = "text-[10px] text-emerald-600 font-medium truncate";
+                    document.getElementById('gps-status-text').className = "text-[10px] text-emerald-400 font-medium truncate";
                     document.getElementById('gps-status-text').innerText = "🟢 GPS 연결됨";
 
                     syncMyLocation();
                     if (isFirst) map.setView([myPos.lat, myPos.lng], 16);
                 }, (err) => {
-                    document.getElementById('gps-status-text').className = "text-[10px] text-rose-500 font-medium truncate";
+                    document.getElementById('gps-status-text').className = "text-[10px] text-rose-400 font-medium truncate";
                     document.getElementById('gps-status-text').innerText = "⚠️ GPS 권한 대기";
                 }, { enableHighAccuracy: true, timeout: 10000 });
             }
@@ -697,12 +716,12 @@
             isSharingGPS = !isSharingGPS;
             const btn = document.getElementById('toggle-gps-btn');
             if (isSharingGPS) {
-                btn.className = "bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] px-2 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm";
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm";
                 btn.innerHTML = `<i class="fa-solid fa-satellite-dish text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> ON`;
                 startGPSWatch();
                 alert("내 위치 공유가 켜졌습니다.");
             } else {
-                btn.className = "bg-slate-200 text-slate-500 text-[11px] px-2 py-1.5 rounded-xl font-bold transition flex items-center gap-1 border border-slate-300";
+                btn.className = "bg-slate-800 text-slate-400 text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 border border-slate-700";
                 btn.innerHTML = `<i class="fa-solid fa-ban text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> OFF`;
                 if (watchId) navigator.geolocation.clearWatch(watchId);
                 alert("내 위치 공유가 꺼졌습니다.");
@@ -721,15 +740,6 @@
             db.ref(`rooms/${currentRoomId}/users/${myUid}`).set({
                 name: myNickName, lat: myPos.lat, lng: myPos.lng
             });
-        }
-
-        function focusUserLocation(lat, lng) {
-            map.setView([lat, lng], 17);
-            toggleMemberListModal();
-        }
-
-        function toggleMemberListModal() {
-            document.getElementById('member-list-modal').classList.toggle('hidden');
         }
 
         function panToMyLocation() {
