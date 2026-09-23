@@ -34,6 +34,7 @@
             font-weight: 800; font-size: 20px; color: #0284c7; position: relative; z-index: 2;
         }
         
+        /* 🟢 내 실제 GPS 위치 고정밀 대형 마커 */
         .isharing-my-marker {
             position: relative; width: 58px !important; height: 64px !important;
             margin-left: -29px !important; margin-top: -64px !important;
@@ -45,20 +46,24 @@
             border: 4px solid #ffffff; box-shadow: 0 10px 22px rgba(16, 185, 129, 0.45);
             display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 22px; color: #ffffff; position: relative; z-index: 2;
-            animation: myPulse 2s infinite;
+            animation: myPulse 1.8s infinite;
         }
         @keyframes myPulse {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
+            70% { box-shadow: 0 0 0 18px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
+        /* 📍 약속 장소 선명한 마커 */
         .target-marker {
-            width: 42px; height: 42px; background-color: #EF4444; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5); text-align: center;
-            line-height: 36px; color: white; font-size: 18px; animation: bounce 1s infinite alternate;
+            position: relative; width: 48px !important; height: 48px !important;
+            margin-left: -24px !important; margin-top: -48px !important;
+            background-color: #EF4444; border: 3px solid #ffffff;
+            border-radius: 50%; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6); text-align: center;
+            line-height: 42px; color: white; font-size: 22px; z-index: 9000 !important;
+            animation: targetBounce 1s infinite alternate ease-in-out;
         }
-        @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
+        @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
 
         .bright-grid-banner {
             background-color: #f1f5f9;
@@ -121,7 +126,7 @@
                         </div>
                         <div class="text-left">
                             <div class="text-xs font-extrabold text-[#0f4c3a] leading-tight">스마트 약속 모임</div>
-                            <div class="text-[10px] text-slate-500">실시간 위치와 국내 매장 장소 검색</div>
+                            <div class="text-[10px] text-slate-500">고정밀 실시간 GPS 지도</div>
                         </div>
                     </div>
                 </div>
@@ -259,7 +264,7 @@
         </div>
     </div>
 
-    <!-- 🎨 예시 이미지 스타일 고정 레이아웃 -->
+    <!-- 🎨 예시 이미지 고정 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
@@ -268,7 +273,7 @@
         <!-- 지도 하단 컨트롤 영역 -->
         <div class="flex flex-col z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
             
-            <!-- 1. 최상단: 딥 앤 다크 그린 배경의 모임원 도착 현황 창[cite: 15] -->
+            <!-- 1. 최상단: 딥 앤 다크 그린 모임원 현황 창[cite: 15] -->
             <div style="background-color: #0f4c3a !important;" class="text-white p-3 flex items-center gap-3 border-b border-[#145a45]">
                 <div class="flex items-center gap-2 shrink-0 border-r border-[#1a6850] pr-3">
                     <div class="w-8 h-8 rounded-full bg-[#1b5e48] text-teal-200 flex items-center justify-center text-sm shadow-inner">
@@ -290,32 +295,30 @@
                         </div>
                         <div class="min-w-0">
                             <div class="font-bold text-teal-100 text-[11px] truncate">나</div>
-                            <div id="my-dist-badge" class="text-[9px] text-teal-200/80 font-medium truncate">위치 확인 중</div>
+                            <div id="my-dist-badge" class="text-[9px] text-teal-200/80 font-medium truncate">GPS 측정 중</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. 중단: 화이트 라이트 배경의 GPS 상태 안내 및 버튼 창[cite: 15] -->
+            <!-- 2. 중단: GPS 상태 안내 및 버튼 창[cite: 15] -->
             <div style="background-color: #ffffff !important;" class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-200">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-sm shrink-0">
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <div class="min-w-0">
-                        <div id="gps-status-title" class="text-xs font-bold text-slate-800 truncate">📡 GPS 위치를 확인하는 중입니다...</div>
-                        <p id="gps-status-desc" class="text-[10px] text-slate-400 truncate">위치 권한 허용 시 지도 위 내 위치 마크가 실시간 업데이트됩니다.</p>
+                        <div id="gps-status-title" class="text-xs font-bold text-slate-800 truncate">📡 고정밀 GPS 위치를 추적 중입니다...</div>
+                        <p id="gps-status-desc" class="text-[10px] text-slate-400 truncate">위치 권한을 허용하시면 약속장소와 내 위치 마커가 정밀 표출됩니다.</p>
                     </div>
                 </div>
                 <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important;" class="text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold text-xs shadow-sm shrink-0 transition active:scale-95">
-                    <i class="fa-solid fa-crosshairs text-xs"></i> GPS 위치 확인·공유
+                    <i class="fa-solid fa-crosshairs text-xs"></i> 내 위치 바로가기
                 </button>
             </div>
 
-            <!-- 3. 하단: 모임 채팅 & 회비 장부 분할 카드 창[cite: 15] -->
+            <!-- 3. 하단: 모임 채팅 & 회비 장부 2분할 카드[cite: 15] -->
             <div style="background-color: #f8fafc !important;" class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                
-                <!-- 왼쪽 카드: 모임 채팅[cite: 15] -->
                 <div style="background-color: #ffffff !important;" class="border border-slate-200 rounded-2xl p-3 flex flex-col justify-between min-h-[110px] shadow-sm">
                     <div class="flex items-start gap-2.5 mb-2">
                         <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs shrink-0 mt-0.5">
@@ -339,7 +342,6 @@
                     </div>
                 </div>
 
-                <!-- 오른쪽 카드: 회비 장부[cite: 15] -->
                 <div style="background-color: #ffffff !important;" class="border border-slate-200 rounded-2xl p-3 flex flex-col justify-between min-h-[110px] shadow-sm">
                     <div class="flex justify-between items-center mb-2">
                         <div class="flex items-center gap-2">
@@ -371,7 +373,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
         </div>
@@ -394,9 +395,9 @@
         let isHost = false;
         let paymentHistory = [];
 
-        // 🔍 국내 확장 사전 지점 데이터베이스 (돼통령, 골드헤겔 등 완벽 지원)[cite: 16, 17]
+        // 🔍 국내 확장 사전 지점 데이터베이스 (돼통령, 골드헤겔 등)[cite: 16, 17]
         const EXTENDED_PRESETS = [
-            { name: "돼통령 병점본점", address: "경기 화성시 병점중앙로156번길 11-12 1층 (진안동)", lat: 37.2081, lng: 127.0375 },
+            { name: "돼통령 병점본점", address: "경기 화성시 병점중앙로156번길 11-12 (진안동)", lat: 37.2081, lng: 127.0375 },
             { name: "돼통령 오산대역점", address: "경기 오산시 내삼미로79번길 12", lat: 37.1685, lng: 127.0620 },
             { name: "돼통령 영통역점", address: "경기 수원시 영통구 청명남로34번길 21", lat: 37.2515, lng: 127.0782 },
             { name: "골드헤겔", address: "경기 오산시 수청로 11 (대형 베이커리 카페)", lat: 37.1613, lng: 127.0601 },
@@ -443,7 +444,6 @@
             initApp();
         }
 
-        // 🚀 고성능 키워드 검색 엔진 (로컬 통합 알고리즘 + 다중 Open Data)
         async function searchPlaces() {
             const rawQuery = document.getElementById('init-target-input').value.trim();
             if (!rawQuery) return alert("검색할 약속장소 또는 주소를 입력하세요.");
@@ -455,7 +455,6 @@
             const dropdownItems = [];
             const cleanQuery = rawQuery.replace(/\s+/g, '');
 
-            // 1. 국내 인기 매장 및 주요 거점 검색 (돼통령, 골드헤겔 등 완전 포함)[cite: 16, 17]
             EXTENDED_PRESETS.forEach(item => {
                 const cleanPresetName = item.name.replace(/\s+/g, '');
                 if (cleanPresetName.includes(cleanQuery) || cleanQuery.includes(cleanPresetName)) {
@@ -463,9 +462,8 @@
                 }
             });
 
-            // 2. OpenStreetMap 지점 다중 요청
             try {
-                let searchQueries = [rawQuery, `${rawQuery} 한국`, `${rawQuery} 맛집`];
+                let searchQueries = [rawQuery, `${rawQuery} 한국`];
                 const fetchPromises = searchQueries.map(q => 
                     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=kr&accept-language=ko&limit=8`)
                     .then(res => res.json()).catch(() => [])
@@ -489,7 +487,6 @@
                 });
             } catch(e) {}
 
-            // 드롭다운 렌더링
             if (dropdownItems.length > 0) {
                 dropdown.innerHTML = '';
                 const seenKeys = new Set();
@@ -519,7 +516,7 @@
             dropdown.innerHTML = `
                 <div class="p-3 text-center">
                     <p class="text-xs font-bold text-slate-700 mb-1">'${rawQuery}' 검색 결과가 없습니다.</p>
-                    <p class="text-[10px] text-slate-400">도로명 주소나 '병점 돼통령', '오산 골드헤겔'처럼 지역명을 함께 검색해보세요.</p>
+                    <p class="text-[10px] text-slate-400">도로명 주소나 '병점 돼통령', '오산 골드헤겔'처럼 검색해보세요.</p>
                 </div>
             `;
         }
@@ -707,7 +704,7 @@
                         </div>
                         <div class="min-w-0">
                             <div class="font-bold text-teal-100 text-[11px] truncate">${myNickName} (나)</div>
-                            <div class="text-[9px] text-teal-200/80 font-medium truncate">위치 확인 중</div>
+                            <div class="text-[9px] text-teal-200/80 font-medium truncate">GPS 측정 중</div>
                         </div>
                     `;
                     container.appendChild(defaultDiv);
@@ -750,13 +747,22 @@
                 });
             });
 
+            // 🎯 약속장소 실시간 수신 및 지도에 즉시 선명 마커 표시
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
-                if (target) {
+                if (target && target.lat && target.lng) {
                     targetPos = target;
                     if (targetMarker) map.removeLayer(targetMarker);
-                    const icon = L.divIcon({ className: 'target-marker', html: '<i class="fa-solid fa-flag"></i>' });
+                    
+                    const icon = L.divIcon({
+                        className: 'target-marker',
+                        html: '<i class="fa-solid fa-flag"></i>'
+                    });
+                    
                     targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
+                    
+                    // 약속 장소 위치로 뷰 이동
+                    map.setView([target.lat, target.lng], 15);
                 }
             });
 
@@ -773,19 +779,20 @@
             });
         }
 
+        // 📡 고정밀 지속 추적 GPS 수신 알고리즘
         function startGPSWatch() {
             if (!("geolocation" in navigator)) {
-                document.getElementById('gps-status-title').innerText = "❌ GPS 서비스 미지원";
+                document.getElementById('gps-status-title').innerText = "❌ GPS 서비스 미지원 기기";
                 return;
             }
 
             const gpsOptions = {
                 enableHighAccuracy: true,
-                timeout: 12000,
+                timeout: 10000,
                 maximumAge: 0
             };
 
-            navigator.geolocation.getCurrentPosition(handleGPSUpdate, handleGPSError, gpsOptions);
+            if (watchId) navigator.geolocation.clearWatch(watchId);
             watchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, gpsOptions);
         }
 
@@ -795,20 +802,22 @@
             const isFirstAcquire = (myPos === null);
             myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-            document.getElementById('gps-status-title').innerText = "🟢 GPS 실제 위치 연결 완료";
-            document.getElementById('gps-status-desc').innerText = `내 위치 위도: ${myPos.lat.toFixed(4)}, 경도: ${myPos.lng.toFixed(4)}`;
+            document.getElementById('gps-status-title').innerText = "🟢 실제 GPS 고정밀 위치 추적 중";
+            document.getElementById('gps-status-desc').innerText = `내 위치 위도: ${myPos.lat.toFixed(5)}, 경도: ${myPos.lng.toFixed(5)}`;
 
-            if (isFirstAcquire) {
+            if (isFirstAcquire && !targetPos) {
                 map.setView([myPos.lat, myPos.lng], 16);
             }
             syncMyLocation();
         }
 
         function handleGPSError(err) {
-            let title = "GPS 위치를 읽지 못했어요";
-            let desc = "위치 권한이 거부됨 · 지도에서 직접 위치를 지정해 주세요.";
+            let title = "GPS 위치를 읽지 못했습니다";
+            let desc = "브라우저 위치 권한 허용이 필요합니다.";
             if (err.code === err.PERMISSION_DENIED) {
-                desc = "브라우저 위치 권한 허용 필요";
+                desc = "위치 허용 안됨 · 주소창의 [위치 권한]을 허용으로 바꿔주세요.";
+            } else if (err.code === err.TIMEOUT) {
+                desc = "실제 위치 요청 시간 초과 · 재시도 중입니다.";
             }
             document.getElementById('gps-status-title').innerText = title;
             document.getElementById('gps-status-desc').innerText = desc;
@@ -853,7 +862,7 @@
             if (myPos) {
                 map.setView([myPos.lat, myPos.lng], 16);
             } else {
-                alert("현재 위치 GPS 수신 중입니다.");
+                alert("현재 고정밀 GPS 수신 중입니다. 위치 권한을 확인해주세요.");
                 startGPSWatch();
             }
         }
