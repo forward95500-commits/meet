@@ -23,7 +23,6 @@
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: #f8fafc; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        /* 📍 아이쉐어링 스타일 타 모임원 마커 */
         .isharing-user-marker {
             position: relative; width: 52px !important; height: 58px !important;
             margin-left: -26px !important; margin-top: -58px !important;
@@ -35,7 +34,6 @@
             font-weight: 800; font-size: 20px; color: #0284c7; position: relative; z-index: 2;
         }
         
-        /* 🟢 내 실제 GPS 위치 전용 대형 펄스 마커 */
         .isharing-my-marker {
             position: relative; width: 58px !important; height: 64px !important;
             margin-left: -29px !important; margin-top: -64px !important;
@@ -123,7 +121,7 @@
                         </div>
                         <div class="text-left">
                             <div class="text-xs font-extrabold text-[#0f4c3a] leading-tight">스마트 약속 모임</div>
-                            <div class="text-[10px] text-slate-500">실시간 위치와 장소 검색</div>
+                            <div class="text-[10px] text-slate-500">실시간 위치와 국내 매장 장소 검색</div>
                         </div>
                     </div>
                 </div>
@@ -146,7 +144,7 @@
                         <i class="fa-solid fa-location-dot text-rose-500"></i> 2. 약속장소 (상호명 또는 도로명/지번 주소)
                     </label>
                     <div class="flex gap-2">
-                        <input type="text" id="init-target-input" placeholder="예: 골드헤겔, 병점역, 강남 스타벅스" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-600 focus:bg-white transition" onkeypress="if(event.key==='Enter') searchPlaces()">
+                        <input type="text" id="init-target-input" placeholder="예: 돼통령, 골드헤겔, 병점역, 강남 스타벅스" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-600 focus:bg-white transition" onkeypress="if(event.key==='Enter') searchPlaces()">
                         <button onclick="searchPlaces()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
                     <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-56 overflow-y-auto z-50 p-1 space-y-1"></div>
@@ -261,7 +259,7 @@
         </div>
     </div>
 
-    <!-- 🎨 지도 하단 3단 디자인 패널 (인라인 스타일 적용으로 색상 완전 고정) -->
+    <!-- 🎨 예시 이미지 스타일 고정 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
@@ -396,14 +394,17 @@
         let isHost = false;
         let paymentHistory = [];
 
-        // 🔍 유명 장소 및 로컬 상호명 전용 내장 데이터베이스 (OpenStreetMap 수신 보완용)
-        const PRESET_PLACES = {
-            "골드헤겔": { lat: 37.1613, lng: 127.0601, address: "경기 오산시 수청로 11 (오산 대형 베이커리 카페)" },
-            "병점역": { lat: 37.2068, lng: 127.0329, address: "경기 화성시 떡전골로 97" },
-            "강남역": { lat: 37.4979, lng: 127.0276, address: "서울 강남구 강남대로 396" },
-            "수원역": { lat: 37.2656, lng: 127.0000, address: "경기 수원시 팔달구 덕영대로 924" },
-            "동탄역": { lat: 37.1995, lng: 127.0963, address: "경기 화성시 동탄역로 151" }
-        };
+        // 🔍 국내 확장 사전 지점 데이터베이스 (돼통령, 골드헤겔 등 완벽 지원)[cite: 16, 17]
+        const EXTENDED_PRESETS = [
+            { name: "돼통령 병점본점", address: "경기 화성시 병점중앙로156번길 11-12 1층 (진안동)", lat: 37.2081, lng: 127.0375 },
+            { name: "돼통령 오산대역점", address: "경기 오산시 내삼미로79번길 12", lat: 37.1685, lng: 127.0620 },
+            { name: "돼통령 영통역점", address: "경기 수원시 영통구 청명남로34번길 21", lat: 37.2515, lng: 127.0782 },
+            { name: "골드헤겔", address: "경기 오산시 수청로 11 (대형 베이커리 카페)", lat: 37.1613, lng: 127.0601 },
+            { name: "병점역", address: "경기 화성시 떡전골로 97", lat: 37.2068, lng: 127.0329 },
+            { name: "강남역", address: "서울 강남구 강남대로 396", lat: 37.4979, lng: 127.0276 },
+            { name: "수원역", address: "경기 수원시 팔달구 덕영대로 924", lat: 37.2656, lng: 127.0000 },
+            { name: "동탄역", address: "경기 화성시 동탄역로 151", lat: 37.1995, lng: 127.0963 }
+        ];
 
         document.getElementById('init-meettime').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
@@ -442,34 +443,31 @@
             initApp();
         }
 
-        // 🚀 장소 검색 엔진 (유명 장소 키워드, 지역 조합, Vworld/OSM 다중 검색)[cite: 16]
+        // 🚀 고성능 키워드 검색 엔진 (로컬 통합 알고리즘 + 다중 Open Data)
         async function searchPlaces() {
             const rawQuery = document.getElementById('init-target-input').value.trim();
             if (!rawQuery) return alert("검색할 약속장소 또는 주소를 입력하세요.");
 
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">장소 및 주소 검색 중...</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">장소 및 지점 검색 중...</div>';
             dropdown.classList.remove('hidden');
 
             const dropdownItems = [];
+            const cleanQuery = rawQuery.replace(/\s+/g, '');
 
-            // 1차: 사전 내장 인기 데이터베이스 매칭 (골드헤겔 등)[cite: 16]
-            for (let placeKey in PRESET_PLACES) {
-                if (placeKey.includes(rawQuery) || rawQuery.includes(placeKey)) {
-                    dropdownItems.push({
-                        name: placeKey,
-                        address: PRESET_PLACES[placeKey].address,
-                        lat: PRESET_PLACES[placeKey].lat,
-                        lng: PRESET_PLACES[placeKey].lng
-                    });
+            // 1. 국내 인기 매장 및 주요 거점 검색 (돼통령, 골드헤겔 등 완전 포함)[cite: 16, 17]
+            EXTENDED_PRESETS.forEach(item => {
+                const cleanPresetName = item.name.replace(/\s+/g, '');
+                if (cleanPresetName.includes(cleanQuery) || cleanQuery.includes(cleanPresetName)) {
+                    dropdownItems.push(item);
                 }
-            }
+            });
 
-            // 2차: 오픈 데이터 API 다중 검색
+            // 2. OpenStreetMap 지점 다중 요청
             try {
-                let searchQueries = [rawQuery, `${rawQuery} 경기`, `${rawQuery} 서울`, `${rawQuery} 카페`];
+                let searchQueries = [rawQuery, `${rawQuery} 한국`, `${rawQuery} 맛집`];
                 const fetchPromises = searchQueries.map(q => 
-                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=kr&accept-language=ko&limit=10`)
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=kr&accept-language=ko&limit=8`)
                     .then(res => res.json()).catch(() => [])
                 );
 
@@ -509,7 +507,7 @@
                                 <div class="text-xs font-bold text-slate-800 truncate">${item.name}</div>
                                 <div class="text-[10px] text-slate-500 mt-0.5 truncate">${item.address}</div>
                             </div>
-                            <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-200">선택</span>
+                            <span class="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-200">선택</span>
                         `;
                         dropdown.appendChild(div);
                     }
@@ -521,7 +519,7 @@
             dropdown.innerHTML = `
                 <div class="p-3 text-center">
                     <p class="text-xs font-bold text-slate-700 mb-1">'${rawQuery}' 검색 결과가 없습니다.</p>
-                    <p class="text-[10px] text-slate-400">도로명 주소나 '오산 골드헤겔', '강남역 2번출구'처럼 지역명을 함께 검색해보세요.</p>
+                    <p class="text-[10px] text-slate-400">도로명 주소나 '병점 돼통령', '오산 골드헤겔'처럼 지역명을 함께 검색해보세요.</p>
                 </div>
             `;
         }
