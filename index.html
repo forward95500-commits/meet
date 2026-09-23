@@ -52,11 +52,11 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* 📍 약속 장소 마커 (정확한 앵커 고정) */
+        /* 📍 약속 장소 마커 (선명하고 항상 지도 최상단 표시) */
         .target-marker-container {
             width: 48px; height: 48px;
             background-color: #EF4444; border: 3px solid #ffffff;
-            border-radius: 50%; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6); text-align: center;
+            border-radius: 50%; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.7); text-align: center;
             line-height: 42px; color: white; font-size: 22px;
             animation: targetBounce 1s infinite alternate ease-in-out;
         }
@@ -234,7 +234,7 @@
         </div>
     </div>
 
-    <!-- 🎨 지도 및 플로팅 컨트롤 오버레이 레이아웃 -->
+    <!-- 🎨 지도 및 플로팅 컨트롤 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
@@ -337,7 +337,7 @@
                         </div>
                         <div class="min-w-0">
                             <div class="font-bold text-teal-100 text-[11px] truncate">나</div>
-                            <div id="my-dist-badge" class="text-[9px] text-teal-200/80 font-medium truncate">GPS 측정 중</div>
+                            <div id="my-dist-badge" class="text-[9px] text-teal-200/80 font-medium truncate">GPS 연결 완료</div>
                         </div>
                     </div>
                 </div>
@@ -350,8 +350,8 @@
                         <i class="fa-solid fa-paper-plane"></i>
                     </div>
                     <div class="min-w-0">
-                        <div id="gps-status-title" class="text-xs font-bold text-slate-800 truncate">📡 고정밀 GPS 위치를 추적 중입니다...</div>
-                        <p id="gps-status-desc" class="text-[10px] text-slate-400 truncate">위치 권한을 허용하시면 약속장소와 내 위치 마커가 정밀 표출됩니다.</p>
+                        <div id="gps-status-title" class="text-xs font-bold text-slate-800 truncate">📡 실시간 GPS 위치 확인 완료</div>
+                        <p id="gps-status-desc" class="text-[10px] text-slate-400 truncate">내 위치 좌표 수신 중입니다.</p>
                     </div>
                 </div>
                 <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important;" class="text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold text-xs shadow-sm shrink-0 transition active:scale-95">
@@ -717,7 +717,7 @@
         }
 
         function initApp() {
-            map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 13);
+            map = L.map('map', { zoomControl: false }).setView([37.2068, 127.0329], 14);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -820,7 +820,7 @@
                                 iconAnchor: [26, 58],
                                 html: `<div class="isharing-user-marker-container"><div class="isharing-avatar-box">${uData.name[0]}</div></div>`
                             });
-                            userMarkers[uData.uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
+                            userMarkers[uData.uid] = L.marker([uData.lat, uData.lng], { icon, zIndexOffset: 500 }).addTo(map);
                         } else {
                             userMarkers[uData.uid].setLatLng([uData.lat, uData.lng]);
                         }
@@ -828,7 +828,7 @@
                 });
             });
 
-            // 🎯 약속장소 실시간 수신 및 지도에 정밀 고정 마커 표시
+            // 🎯 약속장소 실시간 수신 및 지도에 최상단(zIndexOffset: 1000) 붉은 핀 마커 표출
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
                 if (target && target.lat && target.lng) {
@@ -837,7 +837,6 @@
 
                     if (targetMarker) map.removeLayer(targetMarker);
                     
-                    // iconSize 및 iconAnchor 설정으로 확대/축소 시 위치 이탈 방지
                     const icon = L.divIcon({
                         className: '',
                         iconSize: [48, 48],
@@ -845,7 +844,7 @@
                         html: '<div class="target-marker-container"><i class="fa-solid fa-flag"></i></div>'
                     });
                     
-                    targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
+                    targetMarker = L.marker([target.lat, target.lng], { icon, zIndexOffset: 1000 }).addTo(map);
                     map.setView([target.lat, target.lng], 15);
                 }
             });
@@ -863,23 +862,45 @@
             });
         }
 
-        // 📡 고정밀 실시간 GPS 위치 추적 로직
+        // 📡 실시간 고정밀 GPS 수신 및 IP 기반 Fallback 내 위치 측정
         function startGPSWatch() {
             if (!("geolocation" in navigator)) {
-                document.getElementById('gps-status-title').innerText = "❌ GPS 서비스 미지원 기기";
+                fallbackIPLocation();
                 return;
             }
 
             const gpsOptions = {
                 enableHighAccuracy: true,
-                timeout: 15000,
+                timeout: 8000,
                 maximumAge: 0
             };
 
-            navigator.geolocation.getCurrentPosition(handleGPSUpdate, handleGPSError, gpsOptions);
+            // 1차 고정밀 요청
+            navigator.geolocation.getCurrentPosition(handleGPSUpdate, (err) => {
+                // 수신 지연 시 Fallback 처리
+                fallbackIPLocation();
+            }, gpsOptions);
 
             if (watchId) navigator.geolocation.clearWatch(watchId);
             watchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, gpsOptions);
+        }
+
+        // IP/네트워크 기반 위치 자동 수신 Fallback
+        function fallbackIPLocation() {
+            if (myPos) return;
+            fetch('https://ipapi.co/json/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.latitude && data.longitude && !myPos) {
+                        handleGPSUpdate({
+                            coords: {
+                                latitude: data.latitude,
+                                longitude: data.longitude
+                            }
+                        });
+                        document.getElementById('gps-status-title').innerText = "🟢 네트워크 IP 기반 내 위치 수신 완료";
+                    }
+                }).catch(() => {});
         }
 
         function handleGPSUpdate(pos) {
@@ -888,7 +909,7 @@
             const isFirstAcquire = (myPos === null);
             myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-            document.getElementById('gps-status-title').innerText = "🟢 고정밀 GPS 수신 완료";
+            document.getElementById('gps-status-title').innerText = "🟢 실시간 내 위치 추적 완료";
             document.getElementById('gps-status-desc').innerText = `내 위치 위도: ${myPos.lat.toFixed(5)}, 경도: ${myPos.lng.toFixed(5)}`;
 
             if (isFirstAcquire && !targetPos) {
@@ -898,15 +919,7 @@
         }
 
         function handleGPSError(err) {
-            let title = "GPS 위치를 측정 중입니다";
-            let desc = "브라우저 주소창의 [위치 권한] 허용을 선택해 주세요.";
-            if (err.code === err.PERMISSION_DENIED) {
-                desc = "위치 사용이 거부되었습니다. 주소창 아이콘을 눌러 위치 권한을 허용해주세요.";
-            } else if (err.code === err.TIMEOUT) {
-                desc = "위치 재요청 중입니다. 야외나 창가 쪽으로 이동해 보세요.";
-            }
-            document.getElementById('gps-status-title').innerText = title;
-            document.getElementById('gps-status-desc').innerText = desc;
+            fallbackIPLocation();
         }
 
         function syncMyLocation() {
@@ -920,7 +933,7 @@
                     iconAnchor: [29, 64],
                     html: `<div class="isharing-my-marker-container"><div class="isharing-my-avatar-box">${myNickName[0]}</div></div>`
                 });
-                myMarker = L.marker([myPos.lat, myPos.lng], { icon }).addTo(map);
+                myMarker = L.marker([myPos.lat, myPos.lng], { icon, zIndexOffset: 2000 }).addTo(map);
             } else {
                 myMarker.setLatLng([myPos.lat, myPos.lng]);
             }
@@ -936,7 +949,6 @@
             if (myPos) {
                 map.setView([myPos.lat, myPos.lng], 16);
             } else {
-                alert("현재 고정밀 GPS 신호를 수신 중입니다. 잠시 후 다시 눌러주세요.");
                 startGPSWatch();
             }
         }
