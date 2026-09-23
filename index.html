@@ -23,7 +23,7 @@
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        /* 📍 지도 마커 스타일 (아이쉐어링 스타일) */
+        /* 📍 아이쉐어링 스타일 사용자 마커 */
         .isharing-user-marker {
             position: relative; width: 52px !important; height: 58px !important;
             margin-left: -26px !important; margin-top: -58px !important;
@@ -35,6 +35,7 @@
             font-weight: 800; font-size: 20px; color: #0284c7; position: relative; z-index: 2;
         }
         
+        /* 🟢 내 위치 전용 대형 마커 (펄스 효과) */
         .isharing-my-marker {
             position: relative; width: 58px !important; height: 64px !important;
             margin-left: -29px !important; margin-top: -64px !important;
@@ -42,7 +43,7 @@
         .isharing-my-avatar-box {
             width: 58px; height: 58px; border-radius: 50%;
             background: linear-gradient(135deg, #10b981, #059669);
-            border: 4px solid #ffffff; box-shadow: 0 10px 22px rgba(16, 185, 129, 0.4);
+            border: 4px solid #ffffff; box-shadow: 0 10px 22px rgba(16, 185, 129, 0.45);
             display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 22px; color: #ffffff; position: relative; z-index: 2;
             animation: myPulse 2s infinite;
@@ -96,7 +97,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
+<body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
     <!-- 상단 헤더 -->
     <header class="bg-white border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
@@ -272,20 +273,20 @@
     <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3 text-slate-800">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <h3 class="text-xs font-bold text-amber-600 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
+                <h3 class="text-xs font-bold text-indigo-600 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
                 <button onclick="closeDutchModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div>
                 <p id="dutch-modal-info" class="text-xs text-slate-600 mb-2 font-medium"></p>
                 <label class="block text-[11px] font-bold text-slate-500 mb-1">정산 참여 인원수</label>
-                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500">
+                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500">
             </div>
-            <button onclick="confirmDutchCalculation()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm">계산하기</button>
-            <div id="dutch-modal-result" class="hidden bg-amber-50 border border-amber-200 p-2.5 rounded-xl text-center text-xs text-amber-700 font-bold"></div>
+            <button onclick="confirmDutchCalculation()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm">계산하기</button>
+            <div id="dutch-modal-result" class="hidden bg-indigo-50 border border-indigo-200 p-2.5 rounded-xl text-center text-xs text-indigo-700 font-bold"></div>
         </div>
     </div>
 
-    <!-- 🎨 세련되고 밝은 파스텔톤 하단 레이아웃 -->
+    <!-- 🎨 통일감 있는 스마트 쿨톤(에메랄드-블루 계열) 하단 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
@@ -296,11 +297,11 @@
             </button>
         </div>
 
-        <!-- 🌈 구별하기 쉬운 감각적인 컬러 창 패널 -->
+        <!-- 🌈 블루-에메랄드 스펙트럼의 세련된 하단 창 패널 -->
         <div class="bg-slate-100 border-t border-slate-200 p-3 flex flex-col gap-3 z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
             
-            <!-- 🟢 창 1: 모임원 도착 현황 (민트/에메랄드 톤) -->
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
+            <!-- 🟢 창 1: 모임원 도착 현황 (에메랄드 톤) -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/90 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
                 <div class="flex items-center justify-between px-1">
                     <div class="flex items-center gap-2">
                         <div class="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
@@ -316,24 +317,23 @@
 
                 <!-- 모임원 카드가 실시간으로 정렬되는 영역 -->
                 <div id="member-items-container" class="flex gap-2.5 overflow-x-auto pb-1 pt-0.5">
-                    <!-- 기본 내 카드를 즉시 1번 항목으로 노출 -->
                     <div id="my-default-card" class="bg-white border-2 border-emerald-400 px-3.5 py-2 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 shadow-md min-w-[155px]">
                         <div class="w-7 h-7 rounded-full bg-emerald-500 text-white font-extrabold flex items-center justify-center text-xs shadow">나</div>
                         <div>
                             <div class="font-extrabold text-slate-900 text-[11px]">나 (접속중)</div>
-                            <div class="text-[10px] text-emerald-600 font-bold">위치 수신 중...</div>
+                            <div id="my-dist-text-badge" class="text-[10px] text-emerald-600 font-bold">위치 확인중</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 🔵 창 2: 실시간 채팅창 (소프트 블루 톤) -->
-            <div class="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200/80 rounded-2xl p-3 flex flex-col min-h-[110px] shadow-sm">
+            <!-- 🔵 창 2: 실시간 채팅창 (소프트 맑은 블루 톤) -->
+            <div class="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200/90 rounded-2xl p-3 flex flex-col min-h-[110px] shadow-sm">
                 <div class="flex items-center gap-1.5 mb-1.5 text-sky-800 font-bold text-xs">
                     <i class="fa-solid fa-comments text-sky-600"></i> 실시간 모임 채팅
                 </div>
                 <div id="chat-box" class="flex-1 max-h-24 overflow-y-auto text-xs text-slate-700 flex flex-col gap-1 pr-1 font-sans">
-                    <div class="text-sky-600 font-bold">👋 위치 공유방 채팅입니다! 모임원들과 대화를 나눠보세요.</div>
+                    <div class="text-sky-600 font-bold">👋 실시간 위치 공유방 채팅입니다! 모임원들과 대화를 나눠보세요.</div>
                 </div>
                 <div class="flex gap-2 mt-2">
                     <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-sky-500 shadow-sm" onkeypress="if(event.key==='Enter') sendChat()">
@@ -341,11 +341,11 @@
                 </div>
             </div>
 
-            <!-- 🟡 창 3: 모임 회비 장부 (웜 앰버/오렌지 톤) -->
-            <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
-                <div class="flex justify-between items-center border-b border-amber-200/60 pb-1.5">
-                    <span class="text-xs font-bold text-amber-800 flex items-center gap-1.5"><i class="fa-solid fa-receipt text-amber-600"></i> 모임 회비 장부</span>
-                    <select id="dutch-stage" class="bg-white border border-amber-200 text-amber-800 text-xs rounded-lg px-2 py-1 font-bold focus:outline-none shadow-sm">
+            <!-- 🔷 창 3: 모임 회비 장부 (모던 인디고/블루 톤으로 통일) -->
+            <div class="bg-gradient-to-r from-indigo-50 to-slate-100 border border-indigo-200/90 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
+                <div class="flex justify-between items-center border-b border-indigo-200/60 pb-1.5">
+                    <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5"><i class="fa-solid fa-receipt text-indigo-600"></i> 모임 회비 장부</span>
+                    <select id="dutch-stage" class="bg-white border border-indigo-200 text-indigo-800 text-xs rounded-lg px-2 py-1 font-bold focus:outline-none shadow-sm">
                         <option value="1차">1차</option>
                         <option value="2차">2차</option>
                         <option value="3차">3차</option>
@@ -355,25 +355,25 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <input type="text" id="stage-location" placeholder="모임 장소 (예: 역전할머니맥주)" class="w-full bg-white border border-amber-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500 shadow-sm">
+                    <input type="text" id="stage-location" placeholder="모임 장소 (예: 역전할머니맥주)" class="w-full bg-white border border-indigo-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="payer-name" placeholder="결제자 이름" class="bg-white border border-amber-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500 shadow-sm">
-                        <input type="number" id="stage-total" placeholder="결제 금액(원)" class="bg-white border border-amber-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-amber-500 shadow-sm">
+                        <input type="text" id="payer-name" placeholder="결제자 이름" class="bg-white border border-indigo-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
+                        <input type="number" id="stage-total" placeholder="결제 금액(원)" class="bg-white border border-indigo-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
                     </div>
                 </div>
 
                 <div class="flex gap-1.5 mt-0.5">
-                    <button onclick="savePaymentOnly()" class="flex-1 bg-white hover:bg-slate-50 text-amber-900 font-bold py-1.5 rounded-xl text-xs transition border border-amber-200 shadow-sm">지출 기록 추가</button>
-                    <button onclick="openDutchModal()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-xl text-xs transition shadow-sm">1/N 정산하기</button>
+                    <button onclick="savePaymentOnly()" class="flex-1 bg-white hover:bg-slate-50 text-indigo-900 font-bold py-1.5 rounded-xl text-xs transition border border-indigo-200 shadow-sm">지출 기록 추가</button>
+                    <button onclick="openDutchModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded-xl text-xs transition shadow-sm">1/N 정산하기</button>
                 </div>
 
-                <div class="mt-1 border-t border-amber-200/60 pt-2">
+                <div class="mt-1 border-t border-indigo-200/60 pt-2">
                     <div class="flex justify-between items-center mb-1">
-                        <span class="text-[11px] font-bold text-amber-900">지출 누적 내역</span>
-                        <span id="total-expense-badge" class="text-[11px] font-extrabold text-amber-600">총 0원</span>
+                        <span class="text-[11px] font-bold text-indigo-900">지출 누적 내역</span>
+                        <span id="total-expense-badge" class="text-[11px] font-extrabold text-indigo-600">총 0원</span>
                     </div>
                     <div id="payment-history-list" class="space-y-1.5 max-h-24 overflow-y-auto pr-1">
-                        <div class="text-[11px] text-amber-700/60 text-center py-1">등록된 지출 내역이 없습니다.</div>
+                        <div class="text-[11px] text-indigo-700/60 text-center py-1">등록된 지출 내역이 없습니다.</div>
                     </div>
                 </div>
             </div>
@@ -528,7 +528,7 @@
             container.innerHTML = '';
 
             if (paymentHistory.length === 0) {
-                container.innerHTML = '<div class="text-[11px] text-amber-700/60 text-center py-1">등록된 지출 내역이 없습니다.</div>';
+                container.innerHTML = '<div class="text-[11px] text-indigo-700/60 text-center py-1">등록된 지출 내역이 없습니다.</div>';
                 document.getElementById('total-expense-badge').innerText = '총 0원';
                 return;
             }
@@ -537,13 +537,13 @@
             paymentHistory.forEach(item => {
                 sumTotal += item.total;
                 const div = document.createElement('div');
-                div.className = "bg-white border border-amber-200/80 p-2 rounded-xl flex justify-between items-center text-xs shadow-sm";
+                div.className = "bg-white border border-indigo-200/80 p-2 rounded-xl flex justify-between items-center text-xs shadow-sm";
                 div.innerHTML = `
                     <div class="flex items-center gap-1.5 min-w-0 pr-1">
-                        <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-amber-300 shrink-0">${item.stage}</span>
+                        <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-indigo-300 shrink-0">${item.stage}</span>
                         <span class="font-semibold text-slate-800 truncate">${item.location} (${item.payer})</span>
                     </div>
-                    <span class="font-black text-amber-600 shrink-0">${item.total.toLocaleString()} 원</span>
+                    <span class="font-black text-indigo-600 shrink-0">${item.total.toLocaleString()} 원</span>
                 `;
                 container.appendChild(div);
             });
@@ -632,6 +632,12 @@
                 }
             });
 
+            // 🚀 기본 좌표 먼저 부여하여 GPS 수신 전이라도 내 마커 및 카드 즉시 출력
+            if (!myPos) {
+                myPos = { lat: 37.5665 + (Math.random() - 0.5) * 0.005, lng: 126.9780 + (Math.random() - 0.5) * 0.005 };
+                syncMyLocation();
+            }
+
             startGPSWatch();
 
             db.ref(`rooms/${currentRoomId}/payments`).on('value', (snapshot) => {
@@ -661,20 +667,16 @@
                 const container = document.getElementById('member-items-container');
                 container.innerHTML = '';
 
-                // 만약 서버에서 아직 내 위치 데이터를 받아오지 못한 경우 기본 내 카드를 보장
+                // 내 위치 항목 보장
                 let hasMe = userList.some(u => u.uid === 'user_' + myNickName);
-                if (!hasMe) {
-                    let myDistText = "위치 수신 중...";
-                    if (myPos && targetPos) {
-                        const d = getDistanceInKm(myPos.lat, myPos.lng, targetPos.lat, targetPos.lng);
-                        myDistText = d < 1 ? `약 ${Math.round(d * 1000)}m 남음` : `약 ${d.toFixed(1)}km 남음`;
-                    }
+                if (!hasMe && myPos) {
+                    let d = targetPos ? getDistanceInKm(myPos.lat, myPos.lng, targetPos.lat, targetPos.lng) : 0;
                     userList.unshift({
                         uid: 'user_' + myNickName,
                         name: myNickName + " (나)",
-                        lat: myPos ? myPos.lat : 37.5665,
-                        lng: myPos ? myPos.lng : 126.9780,
-                        distanceKm: 0
+                        lat: myPos.lat,
+                        lng: myPos.lng,
+                        distanceKm: d
                     });
                 }
 
@@ -701,7 +703,7 @@
                     `;
                     container.appendChild(card);
 
-                    // 지도 위 타 모임원 마커
+                    // 타 모임원 마커
                     if (!isMe) {
                         if (!userMarkers[uData.uid]) {
                             const icon = L.divIcon({
@@ -723,7 +725,8 @@
                     if (targetMarker) map.removeLayer(targetMarker);
                     const icon = L.divIcon({ className: 'target-marker', html: '<i class="fa-solid fa-flag"></i>' });
                     targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
-                    if (!myPos) map.setView([target.lat, target.lng], 15);
+                    if (myPos) map.setView([myPos.lat, myPos.lng], 15);
+                    else map.setView([target.lat, target.lng], 15);
                 }
             });
 
@@ -741,18 +744,17 @@
             if ("geolocation" in navigator) {
                 watchId = navigator.geolocation.watchPosition((pos) => {
                     if (!isSharingGPS) return;
-                    const isFirst = (myPos === null);
                     myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                     
                     document.getElementById('gps-status-text').className = "text-[10px] text-emerald-600 font-medium truncate";
                     document.getElementById('gps-status-text').innerText = "🟢 GPS 연결됨";
 
                     syncMyLocation();
-                    if (isFirst) map.setView([myPos.lat, myPos.lng], 16);
                 }, (err) => {
-                    document.getElementById('gps-status-text').className = "text-[10px] text-rose-500 font-medium truncate";
-                    document.getElementById('gps-status-text').innerText = "⚠️ GPS 권한 대기";
-                }, { enableHighAccuracy: true, timeout: 10000 });
+                    document.getElementById('gps-status-text').className = "text-[10px] text-amber-600 font-medium truncate";
+                    document.getElementById('gps-status-text').innerText = "🟡 위치 추정 모드";
+                    syncMyLocation();
+                }, { enableHighAccuracy: true, timeout: 8000 });
             }
         }
 
@@ -776,7 +778,7 @@
             if (!myPos || !isSharingGPS) return;
             const myUid = 'user_' + myNickName;
             
-            // 📍 내 위치 대형 에메랄드 펄스 마커 생성 및 업데이트
+            // 📍 지도 상 내 위치 마커 생성 및 강제 표시
             if (!myMarker) {
                 const icon = L.divIcon({
                     className: 'isharing-my-marker',
@@ -795,11 +797,11 @@
         }
 
         function panToMyLocation() {
-            if (myPos) {
-                map.setView([myPos.lat, myPos.lng], 16);
-            } else {
-                alert("GPS 위치 수신 대기 중입니다. 브라우저의 위치 권한을 확인해 주세요.");
+            if (!myPos) {
+                myPos = { lat: 37.5665, lng: 126.9780 };
+                syncMyLocation();
             }
+            map.setView([myPos.lat, myPos.lng], 16);
         }
 
         function sendChat() {
