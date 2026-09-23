@@ -77,8 +77,8 @@
             background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
         }
 
-        /* 🔝 [강제 상단 표출] 지도 위 플로팅 오버레이 바 */
-        .top-floating-bar {
+        /* 🔝 지도 상단 한 줄 오버레이 바 */
+        .top-floating-bar-single {
             position: absolute !important;
             top: 12px !important;
             left: 12px !important;
@@ -252,71 +252,83 @@
     <!-- 🎨 메인 화면 레이아웃 (지도 영역 + 하단 컨트롤) -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
-        <!-- 지도 컨테이너Wrapper -->
+        <!-- 지도 컨테이너 Wrapper -->
         <div class="relative flex-1 w-full h-full">
 
-            <!-- 📸 [핵심 수정] 지도 위 상단 플로팅 카드가 가려지지 않고 항상 보이는 오버레이 박스 -->
-            <div class="top-floating-bar flex items-center gap-2 overflow-x-auto pb-1">
+            <!-- 📸 [한 줄 통합 설계] 박스 + 위치공유 ON/OFF + 방폭파가 한 줄로 표시되는 상단 바 -->
+            <div class="top-floating-bar-single flex items-center gap-2 overflow-x-auto pb-1">
                 
-                <!-- 1. 모임명 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[160px] shrink-0">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
-                        <i class="fa-solid fa-pen"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="text-[10px] font-bold text-slate-400">모임명</div>
-                        <input type="text" id="top-room-title" value="모임방" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full border-b border-transparent focus:border-emerald-500" onchange="updateRoomTitle(this.value)">
-                    </div>
-                    <button onclick="saveTopTitle()" class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs hover:bg-emerald-100 transition shrink-0">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                    </button>
-                </div>
-
-                <!-- 2. 약속 일시 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[210px] shrink-0">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
-                        <i class="fa-solid fa-calendar-days"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="text-[10px] font-bold text-slate-400">약속 일시</div>
-                        <input type="datetime-local" id="top-meet-time" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full" onchange="updateRoomTime(this.value)">
-                    </div>
-                </div>
-
-                <!-- 3. 목적지 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <div class="text-[10px] font-bold text-slate-400">목적지</div>
-                        <div id="top-target-name" class="text-xs font-black text-slate-800 truncate">장소 지정 필요</div>
-                    </div>
-                    <button onclick="openTargetSearchModal()" class="bg-[#0f4c3a] hover:bg-[#145a45] text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1 shrink-0 transition">
-                        <i class="fa-solid fa-magnifying-glass text-[10px]"></i> 찾기
-                    </button>
-                </div>
-
-                <!-- 4. 현재 접속 / 최대 인원 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[150px] shrink-0">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
-                        <i class="fa-solid fa-user-group"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="text-[10px] font-bold text-slate-400">현재 접속 / 최대 인원</div>
-                        <div class="flex items-center gap-1">
-                            <span id="top-current-count" class="text-xs font-black text-slate-800">1명</span>
-                            <span class="text-slate-400 text-xs font-bold">/</span>
-                            <select id="top-max-members" onchange="updateMaxMembers(this.value)" class="text-xs font-black text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-1 py-0.5 focus:outline-none">
-                                <option value="2">2명</option>
-                                <option value="3" selected>3명</option>
-                                <option value="4">4명</option>
-                                <option value="5">5명</option>
-                                <option value="10">10명</option>
-                            </select>
+                <!-- 1. 박스: 모임명, 약속일시, 목적지, 인원이 가로로 배치된 메인 박스 -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2 shadow-2xl flex items-center gap-3 shrink-0">
+                    
+                    <!-- (1) 모임명 -->
+                    <div class="flex items-center gap-2 border-r border-slate-200 pr-3 min-w-[130px]">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                            <i class="fa-solid fa-pen"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[9px] font-bold text-slate-400 leading-tight">모임명</div>
+                            <input type="text" id="top-room-title" value="모임방" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full border-b border-transparent focus:border-emerald-500" onchange="updateRoomTitle(this.value)">
                         </div>
                     </div>
+
+                    <!-- (2) 약속일시 -->
+                    <div class="flex items-center gap-2 border-r border-slate-200 pr-3 min-w-[170px]">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[9px] font-bold text-slate-400 leading-tight">약속일시</div>
+                            <input type="datetime-local" id="top-meet-time" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full" onchange="updateRoomTime(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- (3) 목적지 -->
+                    <div class="flex items-center gap-2 border-r border-slate-200 pr-3 min-w-[200px]">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-[9px] font-bold text-slate-400 leading-tight">목적지</div>
+                            <div id="top-target-name" class="text-xs font-black text-slate-800 truncate">장소 지정 필요</div>
+                        </div>
+                        <button onclick="openTargetSearchModal()" class="bg-[#0f4c3a] hover:bg-[#145a45] text-white text-[11px] font-bold px-2 py-1 rounded-lg shadow shrink-0">찾기</button>
+                    </div>
+
+                    <!-- (4) 접속/최대인원 -->
+                    <div class="flex items-center gap-2 min-w-[110px]">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                            <i class="fa-solid fa-user-group"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-[9px] font-bold text-slate-400 leading-tight">인원</div>
+                            <div class="flex items-center gap-1">
+                                <span id="top-current-count" class="text-xs font-black text-slate-800">1명</span>
+                                <span class="text-slate-400 text-xs font-bold">/</span>
+                                <select id="top-max-members" onchange="updateMaxMembers(this.value)" class="text-xs font-black text-emerald-800 bg-emerald-50 border border-emerald-200 rounded px-1 py-0.5 focus:outline-none">
+                                    <option value="2">2명</option>
+                                    <option value="3" selected>3명</option>
+                                    <option value="4">4명</option>
+                                    <option value="5">5명</option>
+                                    <option value="10">10명</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- 2. 위치 공유 ON / OFF 토글 버튼 -->
+                <button id="toggle-gps-btn" onclick="toggleGpsSharing()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-1.5 shrink-0 transition active:scale-95 border border-white/20">
+                    <i class="fa-solid fa-satellite-dish"></i>
+                    <span id="gps-toggle-text">위치공유 ON</span>
+                </button>
+
+                <!-- 3. 방 폭파 (모임방 삭제) 버튼 -->
+                <button onclick="destroyRoom()" class="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-1.5 shrink-0 transition active:scale-95 border border-white/20">
+                    <i class="fa-solid fa-bomb"></i>
+                    <span>방 폭파</span>
+                </button>
 
             </div>
 
@@ -503,6 +515,38 @@
                 });
             }
         };
+
+        /* 📡 위치 공유 ON/OFF 토글 */
+        function toggleGpsSharing() {
+            isSharingGPS = !isSharingGPS;
+            const btn = document.getElementById('toggle-gps-btn');
+            const txt = document.getElementById('gps-toggle-text');
+
+            if (isSharingGPS) {
+                btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-1.5 shrink-0 transition active:scale-95 border border-white/20";
+                txt.innerText = "위치공유 ON";
+                syncMyLocation();
+            } else {
+                btn.className = "bg-slate-600 hover:bg-slate-700 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-1.5 shrink-0 transition active:scale-95 border border-white/20";
+                txt.innerText = "위치공유 OFF";
+                if (myMarker) map.removeLayer(myMarker);
+                myMarker = null;
+                if (currentRoomId) {
+                    db.ref(`rooms/${currentRoomId}/users/user_${myNickName}`).remove();
+                }
+            }
+        }
+
+        /* 💣 방 폭파 (방 전체 삭제) */
+        function destroyRoom() {
+            if (!currentRoomId) return;
+            if (confirm("정말로 이 모임방을 폭파(삭제)하시겠습니까?\n모든 참여자와 지출 내역이 함께 삭제됩니다.")) {
+                db.ref(`rooms/${currentRoomId}`).remove().then(() => {
+                    alert("모임방이 폭파되었습니다.");
+                    window.location.href = window.location.pathname;
+                });
+            }
+        }
 
         function submitRoomJoin() {
             if (!document.getElementById('join-agree-gps').checked) {
@@ -746,7 +790,12 @@
             setTimeout(() => { map.invalidateSize(); }, 300);
 
             db.ref(`rooms/${currentRoomId}/info`).on('value', snapshot => {
-                const info = snapshot.val() || {};
+                const info = snapshot.val();
+                if (!info) {
+                    alert("해당 모임방이 존재하지 않거나 폭파되었습니다.");
+                    window.location.href = window.location.pathname;
+                    return;
+                }
                 if (info.title) document.getElementById('top-room-title').value = info.title;
                 if (info.time) document.getElementById('top-meet-time').value = info.time;
                 if (info.max) document.getElementById('top-max-members').value = info.max;
