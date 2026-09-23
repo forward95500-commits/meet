@@ -87,7 +87,7 @@
     <!-- 상단 헤더 -->
     <header class="bg-white border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
         <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
-            <div class="bg-gradient-to-tr from-emerald-500 to-teal-400 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shadow-emerald-500/20 shrink-0">
+            <div class="bg-emerald-600 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shrink-0">
                 <i class="fa-solid fa-location-arrow"></i>
             </div>
             <div class="min-w-0 flex-1">
@@ -95,15 +95,14 @@
                     <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
                     <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">실시간</span>
                 </div>
-                <p id="gps-status-text" class="text-[10px] text-amber-600 font-bold truncate">📡 실제 GPS 위치 요청 중...</p>
             </div>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-            <button id="toggle-gps-btn" onclick="toggleGPSSharing()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm">
+            <button id="toggle-gps-btn" onclick="toggleGPSSharing()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm">
                 <i class="fa-solid fa-satellite-dish text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> ON
             </button>
-            <button onclick="copyShareLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-md">
+            <button onclick="copyShareLink()" class="bg-slate-800 hover:bg-slate-900 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-md">
                 <i class="fa-solid fa-share-nodes text-[10px]"></i> 초대
             </button>
             <button id="explode-btn" onclick="explodeRoom()" class="hidden bg-rose-600 hover:bg-rose-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-extrabold transition shadow-sm">
@@ -205,7 +204,7 @@
     <!-- 💌 2단계: 초대받은 지인 모달 -->
     <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden text-slate-800">
-            <div class="bg-gradient-to-br from-indigo-600 via-teal-600 to-emerald-600 p-5 text-white text-center relative">
+            <div class="bg-gradient-to-br from-teal-700 to-emerald-700 p-5 text-white text-center relative">
                 <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
                     <i class="fa-solid fa-envelope-open-text text-amber-300"></i> 모임 초대장이 도착했습니다
                 </div>
@@ -256,111 +255,132 @@
     <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3 text-slate-800">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                <h3 class="text-xs font-bold text-indigo-600 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
+                <h3 class="text-xs font-bold text-emerald-700 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
                 <button onclick="closeDutchModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div>
                 <p id="dutch-modal-info" class="text-xs text-slate-600 mb-2 font-medium"></p>
                 <label class="block text-[11px] font-bold text-slate-500 mb-1">정산 참여 인원수</label>
-                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500">
+                <input type="number" id="dutch-member-count" value="3" min="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
             </div>
-            <button onclick="confirmDutchCalculation()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm">계산하기</button>
-            <div id="dutch-modal-result" class="hidden bg-indigo-50 border border-indigo-200 p-2.5 rounded-xl text-center text-xs text-indigo-700 font-bold"></div>
+            <button onclick="confirmDutchCalculation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm">계산하기</button>
+            <div id="dutch-modal-result" class="hidden bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-center text-xs text-emerald-800 font-bold"></div>
         </div>
     </div>
 
-    <!-- 🎨 통일된 스마트 쿨톤 레이아웃 -->
+    <!-- 🎨 예시 이미지 스타일을 적용한 모던 다크그린 & 깔끔한 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
-        <div id="map" class="relative flex-1">
-            <!-- 🎯 내 위치 버튼 -->
-            <button onclick="panToMyLocation()" class="absolute bottom-4 right-4 z-[400] bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 font-extrabold text-xs transition active:scale-95 border border-white/40">
-                <i class="fa-solid fa-crosshairs text-sm"></i> 내 위치
-            </button>
-        </div>
+        <div id="map" class="relative flex-1"></div>
 
-        <!-- 하단 패널 -->
-        <div class="bg-slate-100 border-t border-slate-200 p-3 flex flex-col gap-3 z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
+        <!-- 지도 하단 컨트롤 창들 (이미지 스타일 적용) -->
+        <div class="flex flex-col z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
             
-            <!-- 🟢 창 1: 모임원 도착 현황 (타이틀 옆으로 카드 바로 배치) -->
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/90 rounded-2xl p-2.5 flex items-center gap-3 shadow-sm min-h-[68px]">
-                
-                <!-- 왼쪽: 모임원 도착 현황 타이틀 -->
-                <div class="flex items-center gap-2 shrink-0 border-r border-emerald-200/80 pr-3">
-                    <div class="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+            <!-- 1. 상단: 다크 그린 모임원 도착 현황 창 -->
+            <div class="bg-[#0f4c3a] text-white p-3 flex items-center gap-3 border-b border-[#145a45]">
+                <div class="flex items-center gap-2 shrink-0 border-r border-[#1a6850] pr-3">
+                    <div class="w-8 h-8 rounded-full bg-[#1b5e48] text-teal-200 flex items-center justify-center text-sm shadow-inner">
                         <i class="fa-solid fa-users"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-1.5">
-                            <h3 class="text-xs font-black text-emerald-950 tracking-wide whitespace-nowrap">모임원 현황</h3>
-                            <span id="member-count-badge" class="text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-full border border-emerald-300">1명</span>
+                            <h3 class="text-xs font-black tracking-wide text-white">모임원 도착 현황</h3>
+                            <span id="member-count-badge" class="text-[9px] font-bold text-teal-200 bg-[#165340] px-1.5 py-0.5 rounded-full border border-teal-500/30">1명</span>
                         </div>
-                        <p class="text-[9px] text-emerald-700 font-medium whitespace-nowrap">클릭 시 지도 이동</p>
+                        <p class="text-[9px] text-teal-200/70 font-medium">이름을 누르면 지도에서 바로 찾습니다</p>
                     </div>
                 </div>
 
-                <!-- 오른쪽: '나' 및 다른 모임원 카드들이 배치되는 공간 -->
                 <div id="member-items-container" class="flex items-center gap-2 overflow-x-auto flex-1 py-0.5">
-                    <div id="my-default-card" onclick="panToMyLocation()" class="bg-white border-2 border-emerald-500 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 shadow-sm min-w-[145px] cursor-pointer">
-                        <div class="w-6 h-6 rounded-full bg-emerald-500 text-white font-extrabold flex items-center justify-center text-[10px] shadow">나</div>
+                    <div id="my-default-card" onclick="panToMyLocation()" class="bg-[#839b92]/30 border border-teal-300/40 px-3 py-1.5 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 cursor-pointer backdrop-blur-sm min-w-[135px]">
+                        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center text-xs shadow-md">
+                            <div class="w-2 h-2 bg-white rounded-sm"></div>
+                        </div>
                         <div class="min-w-0">
-                            <div class="font-extrabold text-slate-900 text-[11px] truncate">나 (접속중)</div>
-                            <div id="my-dist-badge" class="text-[9px] text-amber-600 font-extrabold truncate">GPS 수신 대기 중</div>
+                            <div class="font-bold text-teal-100 text-[11px] truncate">나</div>
+                            <div id="my-dist-badge" class="text-[9px] text-teal-200/80 font-medium truncate">위치 확인 중</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 🔵 창 2: 실시간 채팅창 (소프트 블루 톤) -->
-            <div class="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200/90 rounded-2xl p-3 flex flex-col min-h-[110px] shadow-sm">
-                <div class="flex items-center gap-1.5 mb-1.5 text-sky-800 font-bold text-xs">
-                    <i class="fa-solid fa-comments text-sky-600"></i> 실시간 모임 채팅
+            <!-- 2. 중단: GPS 상태 안내 및 위치 공유 버튼 창 (이미지 스타일 적용) -->
+            <div class="bg-white px-3.5 py-2.5 flex items-center justify-between border-b border-slate-200">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-sm shrink-0">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div id="gps-status-title" class="text-xs font-bold text-slate-800 truncate">📡 GPS 실제 위치 수신 대기 중...</div>
+                        <p id="gps-status-desc" class="text-[10px] text-slate-400 truncate">위치 권한을 허용하면 지도 상에 내 위치 마커가 나타납니다.</p>
+                    </div>
                 </div>
-                <div id="chat-box" class="flex-1 max-h-24 overflow-y-auto text-xs text-slate-700 flex flex-col gap-1 pr-1 font-sans">
-                    <div class="text-sky-600 font-bold">👋 실시간 위치 공유방 채팅입니다! 모임원들과 대화를 나눠보세요.</div>
-                </div>
-                <div class="flex gap-2 mt-2">
-                    <input type="text" id="chat-input" placeholder="메시지 입력..." class="flex-1 bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-sky-500 shadow-sm" onkeypress="if(event.key==='Enter') sendChat()">
-                    <button onclick="sendChat()" class="bg-sky-500 hover:bg-sky-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition shadow-sm shrink-0">전송</button>
-                </div>
+                <button onclick="panToMyLocation()" class="bg-[#0f4c3a] hover:bg-[#145a45] text-white px-3.5 py-2 rounded-xl flex items-center gap-1.5 font-bold text-xs shadow-sm shrink-0 transition active:scale-95">
+                    <i class="fa-solid fa-crosshairs text-xs"></i> GPS 위치 확인·공유
+                </button>
             </div>
 
-            <!-- 🔷 창 3: 모임 회비 장부 (인디고 톤 통일) -->
-            <div class="bg-gradient-to-r from-indigo-50 to-slate-100 border border-indigo-200/90 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
-                <div class="flex justify-between items-center border-b border-indigo-200/60 pb-1.5">
-                    <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5"><i class="fa-solid fa-receipt text-indigo-600"></i> 모임 회비 장부</span>
-                    <select id="dutch-stage" class="bg-white border border-indigo-200 text-indigo-800 text-xs rounded-lg px-2 py-1 font-bold focus:outline-none shadow-sm">
-                        <option value="1차">1차</option>
-                        <option value="2차">2차</option>
-                        <option value="3차">3차</option>
-                        <option value="4차">4차</option>
-                        <option value="5차">5차</option>
-                    </select>
-                </div>
+            <!-- 3. 하단: 모임 채팅 & 회비 장부 2분할 뷰 (이미지 스타일 적용) -->
+            <div class="bg-white p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                
+                <!-- 왼쪽: 모임 채팅 -->
+                <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-3 flex flex-col justify-between min-h-[110px]">
+                    <div class="flex items-start gap-2.5 mb-2">
+                        <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                            <i class="fa-solid fa-comment-dots"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-bold text-slate-800">모임 채팅</div>
+                            <div class="text-[10px] text-slate-400">도착 전 필요한 이야기를 나눠보세요</div>
+                        </div>
+                    </div>
 
-                <div class="space-y-1.5">
-                    <input type="text" id="stage-location" placeholder="모임 장소 (예: 역전할머니맥주)" class="w-full bg-white border border-indigo-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="payer-name" placeholder="결제자 이름" class="bg-white border border-indigo-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
-                        <input type="number" id="stage-total" placeholder="결제 금액(원)" class="bg-white border border-indigo-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 shadow-sm">
+                    <div id="chat-box" class="max-h-16 overflow-y-auto text-xs text-slate-500 mb-2 font-sans px-1 space-y-1">
+                        <div class="text-center text-slate-400 text-[11px] py-1">첫 메시지를 남겨보세요.</div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="chat-input" placeholder="메시지를 입력하세요" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-500 shadow-sm" onkeypress="if(event.key==='Enter') sendChat()">
+                        <button onclick="sendChat()" class="bg-[#0f4c3a] hover:bg-[#145a45] text-white w-8 h-8 rounded-xl flex items-center justify-center text-xs transition shrink-0 shadow-sm">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex gap-1.5 mt-0.5">
-                    <button onclick="savePaymentOnly()" class="flex-1 bg-white hover:bg-slate-50 text-indigo-900 font-bold py-1.5 rounded-xl text-xs transition border border-indigo-200 shadow-sm">지출 기록 추가</button>
-                    <button onclick="openDutchModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 rounded-xl text-xs transition shadow-sm">1/N 정산하기</button>
+                <!-- 오른쪽: 회비 장부 -->
+                <div class="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-3 flex flex-col justify-between min-h-[110px]">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs shrink-0">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <div class="text-xs font-bold text-slate-800">모임 회비 장부</div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="savePaymentOnly()" class="bg-white border border-slate-200 text-slate-700 text-[10px] font-bold px-2 py-1 rounded-lg hover:bg-slate-100">지출 추가</button>
+                            <button onclick="openDutchModal()" class="bg-[#0f4c3a] text-white text-[10px] font-bold px-2 py-1 rounded-lg hover:bg-[#145a45]">1/N 정산</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1 mb-2">
+                        <select id="dutch-stage" class="bg-white border border-slate-200 text-slate-800 text-[10px] rounded-lg px-1 py-1 font-bold">
+                            <option value="1차">1차</option>
+                            <option value="2차">2차</option>
+                            <option value="3차">3차</option>
+                        </select>
+                        <input type="text" id="stage-location" placeholder="장소" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] text-slate-800">
+                        <input type="number" id="stage-total" placeholder="금액(원)" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] text-slate-800">
+                    </div>
+
+                    <div id="payment-history-list" class="text-[10px] text-slate-500 max-h-12 overflow-y-auto">
+                        <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-100">
+                            <span>등록된 지출 없음</span>
+                            <span id="total-expense-badge" class="font-bold text-emerald-700">총 0원</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mt-1 border-t border-indigo-200/60 pt-2">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-[11px] font-bold text-indigo-900">지출 누적 내역</span>
-                        <span id="total-expense-badge" class="text-[11px] font-extrabold text-indigo-600">총 0원</span>
-                    </div>
-                    <div id="payment-history-list" class="space-y-1.5 max-h-24 overflow-y-auto pr-1">
-                        <div class="text-[11px] text-indigo-700/60 text-center py-1">등록된 지출 내역이 없습니다.</div>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -479,17 +499,17 @@
             dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-500">장소를 찾지 못했습니다. 상세 주소나 정확한 상호명을 입력해 보세요.</div>';
         }
 
+        // 🚀 요청에 따른 팝업 제거 (선택 시 alert 안 뜸)
         function selectDropdownPlace(item) {
             tempTargetPos = { lat: parseFloat(item.lat), lng: parseFloat(item.lng), name: item.name };
             document.getElementById('init-target-input').value = item.name;
             document.getElementById('search-dropdown').classList.add('hidden');
-            alert(`'${item.name}' 장소가 지정되었습니다!`);
         }
 
         function savePaymentOnly() {
             const stage = document.getElementById('dutch-stage').value;
             const location = document.getElementById('stage-location').value.trim() || "모임장소 미입력";
-            const payer = document.getElementById('payer-name').value.trim() || "결제자";
+            const payer = myNickName;
             const total = parseInt(document.getElementById('stage-total').value);
 
             if (!total) return alert("결제 금액을 입력하세요.");
@@ -504,7 +524,6 @@
             }
 
             document.getElementById('stage-location').value = '';
-            document.getElementById('payer-name').value = '';
             document.getElementById('stage-total').value = '';
         }
 
@@ -513,8 +532,7 @@
             container.innerHTML = '';
 
             if (paymentHistory.length === 0) {
-                container.innerHTML = '<div class="text-[11px] text-indigo-700/60 text-center py-1">등록된 지출 내역이 없습니다.</div>';
-                document.getElementById('total-expense-badge').innerText = '총 0원';
+                container.innerHTML = '<div class="flex justify-between items-center bg-white p-1 rounded border border-slate-100"><span>등록된 지출 없음</span><span id="total-expense-badge" class="font-bold text-emerald-700">총 0원</span></div>';
                 return;
             }
 
@@ -522,18 +540,18 @@
             paymentHistory.forEach(item => {
                 sumTotal += item.total;
                 const div = document.createElement('div');
-                div.className = "bg-white border border-indigo-200/80 p-2 rounded-xl flex justify-between items-center text-xs shadow-sm";
+                div.className = "bg-white p-1 rounded border border-slate-100 flex justify-between items-center text-[10px] mb-1";
                 div.innerHTML = `
-                    <div class="flex items-center gap-1.5 min-w-0 pr-1">
-                        <span class="bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.5 rounded text-[10px] border border-indigo-300 shrink-0">${item.stage}</span>
-                        <span class="font-semibold text-slate-800 truncate">${item.location} (${item.payer})</span>
-                    </div>
-                    <span class="font-black text-indigo-600 shrink-0">${item.total.toLocaleString()} 원</span>
+                    <span><b class="text-emerald-700">[${item.stage}]</b> ${item.location}</span>
+                    <span class="font-bold text-slate-800">${item.total.toLocaleString()}원</span>
                 `;
                 container.appendChild(div);
             });
 
-            document.getElementById('total-expense-badge').innerText = `총 ${sumTotal.toLocaleString()}원`;
+            const totalDiv = document.createElement('div');
+            totalDiv.className = "text-right font-bold text-emerald-800 text-[10px] pt-1";
+            totalDiv.innerText = `총 지출 합계: ${sumTotal.toLocaleString()}원`;
+            container.appendChild(totalDiv);
         }
 
         function openDutchModal() {
@@ -658,19 +676,21 @@
                     });
                 } else if (!hasMe && !myPos) {
                     const defaultDiv = document.createElement('div');
-                    defaultDiv.className = "bg-white border-2 border-amber-400 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 shadow-sm min-w-[145px]";
+                    defaultDiv.className = "bg-[#839b92]/30 border border-teal-300/40 px-3 py-1.5 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 backdrop-blur-sm min-w-[135px]";
                     defaultDiv.innerHTML = `
-                        <div class="w-6 h-6 rounded-full bg-amber-500 text-white font-extrabold flex items-center justify-center text-[10px] shadow">나</div>
+                        <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white font-extrabold flex items-center justify-center text-xs shadow-md">
+                            <div class="w-2 h-2 bg-white rounded-sm"></div>
+                        </div>
                         <div class="min-w-0">
-                            <div class="font-extrabold text-slate-900 text-[11px] truncate">나 (접속중)</div>
-                            <div class="text-[9px] text-amber-600 font-extrabold truncate">📡 GPS 좌표 수신 중</div>
+                            <div class="font-bold text-teal-100 text-[11px] truncate">${myNickName} (나)</div>
+                            <div class="text-[9px] text-teal-200/80 font-medium truncate">위치 확인 중</div>
                         </div>
                     `;
                     container.appendChild(defaultDiv);
                 }
 
                 userList.forEach(uData => {
-                    let distText = "위치 공유 중";
+                    let distText = "위치 확인 완료";
                     if (targetPos && uData.lat && uData.lng) {
                         const d = getDistanceInKm(uData.lat, uData.lng, targetPos.lat, targetPos.lng);
                         distText = d < 1 ? `약 ${Math.round(d * 1000)}m 남음` : `약 ${d.toFixed(1)}km 남음`;
@@ -678,16 +698,16 @@
 
                     const isMe = uData.uid === 'user_' + myNickName;
                     const card = document.createElement('div');
-                    card.className = isMe 
-                        ? "bg-white border-2 border-emerald-500 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 shadow-sm min-w-[145px] cursor-pointer"
-                        : "bg-white border border-slate-200 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 cursor-pointer hover:border-sky-400 transition shadow-sm min-w-[145px]";
+                    card.className = "bg-[#839b92]/30 border border-teal-300/40 px-3 py-1.5 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 cursor-pointer backdrop-blur-sm min-w-[135px]";
                     
                     card.onclick = () => map.setView([uData.lat, uData.lng], 17);
                     card.innerHTML = `
-                        <div class="w-6 h-6 rounded-full ${isMe ? 'bg-emerald-500' : 'bg-sky-500'} text-white font-extrabold flex items-center justify-center text-[10px] shadow">${uData.name[0]}</div>
+                        <div class="w-7 h-7 rounded-xl ${isMe ? 'bg-indigo-600' : 'bg-emerald-600'} text-white font-extrabold flex items-center justify-center text-xs shadow-md">
+                            ${uData.name[0]}
+                        </div>
                         <div class="min-w-0">
-                            <div class="font-extrabold text-slate-900 text-[11px] truncate max-w-[80px]">${uData.name}</div>
-                            <div class="text-[9px] ${isMe ? 'text-emerald-600' : 'text-sky-600'} font-extrabold truncate">${distText}</div>
+                            <div class="font-bold text-teal-100 text-[11px] truncate max-w-[75px]">${uData.name}</div>
+                            <div class="text-[9px] text-teal-200/80 font-medium truncate">${distText}</div>
                         </div>
                     `;
                     container.appendChild(card);
@@ -719,8 +739,11 @@
             db.ref(`rooms/${currentRoomId}/chats`).limitToLast(10).on('child_added', (snapshot) => {
                 const chat = snapshot.val();
                 const chatBox = document.getElementById('chat-box');
+                if (chatBox.children[0] && chatBox.children[0].innerText.includes("첫 메시지를")) {
+                    chatBox.innerHTML = '';
+                }
                 const msg = document.createElement('div');
-                msg.innerHTML = `<span class="font-bold text-sky-700">${chat.sender}:</span> ${chat.text}`;
+                msg.innerHTML = `<span class="font-bold text-emerald-800">${chat.sender}:</span> ${chat.text}`;
                 chatBox.appendChild(msg);
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
@@ -728,12 +751,9 @@
 
         function startGPSWatch() {
             if (!("geolocation" in navigator)) {
-                alert("현재 브라우저/기기가 GPS 위치 서비스를 지원하지 않습니다.");
-                document.getElementById('gps-status-text').innerText = "❌ GPS 미지원 환경";
+                document.getElementById('gps-status-title').innerText = "❌ GPS 서비스 미지원";
                 return;
             }
-
-            document.getElementById('gps-status-text').innerText = "📡 실제 GPS 위치 찾는 중...";
 
             const gpsOptions = {
                 enableHighAccuracy: true,
@@ -751,8 +771,8 @@
             const isFirstAcquire = (myPos === null);
             myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-            document.getElementById('gps-status-text').className = "text-[10px] text-emerald-600 font-extrabold truncate";
-            document.getElementById('gps-status-text').innerText = "🟢 실제 GPS 연결 완료";
+            document.getElementById('gps-status-title').innerText = "🟢 GPS 실제 위치 연결 완료";
+            document.getElementById('gps-status-desc').innerText = `내 위치 위도: ${myPos.lat.toFixed(4)}, 경도: ${myPos.lng.toFixed(4)}`;
 
             if (isFirstAcquire) {
                 map.setView([myPos.lat, myPos.lng], 16);
@@ -761,31 +781,26 @@
         }
 
         function handleGPSError(err) {
-            let errorMsg = "⚠️ GPS 연결 대기 중";
+            let title = "GPS 위치를 읽지 못했어요";
+            let desc = "위치 권한이 거부됨 · 지도에서 직접 위치를 지정해 주세요.";
             if (err.code === err.PERMISSION_DENIED) {
-                errorMsg = "❌ GPS 위치 권한이 거부되었습니다";
-            } else if (err.code === err.POSITION_UNAVAILABLE) {
-                errorMsg = "⚠️ GPS 위치 정보를 찾을 수 없습니다";
-            } else if (err.code === err.TIMEOUT) {
-                errorMsg = "⚠️ GPS 신호 요청 시간 초과";
+                desc = "브라우저 위치 권한 허용 필요";
             }
-            document.getElementById('gps-status-text').className = "text-[10px] text-rose-600 font-bold truncate";
-            document.getElementById('gps-status-text').innerText = errorMsg;
+            document.getElementById('gps-status-title').innerText = title;
+            document.getElementById('gps-status-desc').innerText = desc;
         }
 
         function toggleGPSSharing() {
             isSharingGPS = !isSharingGPS;
             const btn = document.getElementById('toggle-gps-btn');
             if (isSharingGPS) {
-                btn.className = "bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm";
+                btn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm";
                 btn.innerHTML = `<i class="fa-solid fa-satellite-dish text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> ON`;
                 startGPSWatch();
-                alert("내 위치 공유가 켜졌습니다.");
             } else {
                 btn.className = "bg-slate-200 text-slate-600 text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 border border-slate-300";
                 btn.innerHTML = `<i class="fa-solid fa-ban text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> OFF`;
                 if (watchId) navigator.geolocation.clearWatch(watchId);
-                alert("내 위치 공유가 꺼졌습니다.");
             }
         }
 
@@ -814,7 +829,7 @@
             if (myPos) {
                 map.setView([myPos.lat, myPos.lng], 16);
             } else {
-                alert("현재 실제 GPS 수신 중입니다. 브라우저 위치 권한 허용 상태를 확인해 주세요.");
+                alert("현재 위치 GPS 수신 중입니다.");
                 startGPSWatch();
             }
         }
@@ -829,16 +844,15 @@
 
         function copyShareLink() {
             navigator.clipboard.writeText(window.location.href);
-            alert("초대 링크가 복사되었습니다! 카카오톡방에 공유하세요.");
+            alert("초대 링크가 복사되었습니다!");
         }
 
         function explodeRoom() {
             if (!isHost) return alert("방장만 방을 폭파할 수 있습니다.");
-            if (confirm("정말로 방을 폭파하시겠습니까? 폭죽이 터지고 방이 제거됩니다!")) {
+            if (confirm("정말로 방을 폭파하시겠습니까?")) {
                 confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
                 if (currentRoomId) db.ref(`rooms/${currentRoomId}`).remove();
                 setTimeout(() => {
-                    alert("방이 정상 폭파되었습니다.");
                     window.location.href = window.location.pathname;
                 }, 1600);
             }
