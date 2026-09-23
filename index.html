@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>여기서 만나 - 스마트 실시간 약속 플랫폼</title>
+    <title>여기서 만나 - 실시간 GPS 약속 모임</title>
     <!-- Pretendard 웹 폰트 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <!-- Tailwind CSS & Leaflet -->
@@ -20,10 +20,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+        body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: #f8fafc; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        /* 📍 아이쉐어링 스타일 사용자 마커 */
+        /* 📍 아이쉐어링 스타일 타 모임원 마커 */
         .isharing-user-marker {
             position: relative; width: 52px !important; height: 58px !important;
             margin-left: -26px !important; margin-top: -58px !important;
@@ -35,10 +35,11 @@
             font-weight: 800; font-size: 20px; color: #0284c7; position: relative; z-index: 2;
         }
         
-        /* 🟢 내 위치 전용 대형 마커 (펄스 효과) */
+        /* 🟢 내 실제 GPS 위치 전용 대형 펄스 마커 */
         .isharing-my-marker {
             position: relative; width: 58px !important; height: 64px !important;
             margin-left: -29px !important; margin-top: -64px !important;
+            z-index: 9999 !important;
         }
         .isharing-my-avatar-box {
             width: 58px; height: 58px; border-radius: 50%;
@@ -76,22 +77,6 @@
             100% { background-position: 0 0, 0 0, 28px 28px, 28px 28px; }
         }
 
-        .char-bounce { animation: charHop 2.2s ease-in-out infinite; }
-        @keyframes charHop {
-            0%, 100% { transform: translateY(0) rotate(-1deg); }
-            50% { transform: translateY(-5px) rotate(1deg); }
-        }
-
-        .radar-ping {
-            position: absolute; border-radius: 50%;
-            border: 2px solid rgba(16, 185, 129, 0.5);
-            animation: radarPulse 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-        }
-        @keyframes radarPulse {
-            0% { width: 20px; height: 20px; opacity: 1; }
-            100% { width: 140px; height: 140px; opacity: 0; }
-        }
-
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -110,7 +95,7 @@
                     <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
                     <span id="room-tag" class="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">실시간</span>
                 </div>
-                <p id="gps-status-text" class="text-[10px] text-emerald-600 font-medium truncate">🟢 GPS 연결됨</p>
+                <p id="gps-status-text" class="text-[10px] text-amber-600 font-bold truncate">📡 실제 GPS 위치 요청 중...</p>
             </div>
         </div>
 
@@ -139,9 +124,7 @@
                 </div>
 
                 <div class="relative flex items-center justify-center my-1 z-10">
-                    <div class="radar-ping"></div>
-                    <div class="radar-ping" style="animation-delay: 1.2s;"></div>
-                    <div class="char-bounce bg-white/95 text-slate-900 px-4 py-2.5 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 backdrop-blur-md">
+                    <div class="bg-white/95 text-slate-900 px-4 py-2.5 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 backdrop-blur-md">
                         <div class="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-md shadow-emerald-500/30">
                             <i class="fa-solid fa-location-crosshairs"></i>
                         </div>
@@ -208,7 +191,7 @@
                 <div class="flex items-start gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
                     <input type="checkbox" id="agree-gps" checked class="mt-0.5 w-4 h-4 text-emerald-500 bg-white border-slate-300 rounded focus:ring-emerald-500">
                     <label for="agree-gps" class="text-[11px] text-slate-600 leading-snug cursor-pointer font-medium">
-                        입장 시 내 실시간 위치 공유에 동의합니다. (지도에서 언제든지 중지 가능)
+                        입장 시 내 실시간 GPS 위치 공유에 동의합니다.
                     </label>
                 </div>
 
@@ -258,7 +241,7 @@
                 <div class="flex items-start gap-2 bg-slate-50 border border-slate-200 p-3 rounded-xl">
                     <input type="checkbox" id="join-agree-gps" checked class="mt-0.5 w-4 h-4 text-emerald-500 bg-white border-slate-300 rounded focus:ring-emerald-500">
                     <label for="join-agree-gps" class="text-[11px] text-slate-600 leading-snug cursor-pointer font-medium">
-                        입장 시 내 실시간 위치 공유에 동의합니다. (지도에서 언제든지 중지 가능)
+                        입장 시 내 실시간 GPS 위치 공유에 동의합니다.
                     </label>
                 </div>
 
@@ -286,7 +269,7 @@
         </div>
     </div>
 
-    <!-- 🎨 통일감 있는 스마트 쿨톤(에메랄드-블루 계열) 하단 레이아웃 -->
+    <!-- 🎨 통일된 스마트 쿨톤 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
@@ -297,37 +280,39 @@
             </button>
         </div>
 
-        <!-- 🌈 블루-에메랄드 스펙트럼의 세련된 하단 창 패널 -->
+        <!-- 하단 패널 -->
         <div class="bg-slate-100 border-t border-slate-200 p-3 flex flex-col gap-3 z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
             
-            <!-- 🟢 창 1: 모임원 도착 현황 (에메랄드 톤) -->
-            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/90 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
-                <div class="flex items-center justify-between px-1">
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xs font-black text-emerald-950 tracking-wide">모임원 도착 현황</h3>
-                            <p class="text-[10px] text-emerald-700 font-medium">카드를 누르면 해당 위치로 지도 이동</p>
-                        </div>
+            <!-- 🟢 창 1: 모임원 도착 현황 (타이틀 옆으로 카드 바로 배치) -->
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/90 rounded-2xl p-2.5 flex items-center gap-3 shadow-sm min-h-[68px]">
+                
+                <!-- 왼쪽: 모임원 도착 현황 타이틀 -->
+                <div class="flex items-center gap-2 shrink-0 border-r border-emerald-200/80 pr-3">
+                    <div class="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm">
+                        <i class="fa-solid fa-users"></i>
                     </div>
-                    <span id="member-count-badge" class="text-[10px] font-extrabold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-full border border-emerald-300">1명</span>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <h3 class="text-xs font-black text-emerald-950 tracking-wide whitespace-nowrap">모임원 현황</h3>
+                            <span id="member-count-badge" class="text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-full border border-emerald-300">1명</span>
+                        </div>
+                        <p class="text-[9px] text-emerald-700 font-medium whitespace-nowrap">클릭 시 지도 이동</p>
+                    </div>
                 </div>
 
-                <!-- 모임원 카드가 실시간으로 정렬되는 영역 -->
-                <div id="member-items-container" class="flex gap-2.5 overflow-x-auto pb-1 pt-0.5">
-                    <div id="my-default-card" class="bg-white border-2 border-emerald-400 px-3.5 py-2 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 shadow-md min-w-[155px]">
-                        <div class="w-7 h-7 rounded-full bg-emerald-500 text-white font-extrabold flex items-center justify-center text-xs shadow">나</div>
-                        <div>
-                            <div class="font-extrabold text-slate-900 text-[11px]">나 (접속중)</div>
-                            <div id="my-dist-text-badge" class="text-[10px] text-emerald-600 font-bold">위치 확인중</div>
+                <!-- 오른쪽: '나' 및 다른 모임원 카드들이 배치되는 공간 -->
+                <div id="member-items-container" class="flex items-center gap-2 overflow-x-auto flex-1 py-0.5">
+                    <div id="my-default-card" onclick="panToMyLocation()" class="bg-white border-2 border-emerald-500 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 shadow-sm min-w-[145px] cursor-pointer">
+                        <div class="w-6 h-6 rounded-full bg-emerald-500 text-white font-extrabold flex items-center justify-center text-[10px] shadow">나</div>
+                        <div class="min-w-0">
+                            <div class="font-extrabold text-slate-900 text-[11px] truncate">나 (접속중)</div>
+                            <div id="my-dist-badge" class="text-[9px] text-amber-600 font-extrabold truncate">GPS 수신 대기 중</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 🔵 창 2: 실시간 채팅창 (소프트 맑은 블루 톤) -->
+            <!-- 🔵 창 2: 실시간 채팅창 (소프트 블루 톤) -->
             <div class="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200/90 rounded-2xl p-3 flex flex-col min-h-[110px] shadow-sm">
                 <div class="flex items-center gap-1.5 mb-1.5 text-sky-800 font-bold text-xs">
                     <i class="fa-solid fa-comments text-sky-600"></i> 실시간 모임 채팅
@@ -341,7 +326,7 @@
                 </div>
             </div>
 
-            <!-- 🔷 창 3: 모임 회비 장부 (모던 인디고/블루 톤으로 통일) -->
+            <!-- 🔷 창 3: 모임 회비 장부 (인디고 톤 통일) -->
             <div class="bg-gradient-to-r from-indigo-50 to-slate-100 border border-indigo-200/90 rounded-2xl p-3 flex flex-col gap-2 shadow-sm">
                 <div class="flex justify-between items-center border-b border-indigo-200/60 pb-1.5">
                     <span class="text-xs font-bold text-indigo-900 flex items-center gap-1.5"><i class="fa-solid fa-receipt text-indigo-600"></i> 모임 회비 장부</span>
@@ -615,7 +600,7 @@
         function initApp() {
             document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
 
-            map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 15);
+            map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 13);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -631,12 +616,6 @@
                     document.getElementById('explode-btn').classList.remove('hidden');
                 }
             });
-
-            // 🚀 기본 좌표 먼저 부여하여 GPS 수신 전이라도 내 마커 및 카드 즉시 출력
-            if (!myPos) {
-                myPos = { lat: 37.5665 + (Math.random() - 0.5) * 0.005, lng: 126.9780 + (Math.random() - 0.5) * 0.005 };
-                syncMyLocation();
-            }
 
             startGPSWatch();
 
@@ -667,7 +646,6 @@
                 const container = document.getElementById('member-items-container');
                 container.innerHTML = '';
 
-                // 내 위치 항목 보장
                 let hasMe = userList.some(u => u.uid === 'user_' + myNickName);
                 if (!hasMe && myPos) {
                     let d = targetPos ? getDistanceInKm(myPos.lat, myPos.lng, targetPos.lat, targetPos.lng) : 0;
@@ -678,10 +656,21 @@
                         lng: myPos.lng,
                         distanceKm: d
                     });
+                } else if (!hasMe && !myPos) {
+                    const defaultDiv = document.createElement('div');
+                    defaultDiv.className = "bg-white border-2 border-amber-400 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 shadow-sm min-w-[145px]";
+                    defaultDiv.innerHTML = `
+                        <div class="w-6 h-6 rounded-full bg-amber-500 text-white font-extrabold flex items-center justify-center text-[10px] shadow">나</div>
+                        <div class="min-w-0">
+                            <div class="font-extrabold text-slate-900 text-[11px] truncate">나 (접속중)</div>
+                            <div class="text-[9px] text-amber-600 font-extrabold truncate">📡 GPS 좌표 수신 중</div>
+                        </div>
+                    `;
+                    container.appendChild(defaultDiv);
                 }
 
                 userList.forEach(uData => {
-                    let distText = "위치 확인 중";
+                    let distText = "위치 공유 중";
                     if (targetPos && uData.lat && uData.lng) {
                         const d = getDistanceInKm(uData.lat, uData.lng, targetPos.lat, targetPos.lng);
                         distText = d < 1 ? `약 ${Math.round(d * 1000)}m 남음` : `약 ${d.toFixed(1)}km 남음`;
@@ -690,20 +679,19 @@
                     const isMe = uData.uid === 'user_' + myNickName;
                     const card = document.createElement('div');
                     card.className = isMe 
-                        ? "bg-white border-2 border-emerald-400 px-3.5 py-2 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 shadow-md min-w-[155px] cursor-pointer"
-                        : "bg-white border border-slate-200 px-3.5 py-2 rounded-2xl flex items-center gap-2.5 text-xs shrink-0 cursor-pointer hover:border-sky-400 transition shadow-sm min-w-[155px]";
+                        ? "bg-white border-2 border-emerald-500 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 shadow-sm min-w-[145px] cursor-pointer"
+                        : "bg-white border border-slate-200 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs shrink-0 cursor-pointer hover:border-sky-400 transition shadow-sm min-w-[145px]";
                     
                     card.onclick = () => map.setView([uData.lat, uData.lng], 17);
                     card.innerHTML = `
-                        <div class="w-7 h-7 rounded-full ${isMe ? 'bg-emerald-500' : 'bg-sky-500'} text-white font-extrabold flex items-center justify-center text-xs shadow">${uData.name[0]}</div>
-                        <div>
-                            <div class="font-extrabold text-slate-900 text-[11px] truncate max-w-[85px]">${uData.name}</div>
-                            <div class="text-[10px] ${isMe ? 'text-emerald-600' : 'text-sky-600'} font-bold">${distText}</div>
+                        <div class="w-6 h-6 rounded-full ${isMe ? 'bg-emerald-500' : 'bg-sky-500'} text-white font-extrabold flex items-center justify-center text-[10px] shadow">${uData.name[0]}</div>
+                        <div class="min-w-0">
+                            <div class="font-extrabold text-slate-900 text-[11px] truncate max-w-[80px]">${uData.name}</div>
+                            <div class="text-[9px] ${isMe ? 'text-emerald-600' : 'text-sky-600'} font-extrabold truncate">${distText}</div>
                         </div>
                     `;
                     container.appendChild(card);
 
-                    // 타 모임원 마커
                     if (!isMe) {
                         if (!userMarkers[uData.uid]) {
                             const icon = L.divIcon({
@@ -725,8 +713,6 @@
                     if (targetMarker) map.removeLayer(targetMarker);
                     const icon = L.divIcon({ className: 'target-marker', html: '<i class="fa-solid fa-flag"></i>' });
                     targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
-                    if (myPos) map.setView([myPos.lat, myPos.lng], 15);
-                    else map.setView([target.lat, target.lng], 15);
                 }
             });
 
@@ -741,21 +727,50 @@
         }
 
         function startGPSWatch() {
-            if ("geolocation" in navigator) {
-                watchId = navigator.geolocation.watchPosition((pos) => {
-                    if (!isSharingGPS) return;
-                    myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    
-                    document.getElementById('gps-status-text').className = "text-[10px] text-emerald-600 font-medium truncate";
-                    document.getElementById('gps-status-text').innerText = "🟢 GPS 연결됨";
-
-                    syncMyLocation();
-                }, (err) => {
-                    document.getElementById('gps-status-text').className = "text-[10px] text-amber-600 font-medium truncate";
-                    document.getElementById('gps-status-text').innerText = "🟡 위치 추정 모드";
-                    syncMyLocation();
-                }, { enableHighAccuracy: true, timeout: 8000 });
+            if (!("geolocation" in navigator)) {
+                alert("현재 브라우저/기기가 GPS 위치 서비스를 지원하지 않습니다.");
+                document.getElementById('gps-status-text').innerText = "❌ GPS 미지원 환경";
+                return;
             }
+
+            document.getElementById('gps-status-text').innerText = "📡 실제 GPS 위치 찾는 중...";
+
+            const gpsOptions = {
+                enableHighAccuracy: true,
+                timeout: 12000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(handleGPSUpdate, handleGPSError, gpsOptions);
+            watchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, gpsOptions);
+        }
+
+        function handleGPSUpdate(pos) {
+            if (!isSharingGPS) return;
+            
+            const isFirstAcquire = (myPos === null);
+            myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+            document.getElementById('gps-status-text').className = "text-[10px] text-emerald-600 font-extrabold truncate";
+            document.getElementById('gps-status-text').innerText = "🟢 실제 GPS 연결 완료";
+
+            if (isFirstAcquire) {
+                map.setView([myPos.lat, myPos.lng], 16);
+            }
+            syncMyLocation();
+        }
+
+        function handleGPSError(err) {
+            let errorMsg = "⚠️ GPS 연결 대기 중";
+            if (err.code === err.PERMISSION_DENIED) {
+                errorMsg = "❌ GPS 위치 권한이 거부되었습니다";
+            } else if (err.code === err.POSITION_UNAVAILABLE) {
+                errorMsg = "⚠️ GPS 위치 정보를 찾을 수 없습니다";
+            } else if (err.code === err.TIMEOUT) {
+                errorMsg = "⚠️ GPS 신호 요청 시간 초과";
+            }
+            document.getElementById('gps-status-text').className = "text-[10px] text-rose-600 font-bold truncate";
+            document.getElementById('gps-status-text').innerText = errorMsg;
         }
 
         function toggleGPSSharing() {
@@ -778,7 +793,6 @@
             if (!myPos || !isSharingGPS) return;
             const myUid = 'user_' + myNickName;
             
-            // 📍 지도 상 내 위치 마커 생성 및 강제 표시
             if (!myMarker) {
                 const icon = L.divIcon({
                     className: 'isharing-my-marker',
@@ -797,11 +811,12 @@
         }
 
         function panToMyLocation() {
-            if (!myPos) {
-                myPos = { lat: 37.5665, lng: 126.9780 };
-                syncMyLocation();
+            if (myPos) {
+                map.setView([myPos.lat, myPos.lng], 16);
+            } else {
+                alert("현재 실제 GPS 수신 중입니다. 브라우저 위치 권한 허용 상태를 확인해 주세요.");
+                startGPSWatch();
             }
-            map.setView([myPos.lat, myPos.lng], 16);
         }
 
         function sendChat() {
