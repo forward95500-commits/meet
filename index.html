@@ -23,9 +23,9 @@
         body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: #f8fafc; }
         #map { height: 100%; width: 100%; z-index: 1; }
 
-        .isharing-user-marker {
-            position: relative; width: 52px !important; height: 58px !important;
-            margin-left: -26px !important; margin-top: -58px !important;
+        /* 📍 타 모임원 마커 */
+        .isharing-user-marker-container {
+            width: 52px; height: 58px;
         }
         .isharing-avatar-box {
             width: 52px; height: 52px; border-radius: 50%; background: #ffffff;
@@ -34,11 +34,9 @@
             font-weight: 800; font-size: 20px; color: #0284c7; position: relative; z-index: 2;
         }
         
-        /* 🟢 내 실제 GPS 위치 고정밀 대형 마커 */
-        .isharing-my-marker {
-            position: relative; width: 58px !important; height: 64px !important;
-            margin-left: -29px !important; margin-top: -64px !important;
-            z-index: 9999 !important;
+        /* 🟢 내 실제 GPS 위치 마커 */
+        .isharing-my-marker-container {
+            width: 58px; height: 64px;
         }
         .isharing-my-avatar-box {
             width: 58px; height: 58px; border-radius: 50%;
@@ -54,16 +52,15 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* 📍 약속 장소 마커 */
-        .target-marker {
-            position: relative; width: 48px !important; height: 48px !important;
-            margin-left: -24px !important; margin-top: -48px !important;
+        /* 📍 약속 장소 마커 (정확한 앵커 고정) */
+        .target-marker-container {
+            width: 48px; height: 48px;
             background-color: #EF4444; border: 3px solid #ffffff;
             border-radius: 50%; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.6); text-align: center;
-            line-height: 42px; color: white; font-size: 22px; z-index: 9000 !important;
+            line-height: 42px; color: white; font-size: 22px;
             animation: targetBounce 1s infinite alternate ease-in-out;
         }
-        @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
+        @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
         .bright-grid-banner {
             background-color: #f1f5f9;
@@ -237,16 +234,16 @@
         </div>
     </div>
 
-    <!-- 🎨 예시 이미지(두 번째 사진) 스타일 상단 카드 레이아웃 적용 -->
+    <!-- 🎨 지도 및 플로팅 컨트롤 오버레이 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
         <div id="map" class="relative flex-1">
 
-            <!-- 📸 요청된 두 번째 이미지 스타일: 지도 위 상단 플로팅 오버레이 카드 바[cite: 20] -->
+            <!-- 📸 지도 위 상단 플로팅 정보 카드 바 -->
             <div class="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 overflow-x-auto pb-1 pointer-events-auto">
                 
-                <!-- 1. 모임명 카드[cite: 20] -->
+                <!-- 1. 모임명 카드 -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[160px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-pen"></i>
@@ -260,7 +257,7 @@
                     </button>
                 </div>
 
-                <!-- 2. 약속 일시 카드[cite: 20] -->
+                <!-- 2. 약속 일시 카드 -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[210px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-calendar-days"></i>
@@ -271,7 +268,7 @@
                     </div>
                 </div>
 
-                <!-- 3. 목적지 카드[cite: 20] -->
+                <!-- 3. 목적지 카드 -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-location-dot"></i>
@@ -285,7 +282,7 @@
                     </button>
                 </div>
 
-                <!-- 4. 현재 접속 / 최대 인원 카드[cite: 20] -->
+                <!-- 4. 현재 접속 / 최대 인원 카드 -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[150px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-user-group"></i>
@@ -308,7 +305,7 @@
 
             </div>
 
-            <!-- 🎯 지도 오른쪽 하단 '내 위치' 플로팅 버튼[cite: 18] -->
+            <!-- 🎯 지도 오른쪽 하단 '내 위치' 플로팅 버튼 -->
             <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important;" class="absolute bottom-4 right-4 z-20 text-white font-extrabold px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-teal-500/30 hover:scale-105 active:scale-95 transition">
                 <i class="fa-solid fa-crosshairs text-base"></i>
                 <span class="text-xs tracking-tight">내 위치</span>
@@ -318,7 +315,7 @@
         <!-- 지도 하단 컨트롤 영역 -->
         <div class="flex flex-col z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
             
-            <!-- 1. 최상단: 딥 앤 다크 그린 모임원 현황 창[cite: 15] -->
+            <!-- 1. 최상단: 딥 앤 다크 그린 모임원 현황 창 -->
             <div style="background-color: #0f4c3a !important;" class="text-white p-3 flex items-center gap-3 border-b border-[#145a45]">
                 <div class="flex items-center gap-2 shrink-0 border-r border-[#1a6850] pr-3">
                     <div class="w-8 h-8 rounded-full bg-[#1b5e48] text-teal-200 flex items-center justify-center text-sm shadow-inner">
@@ -346,7 +343,7 @@
                 </div>
             </div>
 
-            <!-- 2. 중단: GPS 상태 안내 및 버튼 창[cite: 15] -->
+            <!-- 2. 중단: GPS 상태 안내 및 버튼 창 -->
             <div style="background-color: #ffffff !important;" class="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-200">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-sm shrink-0">
@@ -362,7 +359,7 @@
                 </button>
             </div>
 
-            <!-- 3. 하단: 모임 채팅 & 회비 장부 2분할 카드[cite: 15] -->
+            <!-- 3. 하단: 모임 채팅 & 회비 장부 2분할 카드 -->
             <div style="background-color: #f8fafc !important;" class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div style="background-color: #ffffff !important;" class="border border-slate-200 rounded-2xl p-3 flex flex-col justify-between min-h-[110px] shadow-sm">
                     <div class="flex items-start gap-2.5 mb-2">
@@ -818,8 +815,10 @@
                     if (!isMe) {
                         if (!userMarkers[uData.uid]) {
                             const icon = L.divIcon({
-                                className: 'isharing-user-marker',
-                                html: `<div class="isharing-avatar-box">${uData.name[0]}</div>`
+                                className: '',
+                                iconSize: [52, 58],
+                                iconAnchor: [26, 58],
+                                html: `<div class="isharing-user-marker-container"><div class="isharing-avatar-box">${uData.name[0]}</div></div>`
                             });
                             userMarkers[uData.uid] = L.marker([uData.lat, uData.lng], { icon }).addTo(map);
                         } else {
@@ -829,7 +828,7 @@
                 });
             });
 
-            // 🎯 약속장소 실시간 수신 및 상단 목적지 카드에 표출
+            // 🎯 약속장소 실시간 수신 및 지도에 정밀 고정 마커 표시
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
                 if (target && target.lat && target.lng) {
@@ -838,9 +837,12 @@
 
                     if (targetMarker) map.removeLayer(targetMarker);
                     
+                    // iconSize 및 iconAnchor 설정으로 확대/축소 시 위치 이탈 방지
                     const icon = L.divIcon({
-                        className: 'target-marker',
-                        html: '<i class="fa-solid fa-flag"></i>'
+                        className: '',
+                        iconSize: [48, 48],
+                        iconAnchor: [24, 48],
+                        html: '<div class="target-marker-container"><i class="fa-solid fa-flag"></i></div>'
                     });
                     
                     targetMarker = L.marker([target.lat, target.lng], { icon }).addTo(map);
@@ -861,7 +863,7 @@
             });
         }
 
-        // 📡 고정밀 지속 추적 GPS 수신 알고리즘
+        // 📡 고정밀 실시간 GPS 위치 추적 로직
         function startGPSWatch() {
             if (!("geolocation" in navigator)) {
                 document.getElementById('gps-status-title').innerText = "❌ GPS 서비스 미지원 기기";
@@ -870,9 +872,11 @@
 
             const gpsOptions = {
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 15000,
                 maximumAge: 0
             };
+
+            navigator.geolocation.getCurrentPosition(handleGPSUpdate, handleGPSError, gpsOptions);
 
             if (watchId) navigator.geolocation.clearWatch(watchId);
             watchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, gpsOptions);
@@ -884,7 +888,7 @@
             const isFirstAcquire = (myPos === null);
             myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-            document.getElementById('gps-status-title').innerText = "🟢 실제 GPS 고정밀 위치 추적 중";
+            document.getElementById('gps-status-title').innerText = "🟢 고정밀 GPS 수신 완료";
             document.getElementById('gps-status-desc').innerText = `내 위치 위도: ${myPos.lat.toFixed(5)}, 경도: ${myPos.lng.toFixed(5)}`;
 
             if (isFirstAcquire && !targetPos) {
@@ -894,12 +898,12 @@
         }
 
         function handleGPSError(err) {
-            let title = "GPS 위치를 읽지 못했습니다";
-            let desc = "브라우저 위치 권한 허용이 필요합니다.";
+            let title = "GPS 위치를 측정 중입니다";
+            let desc = "브라우저 주소창의 [위치 권한] 허용을 선택해 주세요.";
             if (err.code === err.PERMISSION_DENIED) {
-                desc = "위치 허용 안됨 · 주소창의 [위치 권한]을 허용으로 바꿔주세요.";
+                desc = "위치 사용이 거부되었습니다. 주소창 아이콘을 눌러 위치 권한을 허용해주세요.";
             } else if (err.code === err.TIMEOUT) {
-                desc = "실제 위치 요청 시간 초과 · 재시도 중입니다.";
+                desc = "위치 재요청 중입니다. 야외나 창가 쪽으로 이동해 보세요.";
             }
             document.getElementById('gps-status-title').innerText = title;
             document.getElementById('gps-status-desc').innerText = desc;
@@ -911,8 +915,10 @@
             
             if (!myMarker) {
                 const icon = L.divIcon({
-                    className: 'isharing-my-marker',
-                    html: `<div class="isharing-my-avatar-box">${myNickName[0]}</div>`
+                    className: '',
+                    iconSize: [58, 64],
+                    iconAnchor: [29, 64],
+                    html: `<div class="isharing-my-marker-container"><div class="isharing-my-avatar-box">${myNickName[0]}</div></div>`
                 });
                 myMarker = L.marker([myPos.lat, myPos.lng], { icon }).addTo(map);
             } else {
@@ -930,7 +936,7 @@
             if (myPos) {
                 map.setView([myPos.lat, myPos.lng], 16);
             } else {
-                alert("현재 고정밀 GPS 수신 중입니다. 위치 권한을 확인해주세요.");
+                alert("현재 고정밀 GPS 신호를 수신 중입니다. 잠시 후 다시 눌러주세요.");
                 startGPSWatch();
             }
         }
