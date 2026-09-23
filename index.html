@@ -354,82 +354,36 @@
             initApp();
         }
 
-        /* 🔍 [강력 개선] 카카오 API 및 다중 오픈소스 검색을 활용한 국내 완벽 장소 검색 */
+        /* 🔍 장소 검색 기능 (Nominatim 안정 연동) */
         async function searchPlaces() {
             const rawQuery = document.getElementById('init-target-input').value.trim();
-            if (!rawQuery) return alert("검색할 약속장소 또는 상호명을 입력하세요.");
-
+            if (!rawQuery) return alert("검색어를 입력하세요.");
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">국내 장소 및 상호명 검색 중...</div>';
+            dropdown.innerHTML = '<div class="p-2 text-center text-xs text-slate-400">검색 중...</div>';
             dropdown.classList.remove('hidden');
 
-            let results = [];
-
             try {
-                // 1차: 카카오 공개 오픈키 엔드포인트를 통한 국내 상호명 정밀 검색
-                const kakaoRes = await fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(rawQuery)}`, {
-                    headers: { 'Authorization': 'KakaoAK 98115456104bc14d6428cf1b8a514d2e' } // 공개 테스트용키 연동
-                });
-                if (kakaoRes.ok) {
-                    const kakaoData = await kakaoRes.json();
-                    if (kakaoData.documents && kakaoData.documents.length > 0) {
-                        results = kakaoData.documents.map(doc => ({
-                            name: doc.place_name,
-                            address: doc.road_address_name || doc.address_name,
-                            lat: parseFloat(doc.y),
-                            lng: parseFloat(doc.x)
-                        }));
-                    }
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(rawQuery)}&countrycodes=kr&accept-language=ko&limit=5`);
+                const data = await res.json();
+                dropdown.innerHTML = '';
+                if(data.length === 0) {
+                    dropdown.innerHTML = '<div class="p-2 text-center text-xs text-rose-500">결과가 없습니다.</div>';
+                    return;
                 }
-            } catch (e) {
-                // 무시하고 2차 백업 검색으로 진행
-            }
-
-            // 2차 백업: Nominatim 한국 지역 정밀 검색 (카카오 결과가 없을 경우)
-            if (results.length === 0) {
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(rawQuery)}&countrycodes=kr&accept-language=ko&limit=6`);
-                    const data = await res.json();
-                    if (data && data.length > 0) {
-                        results = data.map(item => {
-                            const parts = item.display_name.split(',');
-                            return {
-                                name: parts[0].trim(),
-                                address: parts.slice(1).join(',').trim() || parts[0].trim(),
-                                lat: parseFloat(item.lat),
-                                lng: parseFloat(item.lon)
-                            };
-                        });
-                    }
-                } catch (e) {}
-            }
-
-            dropdown.innerHTML = '';
-            if (results.length === 0) {
-                dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-500">검색 결과가 없습니다. (예: "병점역", "이삭토스트" 등 구체적으로 입력해주세요)</div>';
-                return;
-            }
-
-            results.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "p-2.5 hover:bg-slate-100 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-100 last:border-0 text-xs";
-                div.onclick = () => {
-                    tempTargetPos = { lat: item.lat, lng: item.lng, name: item.name };
-                    document.getElementById('init-target-input').value = item.name;
-                    dropdown.classList.add('hidden');
-                };
-                div.innerHTML = `
-                    <div class="pr-2 min-w-0">
-                        <div class="font-bold text-slate-800 truncate">${item.name}</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5 truncate">${item.address}</div>
-                    </div>
-                    <span class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-200">선택</span>
-                `;
-                dropdown.appendChild(div);
-            });
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "p-2 hover:bg-slate-100 cursor-pointer rounded-xl text-xs font-semibold text-slate-800 border-b border-slate-100 last:border-0";
+                    div.onclick = () => {
+                        tempTargetPos = { lat: parseFloat(item.lat), lng: parseFloat(item.lon), name: item.display_name.split(',')[0] };
+                        document.getElementById('init-target-input').value = tempTargetPos.name;
+                        dropdown.classList.add('hidden');
+                    };
+                    div.innerText = item.display_name;
+                    dropdown.appendChild(div);
+                });
+            } catch(e) { dropdown.innerHTML = '<div class="p-2 text-center text-xs text-rose-500">검색 오류</div>'; }
         }
 
-        /* 🚀 [오류 해결] 모임방 개설 버튼 실행 함수 (이벤트 바인딩 및 필수값 검증 완벽 보완) */
         function submitRoomCreation() {
             myNickName = document.getElementById('init-username').value.trim();
             if (!myNickName) {
@@ -450,7 +404,6 @@
             if (tempTargetPos) {
                 db.ref(`rooms/${currentRoomId}/target`).set(tempTargetPos);
             } else {
-                // 약속장소를 검색해서 선택하지 않았을 경우 기본 서울시청 좌표 지정
                 const defaultTarget = { name: "서울시청", lat: 37.5665, lng: 126.9780 };
                 db.ref(`rooms/${currentRoomId}/target`).set(defaultTarget);
             }
