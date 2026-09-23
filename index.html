@@ -20,13 +20,13 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        body { font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: #f8fafc; }
-        #map { height: 100%; width: 100%; z-index: 1; }
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow: hidden; font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: #f8fafc; }
+
+        /* 🗺️ 지도 캔버스 */
+        #map { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
         /* 📍 타 모임원 마커 */
-        .isharing-user-marker-container {
-            width: 52px; height: 58px;
-        }
+        .isharing-user-marker-container { width: 52px; height: 58px; }
         .isharing-avatar-box {
             width: 52px; height: 52px; border-radius: 50%; background: #ffffff;
             border: 3px solid #ffffff; box-shadow: 0 8px 18px rgba(0,0,0,0.22);
@@ -35,9 +35,7 @@
         }
         
         /* 🟢 내 실제 GPS 위치 마커 */
-        .isharing-my-marker-container {
-            width: 58px; height: 64px;
-        }
+        .isharing-my-marker-container { width: 58px; height: 64px; }
         .isharing-my-avatar-box {
             width: 58px; height: 58px; border-radius: 50%;
             background: linear-gradient(135deg, #10b981, #059669);
@@ -63,9 +61,7 @@
         @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
         /* ✨ 첫 화면 통통 튀는 애니메이션 */
-        .animated-smart-box {
-            animation: floatBounce 2.5s infinite ease-in-out;
-        }
+        .animated-smart-box { animation: floatBounce 2.5s infinite ease-in-out; }
         @keyframes floatBounce {
             0%, 100% { transform: translateY(0) scale(1); }
             50% { transform: translateY(-6px) scale(1.02); }
@@ -81,14 +77,14 @@
             background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
         }
 
-        /* 🔝 지도 최상단 플로팅 오버레이 고정 클래스 */
-        .top-overlay-bar {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
-            z-index: 9999 !important;
-            pointer-events: auto;
+        /* 🔝 [강제 상단 표출] 지도 위 플로팅 오버레이 바 */
+        .top-floating-bar {
+            position: absolute !important;
+            top: 12px !important;
+            left: 12px !important;
+            right: 12px !important;
+            z-index: 99999 !important;
+            pointer-events: auto !important;
         }
 
         ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -99,7 +95,7 @@
 <body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
     <!-- 📱 1단계: 모임 개설 모달 (첫 화면) -->
-    <div id="create-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div id="create-modal" class="fixed inset-0 z-[100000] bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden text-slate-800">
             <div class="relative h-40 bright-grid-banner flex flex-col justify-between p-4 text-slate-800 overflow-hidden">
                 <div class="flex justify-between items-start z-10">
@@ -108,7 +104,6 @@
                     </div>
                 </div>
 
-                <!-- 🌟 생동감 있게 바운스 움직이는 스마트 박스 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
                     <div class="animated-smart-box bg-white/95 text-slate-900 px-4 py-2 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 backdrop-blur-md">
                         <div class="w-8 h-8 bg-[#0f4c3a] text-white rounded-full flex items-center justify-center text-xs font-black shadow-md">
@@ -188,7 +183,7 @@
     </div>
 
     <!-- 💌 2단계: 초대받은 지인 모달 -->
-    <div id="join-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div id="join-modal" class="hidden fixed inset-0 z-[100000] bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden text-slate-800">
             <div class="bg-[#0f4c3a] p-5 text-white text-center relative">
                 <div class="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-1">
@@ -238,7 +233,7 @@
     </div>
 
     <!-- 💰 1/N 정산 계산 모달 -->
-    <div id="dutch-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="dutch-modal" class="hidden fixed inset-0 z-[100000] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-xs w-full shadow-2xl flex flex-col gap-3 text-slate-800">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
                 <h3 class="text-xs font-bold text-[#0f4c3a] flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> 1/N 정산 계산기</h3>
@@ -254,17 +249,17 @@
         </div>
     </div>
 
-    <!-- 🎨 지도 및 플로팅 오버레이 레이아웃 -->
+    <!-- 🎨 메인 화면 레이아웃 (지도 영역 + 하단 컨트롤) -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
-        <!-- 지도 컨테이너 -->
+        <!-- 지도 컨테이너Wrapper -->
         <div class="relative flex-1 w-full h-full">
 
-            <!-- 📸 [보구 완료] 지도 최상단 플로팅 카드가 항상 보이는 오버레이 바 -->
-            <div class="top-overlay-bar flex items-center gap-2 overflow-x-auto pb-1">
+            <!-- 📸 [핵심 수정] 지도 위 상단 플로팅 카드가 가려지지 않고 항상 보이는 오버레이 박스 -->
+            <div class="top-floating-bar flex items-center gap-2 overflow-x-auto pb-1">
                 
                 <!-- 1. 모임명 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[160px] shrink-0">
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[160px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-pen"></i>
                     </div>
@@ -278,7 +273,7 @@
                 </div>
 
                 <!-- 2. 약속 일시 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[210px] shrink-0">
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[210px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-calendar-days"></i>
                     </div>
@@ -289,7 +284,7 @@
                 </div>
 
                 <!-- 3. 목적지 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
@@ -303,7 +298,7 @@
                 </div>
 
                 <!-- 4. 현재 접속 / 최대 인원 카드 -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[150px] shrink-0">
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-2xl flex items-center gap-2.5 min-w-[150px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-user-group"></i>
                     </div>
@@ -325,18 +320,18 @@
 
             </div>
 
-            <!-- 지도 객체 레이어 -->
+            <!-- Leaflet 지도 객체 -->
             <div id="map"></div>
 
             <!-- 🎯 지도 오른쪽 하단 '내 위치' 플로팅 버튼 -->
-            <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important; z-index: 9999 !important;" class="absolute bottom-4 right-4 text-white font-extrabold px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-teal-500/30 hover:scale-105 active:scale-95 transition">
+            <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important; z-index: 99999 !important;" class="absolute bottom-4 right-4 text-white font-extrabold px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-teal-500/30 hover:scale-105 active:scale-95 transition">
                 <i class="fa-solid fa-crosshairs text-base"></i>
                 <span class="text-xs tracking-tight">내 위치</span>
             </button>
         </div>
 
         <!-- 지도 하단 컨트롤 영역 -->
-        <div class="flex flex-col z-20 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
+        <div class="flex flex-col z-30 shadow-2xl shrink-0 max-h-[50dvh] overflow-y-auto">
             
             <!-- 1. 최상단: 딥 앤 다크 그린 모임원 현황 창 -->
             <div style="background-color: #0f4c3a !important;" class="text-white p-3 flex items-center gap-3 border-b border-[#145a45]">
@@ -747,6 +742,8 @@
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
+
+            setTimeout(() => { map.invalidateSize(); }, 300);
 
             db.ref(`rooms/${currentRoomId}/info`).on('value', snapshot => {
                 const info = snapshot.val() || {};
