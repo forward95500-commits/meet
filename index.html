@@ -54,7 +54,7 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* 📍 약속 장소 선명한 마커 */
+        /* 📍 약속 장소 마커 */
         .target-marker {
             position: relative; width: 48px !important; height: 48px !important;
             margin-left: -24px !important; margin-top: -48px !important;
@@ -81,33 +81,6 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
-
-    <!-- 상단 헤더 -->
-    <header class="bg-white border-b border-slate-200 px-3 py-2.5 flex items-center justify-between z-30 shadow-sm shrink-0">
-        <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
-            <div class="bg-[#0f4c3a] text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md shrink-0">
-                <i class="fa-solid fa-location-arrow"></i>
-            </div>
-            <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 min-w-0">
-                    <h1 id="room-title-display" class="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">여기서 만나</h1>
-                    <span id="room-tag" class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0">실시간</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex items-center gap-1.5 shrink-0">
-            <button id="toggle-gps-btn" onclick="toggleGPSSharing()" class="bg-[#0f4c3a] hover:bg-[#145a45] text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm">
-                <i class="fa-solid fa-satellite-dish text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> ON
-            </button>
-            <button onclick="copyShareLink()" class="bg-slate-800 hover:bg-slate-900 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 shadow-md">
-                <i class="fa-solid fa-share-nodes text-[10px]"></i> 초대
-            </button>
-            <button id="explode-btn" onclick="explodeRoom()" class="hidden bg-rose-600 hover:bg-rose-500 text-white text-[11px] px-2.5 py-1.5 rounded-xl font-extrabold transition shadow-sm">
-                방 폭파
-            </button>
-        </div>
-    </header>
 
     <!-- 📱 1단계: 모임 개설 모달 -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
@@ -264,12 +237,78 @@
         </div>
     </div>
 
-    <!-- 🎨 예시 이미지 고정 레이아웃 -->
+    <!-- 🎨 예시 이미지(두 번째 사진) 스타일 상단 카드 레이아웃 적용 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
         <div id="map" class="relative flex-1">
-            <!-- 🎯 지도 오른쪽 하단 '내 위치' 플로팅 버튼 (요청 이미지 반영)[cite: 18] -->
+
+            <!-- 📸 요청된 두 번째 이미지 스타일: 지도 위 상단 플로팅 오버레이 카드 바[cite: 20] -->
+            <div class="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 overflow-x-auto pb-1 pointer-events-auto">
+                
+                <!-- 1. 모임명 카드[cite: 20] -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[160px] shrink-0">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                        <i class="fa-solid fa-pen"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-[10px] font-bold text-slate-400">모임명</div>
+                        <input type="text" id="top-room-title" value="a" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full border-b border-transparent focus:border-emerald-500" onchange="updateRoomTitle(this.value)">
+                    </div>
+                    <button onclick="saveTopTitle()" class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs hover:bg-emerald-100 transition shrink-0">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                </div>
+
+                <!-- 2. 약속 일시 카드[cite: 20] -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[210px] shrink-0">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-[10px] font-bold text-slate-400">약속 일시</div>
+                        <input type="datetime-local" id="top-meet-time" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full" onchange="updateRoomTime(this.value)">
+                    </div>
+                </div>
+
+                <!-- 3. 목적지 카드[cite: 20] -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-[10px] font-bold text-slate-400">목적지</div>
+                        <div id="top-target-name" class="text-xs font-black text-slate-800 truncate">장소 지정 필요</div>
+                    </div>
+                    <button onclick="openTargetSearchModal()" class="bg-[#0f4c3a] hover:bg-[#145a45] text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center gap-1 shrink-0 transition">
+                        <i class="fa-solid fa-magnifying-glass text-[10px]"></i> 찾기
+                    </button>
+                </div>
+
+                <!-- 4. 현재 접속 / 최대 인원 카드[cite: 20] -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[150px] shrink-0">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                        <i class="fa-solid fa-user-group"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[10px] font-bold text-slate-400">현재 접속 / 최대 인원</div>
+                        <div class="flex items-center gap-1">
+                            <span id="top-current-count" class="text-xs font-black text-slate-800">1명</span>
+                            <span class="text-slate-400 text-xs font-bold">/</span>
+                            <select id="top-max-members" onchange="updateMaxMembers(this.value)" class="text-xs font-black text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-md px-1 py-0.5 focus:outline-none">
+                                <option value="2">2명</option>
+                                <option value="3" selected>3명</option>
+                                <option value="4">4명</option>
+                                <option value="5">5명</option>
+                                <option value="10">10명</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 🎯 지도 오른쪽 하단 '내 위치' 플로팅 버튼[cite: 18] -->
             <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important;" class="absolute bottom-4 right-4 z-20 text-white font-extrabold px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-teal-500/30 hover:scale-105 active:scale-95 transition">
                 <i class="fa-solid fa-crosshairs text-base"></i>
                 <span class="text-xs tracking-tight">내 위치</span>
@@ -401,19 +440,19 @@
         let isHost = false;
         let paymentHistory = [];
 
-        // 🔍 국내 확장 사전 지점 데이터베이스 (돼통령, 골드헤겔 등)[cite: 16, 17]
         const EXTENDED_PRESETS = [
             { name: "돼통령 병점본점", address: "경기 화성시 병점중앙로156번길 11-12 (진안동)", lat: 37.2081, lng: 127.0375 },
             { name: "돼통령 오산대역점", address: "경기 오산시 내삼미로79번길 12", lat: 37.1685, lng: 127.0620 },
             { name: "돼통령 영통역점", address: "경기 수원시 영통구 청명남로34번길 21", lat: 37.2515, lng: 127.0782 },
             { name: "골드헤겔", address: "경기 오산시 수청로 11 (대형 베이커리 카페)", lat: 37.1613, lng: 127.0601 },
-            { name: "병점역", address: "경기 화성시 떡전골로 97", lat: 37.2068, lng: 127.0329 },
+            { name: "병점역 광장", address: "경기 화성시 떡전골로 97 (진안동)", lat: 37.2068, lng: 127.0329 },
             { name: "강남역", address: "서울 강남구 강남대로 396", lat: 37.4979, lng: 127.0276 },
             { name: "수원역", address: "경기 수원시 팔달구 덕영대로 924", lat: 37.2656, lng: 127.0000 },
             { name: "동탄역", address: "경기 화성시 동탄역로 151", lat: 37.1995, lng: 127.0963 }
         ];
 
         document.getElementById('init-meettime').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        document.getElementById('top-meet-time').value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
         const urlParams = new URLSearchParams(window.location.search);
         const roomIdParam = urlParams.get('room');
@@ -426,15 +465,25 @@
 
                 db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
                     const info = snapshot.val() || {};
-                    if (info.title) document.getElementById('join-room-title').innerText = info.title;
-                    if (info.time) document.getElementById('join-meet-time').innerText = info.time.replace('T', ' ');
-                    if (info.max) document.getElementById('join-max-members').innerText = `${info.max}명`;
+                    if (info.title) {
+                        document.getElementById('join-room-title').innerText = info.title;
+                        document.getElementById('top-room-title').value = info.title;
+                    }
+                    if (info.time) {
+                        document.getElementById('join-meet-time').innerText = info.time.replace('T', ' ');
+                        document.getElementById('top-meet-time').value = info.time;
+                    }
+                    if (info.max) {
+                        document.getElementById('join-max-members').innerText = `${info.max}명`;
+                        document.getElementById('top-max-members').value = info.max;
+                    }
                 });
 
                 db.ref(`rooms/${currentRoomId}/target`).once('value', snapshot => {
                     const target = snapshot.val();
                     if (target && target.name) {
                         document.getElementById('join-target-name').innerText = target.name;
+                        document.getElementById('top-target-name').innerText = target.name;
                     }
                 });
             }
@@ -448,6 +497,30 @@
             myNickName = document.getElementById('join-username').value.trim() || "참여자";
             document.getElementById('join-modal').classList.add('hidden');
             initApp();
+        }
+
+        function updateRoomTitle(val) {
+            if (!currentRoomId || !val.trim()) return;
+            db.ref(`rooms/${currentRoomId}/info/title`).set(val.trim());
+        }
+
+        function saveTopTitle() {
+            const val = document.getElementById('top-room-title').value;
+            updateRoomTitle(val);
+        }
+
+        function updateRoomTime(val) {
+            if (!currentRoomId || !val) return;
+            db.ref(`rooms/${currentRoomId}/info/time`).set(val);
+        }
+
+        function updateMaxMembers(val) {
+            if (!currentRoomId) return;
+            db.ref(`rooms/${currentRoomId}/info/max`).set(val);
+        }
+
+        function openTargetSearchModal() {
+            document.getElementById('create-modal').classList.remove('hidden');
         }
 
         async function searchPlaces() {
@@ -624,11 +697,14 @@
             const maxMem = document.getElementById('init-maxmembers').value;
             const meetTime = document.getElementById('init-meettime').value;
 
+            document.getElementById('top-room-title').value = title;
+            document.getElementById('top-meet-time').value = meetTime;
+            document.getElementById('top-max-members').value = maxMem;
+
             currentRoomId = Math.random().toString(36).substring(2, 8);
             window.history.replaceState({}, '', `?room=${currentRoomId}`);
 
             isHost = true;
-            document.getElementById('explode-btn').classList.remove('hidden');
 
             db.ref(`rooms/${currentRoomId}/info`).set({
                 title, owner: myNickName, max: maxMem, time: meetTime
@@ -636,6 +712,7 @@
 
             if (tempTargetPos) {
                 db.ref(`rooms/${currentRoomId}/target`).set(tempTargetPos);
+                document.getElementById('top-target-name').innerText = tempTargetPos.name;
             }
 
             document.getElementById('create-modal').classList.add('hidden');
@@ -643,8 +720,6 @@
         }
 
         function initApp() {
-            document.getElementById('room-tag').innerText = `방: ${currentRoomId}`;
-
             map = L.map('map', { zoomControl: false }).setView([37.5665, 126.9780], 13);
             L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -653,13 +728,11 @@
                 attribution: '&copy; OpenStreetMap'
             }).addTo(map);
 
-            db.ref(`rooms/${currentRoomId}/info`).once('value', snapshot => {
+            db.ref(`rooms/${currentRoomId}/info`).on('value', snapshot => {
                 const info = snapshot.val() || {};
-                if (info.title) document.getElementById('room-title-display').innerText = info.title;
-                if (info.owner === myNickName) {
-                    isHost = true;
-                    document.getElementById('explode-btn').classList.remove('hidden');
-                }
+                if (info.title) document.getElementById('top-room-title').value = info.title;
+                if (info.time) document.getElementById('top-meet-time').value = info.time;
+                if (info.max) document.getElementById('top-max-members').value = info.max;
             });
 
             startGPSWatch();
@@ -672,7 +745,10 @@
             db.ref(`rooms/${currentRoomId}/users`).on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 const uKeys = Object.keys(users);
-                document.getElementById('member-count-badge').innerText = `${Math.max(uKeys.length, 1)}명`;
+                const activeCount = Math.max(uKeys.length, 1);
+
+                document.getElementById('member-count-badge').innerText = `${activeCount}명`;
+                document.getElementById('top-current-count').innerText = `${activeCount}명`;
 
                 let userList = [];
                 uKeys.forEach(uid => {
@@ -753,11 +829,13 @@
                 });
             });
 
-            // 🎯 약속장소 실시간 수신 및 지도에 즉시 선명 마커 표시
+            // 🎯 약속장소 실시간 수신 및 상단 목적지 카드에 표출
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
                 if (target && target.lat && target.lng) {
                     targetPos = target;
+                    document.getElementById('top-target-name').innerText = target.name || "목적지 지정됨";
+
                     if (targetMarker) map.removeLayer(targetMarker);
                     
                     const icon = L.divIcon({
@@ -827,20 +905,6 @@
             document.getElementById('gps-status-desc').innerText = desc;
         }
 
-        function toggleGPSSharing() {
-            isSharingGPS = !isSharingGPS;
-            const btn = document.getElementById('toggle-gps-btn');
-            if (isSharingGPS) {
-                btn.className = "bg-[#0f4c3a] hover:bg-[#145a45] text-white text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 shadow-sm";
-                btn.innerHTML = `<i class="fa-solid fa-satellite-dish text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> ON`;
-                startGPSWatch();
-            } else {
-                btn.className = "bg-slate-200 text-slate-600 text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1 border border-slate-300";
-                btn.innerHTML = `<i class="fa-solid fa-ban text-[10px]"></i> <span class="hidden sm:inline">위치공유</span> OFF`;
-                if (watchId) navigator.geolocation.clearWatch(watchId);
-            }
-        }
-
         function syncMyLocation() {
             if (!myPos || !isSharingGPS) return;
             const myUid = 'user_' + myNickName;
@@ -877,22 +941,6 @@
             if (!text || !currentRoomId) return;
             db.ref(`rooms/${currentRoomId}/chats`).push({ sender: myNickName, text });
             input.value = '';
-        }
-
-        function copyShareLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("초대 링크가 복사되었습니다!");
-        }
-
-        function explodeRoom() {
-            if (!isHost) return alert("방장만 방을 폭파할 수 있습니다.");
-            if (confirm("정말로 방을 폭파하시겠습니까?")) {
-                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
-                if (currentRoomId) db.ref(`rooms/${currentRoomId}`).remove();
-                setTimeout(() => {
-                    window.location.href = window.location.pathname;
-                }, 1600);
-            }
         }
 
         function getDistanceInKm(lat1, lon1, lat2, lon2) {
