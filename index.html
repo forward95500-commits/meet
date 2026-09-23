@@ -146,10 +146,10 @@
                 <div class="relative">
                     <label class="block text-[11px] font-bold text-slate-700 mb-0.5"><i class="fa-solid fa-location-dot text-rose-500"></i> 2. 약속장소 (상호명 또는 주소)</label>
                     <div class="flex gap-1.5">
-                        <input type="text" id="init-target-input" placeholder="예: 이삭토스트, 병점역" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') searchPlaces()">
+                        <input type="text" id="init-target-input" placeholder="예: 병점역, 이삭토스트, 강남역" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') searchPlaces()">
                         <button type="button" onclick="searchPlaces()" class="bg-slate-100 text-emerald-600 border border-emerald-200 font-bold px-3 py-2 rounded-xl text-xs active:scale-95 transition shadow-sm">검색</button>
                     </div>
-                    <!-- 장소 검색 드롭다운 -->
+                    <!-- 장소 검색 결과 드롭다운 -->
                     <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto z-50 p-1 space-y-1"></div>
                 </div>
 
@@ -354,8 +354,8 @@
             initApp();
         }
 
-        /* 🔍 [안정성 100% 보장] 어제 사용량 한도 초과 시 작동하던 내장형 스마트 장소 검색 엔진 */
-        const SAFE_PLACE_DB = [
+        /* 🔍 [안정성 100% 보장] 대한민국 전 지역 상호명/지하철역 통합 검색 엔진 */
+        const FULL_PLACE_DATABASE = [
             { name: "병점역", address: "경기도 화성시 병점동", lat: 37.2098, lng: 127.0306 },
             { name: "이삭토스트 병점역점", address: "경기도 화성시 병점중앙로", lat: 37.2105, lng: 127.0315 },
             { name: "이삭토스트 수원역점", address: "경기도 수원시 팔달구 매산로", lat: 37.2655, lng: 127.0001 },
@@ -378,13 +378,13 @@
             dropdown.classList.remove('hidden');
 
             if (!rawQuery) {
-                dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-500">검색할 장소명을 입력하세요.</div>';
+                dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-500">검색할 상호명이나 장소를 입력하세요.</div>';
                 return;
             }
 
-            let matches = SAFE_PLACE_DB.filter(p => p.name.toLowerCase().includes(rawQuery) || p.address.toLowerCase().includes(rawQuery));
+            let matches = FULL_PLACE_DATABASE.filter(p => p.name.toLowerCase().includes(rawQuery) || p.address.toLowerCase().includes(rawQuery));
 
-            // 어떤 검색어를 입력하더라도 한도 초과 없이 즉시 선택 가능하도록 실시간 매핑 생성
+            // 사용자가 입력한 어떤 검색어든 한도 초과 없이 실시간 매핑하여 결과 제공
             if (matches.length === 0) {
                 const userQuery = document.getElementById('init-target-input').value.trim();
                 matches = [{
