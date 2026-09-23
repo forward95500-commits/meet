@@ -146,10 +146,10 @@
                 <div class="relative">
                     <label class="block text-[11px] font-bold text-slate-700 mb-0.5"><i class="fa-solid fa-location-dot text-rose-500"></i> 2. 약속장소 (상호명 또는 주소)</label>
                     <div class="flex gap-1.5">
-                        <input type="text" id="init-target-input" placeholder="예: 병점역, 강남역, 이삭토스트" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') searchPlaces()">
-                        <button type="button" onclick="searchPlaces()" class="bg-slate-100 text-emerald-600 border border-emerald-200 font-bold px-3 py-2 rounded-xl text-xs active:scale-95 transition shadow-sm">검색</button>
+                        <input type="text" id="init-target-input" placeholder="예: 이삭토스트, 병점역" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500" onkeypress="if(event.key==='Enter') searchPlaces()">
+                        <button onclick="searchPlaces()" class="bg-slate-100 text-emerald-600 border border-emerald-200 font-bold px-3 py-2 rounded-xl text-xs active:scale-95 transition">검색</button>
                     </div>
-                    <!-- 장소 검색 드롭다운 -->
+                    <!-- 🔍 어제 원본 그대로 작동하는 검색 드롭다운 -->
                     <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-48 overflow-y-auto z-50 p-1 space-y-1"></div>
                 </div>
 
@@ -175,7 +175,7 @@
                     <input type="text" id="init-username" placeholder="예: 홍길동" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
                 </div>
 
-                <button type="button" onclick="submitRoomCreation()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-lg transition text-xs flex items-center justify-center gap-1.5 mt-1 cursor-pointer">
+                <button onclick="submitRoomCreation()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-lg transition text-xs flex items-center justify-center gap-1.5 mt-1">
                     <i class="fa-solid fa-rocket"></i> 모임방 바로 개설하기
                 </button>
             </div>
@@ -202,7 +202,7 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">모임에서 사용할 내 닉네임</label>
                     <input type="text" id="join-username" placeholder="예: 길동이" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800">
                 </div>
-                <button type="button" onclick="submitRoomJoin()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-lg transition text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <button onclick="submitRoomJoin()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold py-3 rounded-xl shadow-lg transition text-xs flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-right-to-bracket"></i> 모임방 지도로 참여하기
                 </button>
             </div>
@@ -354,73 +354,38 @@
             initApp();
         }
 
-        /* 🔍 [내장형 안정 검색 데이터베이스] 외부 서버 오류 및 CORS 차단 원천 차단 */
-        const PRESET_PLACES = [
-            { name: "병점역", address: "경기도 화성시 병점동", lat: 37.2098, lng: 127.0306 },
-            { name: "이삭토스트 병점역점", address: "경기도 화성시 병점중앙로", lat: 37.2105, lng: 127.0315 },
-            { name: "강남역", address: "서울특별시 강남구 역삼동", lat: 37.4979, lng: 127.0276 },
-            { name: "서울시청", address: "서울특별시 중구 세종대로 110", lat: 37.5665, lng: 126.9780 },
-            { name: "홍대입구역", address: "서울특별시 마포구 동교동", lat: 37.5572, lng: 126.9245 },
-            { name: "잠실역", address: "서울특별시 송파구 신천동", lat: 37.5133, lng: 127.1001 },
-            { name: "수원역", address: "경기도 수원시 팔달구 매산로1가", lat: 37.2657, lng: 127.0003 },
-            { name: "판교역", address: "경기도 성남시 분당구 판교역로", lat: 37.3947, lng: 127.1112 },
-            { name: "건대입구역", address: "서울특별시 광진구 화양동", lat: 37.5404, lng: 127.0704 },
-            { name: "신도림역", address: "서울특별시 구로구 신도림동", lat: 37.5087, lng: 126.8913 },
-            { name: "스타벅스 강남점", address: "서울특별시 강남구 강남대로", lat: 37.4981, lng: 127.0280 },
-            { name: "스타벅스 수원역점", address: "경기도 수원시 팔달구 덕영대로", lat: 37.2650, lng: 126.9990 }
-        ];
-
-        function searchPlaces() {
-            const rawQuery = document.getElementById('init-target-input').value.trim().toLowerCase();
+        /* 🔍 어제 원본 그대로 작동하는 Nominatim 장소 검색 함수 */
+        async function searchPlaces() {
+            const rawQuery = document.getElementById('init-target-input').value.trim();
+            if (!rawQuery) return alert("검색어를 입력하세요.");
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '';
+            dropdown.innerHTML = '<div class="p-2 text-center text-xs text-slate-400">검색 중...</div>';
             dropdown.classList.remove('hidden');
 
-            if (!rawQuery) {
-                dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-rose-500">검색어를 입력하세요.</div>';
-                return;
-            }
-
-            // 내장 데이터 및 외부 오픈 API 복합 검색
-            let results = PRESET_PLACES.filter(p => p.name.toLowerCase().includes(rawQuery) || p.address.toLowerCase().includes(rawQuery));
-
-            if (results.length === 0) {
-                // 사용자가 직접 입력한 키워드를 임시 장소 좌표(서울시청 부근 또는 입력값)로 자동 매핑 생성
-                results = [{
-                    name: document.getElementById('init-target-input').value.trim(),
-                    address: "직접 지정한 검색 위치",
-                    lat: 37.5665 + (Math.random() - 0.5) * 0.05,
-                    lng: 126.9780 + (Math.random() - 0.5) * 0.05
-                }];
-            }
-
-            results.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "p-2.5 hover:bg-slate-100 cursor-pointer rounded-xl transition flex justify-between items-center border-b border-slate-100 last:border-0 text-xs";
-                div.onclick = () => {
-                    tempTargetPos = { lat: item.lat, lng: item.lng, name: item.name };
-                    document.getElementById('init-target-input').value = item.name;
-                    dropdown.classList.add('hidden');
-                };
-                div.innerHTML = `
-                    <div class="pr-2 min-w-0">
-                        <div class="font-bold text-slate-800 truncate">${item.name}</div>
-                        <div class="text-[10px] text-slate-500 mt-0.5 truncate">${item.address}</div>
-                    </div>
-                    <span class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-1 rounded-lg shrink-0 border border-emerald-200">선택</span>
-                `;
-                dropdown.appendChild(div);
-            });
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(rawQuery)}&countrycodes=kr&accept-language=ko&limit=5`);
+                const data = await res.json();
+                dropdown.innerHTML = '';
+                if(data.length === 0) {
+                    dropdown.innerHTML = '<div class="p-2 text-center text-xs text-rose-500">결과가 없습니다.</div>';
+                    return;
+                }
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = "p-2 hover:bg-slate-100 cursor-pointer rounded-xl text-xs font-semibold text-slate-800 border-b border-slate-100 last:border-0";
+                    div.onclick = () => {
+                        tempTargetPos = { lat: parseFloat(item.lat), lng: parseFloat(item.lon), name: item.display_name.split(',')[0] };
+                        document.getElementById('init-target-input').value = tempTargetPos.name;
+                        dropdown.classList.add('hidden');
+                    };
+                    div.innerText = item.display_name;
+                    dropdown.appendChild(div);
+                });
+            } catch(e) { dropdown.innerHTML = '<div class="p-2 text-center text-xs text-rose-500">검색 오류</div>'; }
         }
 
         function submitRoomCreation() {
-            myNickName = document.getElementById('init-username').value.trim();
-            if (!myNickName) {
-                alert("내 이름(닉네임)을 입력해주세요!");
-                document.getElementById('init-username').focus();
-                return;
-            }
-
+            myNickName = document.getElementById('init-username').value.trim() || "모임장";
             const title = document.getElementById('init-roomtitle').value.trim() || "즐거운 모임 ⚡";
             const maxMem = document.getElementById('init-maxmembers').value;
             const meetTime = document.getElementById('init-meettime').value;
@@ -430,12 +395,7 @@
             document.getElementById('explode-btn').classList.remove('hidden');
 
             db.ref(`rooms/${currentRoomId}/info`).set({ title, owner: myNickName, max: maxMem, time: meetTime });
-            if (tempTargetPos) {
-                db.ref(`rooms/${currentRoomId}/target`).set(tempTargetPos);
-            } else {
-                const defaultTarget = { name: "서울시청", lat: 37.5665, lng: 126.9780 };
-                db.ref(`rooms/${currentRoomId}/target`).set(defaultTarget);
-            }
+            if (tempTargetPos) db.ref(`rooms/${currentRoomId}/target`).set(tempTargetPos);
 
             document.getElementById('room-title-display').innerText = `모임: ${title}`;
             document.getElementById('create-modal').classList.add('hidden');
@@ -449,11 +409,13 @@
 
             startGPSWatch();
 
+            // 회비 장부 실시간 연동
             db.ref(`rooms/${currentRoomId}/payments`).on('value', (snapshot) => {
                 paymentHistory = snapshot.val() || [];
                 renderPaymentHistory();
             });
 
+            // 모임원 현황 실시간 수신 및 목적지 기준 가까운 거리순 정렬
             db.ref(`rooms/${currentRoomId}/users`).on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 const uKeys = Object.keys(users);
@@ -471,6 +433,7 @@
                     }
                 });
 
+                // 목적지 기준 가까운 순서로 정렬
                 userList.sort((a, b) => a.distanceKm - b.distanceKm);
 
                 const container = document.getElementById('member-items-container');
@@ -516,6 +479,7 @@
                 }
             });
 
+            // 실시간 채팅 수신
             db.ref(`rooms/${currentRoomId}/chats`).limitToLast(15).on('child_added', (snapshot) => {
                 const chat = snapshot.val();
                 const chatBox = document.getElementById('chat-box');
