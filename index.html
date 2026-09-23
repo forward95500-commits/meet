@@ -60,7 +60,7 @@
         }
         @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* ✨ 첫 화면 통통 튀는 애니메이션 */
+        /* ✨ 첫 화면 애니메이션 */
         .animated-smart-box { animation: floatBounce 2.5s infinite ease-in-out; }
         @keyframes floatBounce {
             0%, 100% { transform: translateY(0) scale(1); }
@@ -127,8 +127,8 @@
                         <input type="text" id="init-target-input" placeholder="예: 스타벅스, 돼통령, 골드헤겔, 병점역" class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-emerald-600 focus:bg-white transition" onkeypress="if(event.key==='Enter') searchPlaces()">
                         <button onclick="searchPlaces()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold px-3.5 py-2.5 rounded-xl text-xs transition active:scale-95">검색</button>
                     </div>
-                    <!-- 📍 거리순 정렬 결과가 나오는 드롭다운 -->
-                    <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-60 overflow-y-auto z-50 p-1 space-y-1"></div>
+                    <!-- 📍 여러 지점 검색 결과가 거리순으로 표출되는 드롭다운 -->
+                    <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto z-50 p-1 space-y-1"></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -243,7 +243,7 @@
     <!-- 🎨 전체 레이아웃 구조 -->
     <main class="flex-1 flex flex-col h-full w-full overflow-hidden">
         
-        <!-- 📦 1. [지도 밖 완벽 분리] 독립된 헤더 컨테이너 영역 -->
+        <!-- 📦 1. [지도 밖 완벽 분리] 상단 헤더 컨테이너 영역 -->
         <header class="bg-slate-200/80 border-b border-slate-300/80 p-2.5 shrink-0 z-30 shadow-sm">
             <div class="flex items-center gap-2 overflow-x-auto pb-0.5">
                 
@@ -465,7 +465,20 @@
         let isHost = false;
         let paymentHistory = [];
 
+        // 다수의 유명 브랜드 매장 프리셋 사전 구성
+        const STARBUCKS_PRESETS = [
+            { name: "스타벅스 병점DT점", address: "경기 화성시 병점중앙로 180", lat: 37.2105, lng: 127.0398 },
+            { name: "스타벅스 병점역점", address: "경기 화성시 떡전골로 98", lat: 37.2072, lng: 127.0335 },
+            { name: "스타벅스 오산대역DT점", address: "경기 오산시 청학로 222", lat: 37.1691, lng: 127.0589 },
+            { name: "스타벅스 오산수청점", address: "경기 오산시 수청로 30", lat: 37.1625, lng: 127.0612 },
+            { name: "스타벅스 동탄역점", address: "경기 화성시 동탄대로 537", lat: 37.1988, lng: 127.0975 },
+            { name: "스타벅스 수원역점", address: "경기 수원시 팔달구 덕영대로 924", lat: 37.2659, lng: 127.0002 },
+            { name: "스타벅스 영통역점", address: "경기 수원시 영통구 봉영로 1590", lat: 37.2520, lng: 127.0768 },
+            { name: "스타벅스 강남대로점", address: "서울 강남구 강남대로 390", lat: 37.4975, lng: 127.0282 }
+        ];
+
         const EXTENDED_PRESETS = [
+            ...STARBUCKS_PRESETS,
             { name: "돼통령 병점본점", address: "경기 화성시 병점중앙로156번길 11-12 (진안동)", lat: 37.2081, lng: 127.0375 },
             { name: "돼통령 오산대역점", address: "경기 오산시 내삼미로79번길 12", lat: 37.1685, lng: 127.0620 },
             { name: "돼통령 영통역점", address: "경기 수원시 영통구 청명남로34번길 21", lat: 37.2515, lng: 127.0782 },
@@ -587,19 +600,19 @@
             document.getElementById('create-modal').classList.remove('hidden');
         }
 
-        /* 🔍 [거리순 정렬 핵심 함수] 내 위치 기반으로 장소를 검색하고 가까운 순으로 표시 */
+        /* 🔍 [개선된 다중 검색 알고리즘] 스타벅스 등 브랜드 검색 시 여러 지점을 거리순으로 표출 */
         async function searchPlaces() {
             const rawQuery = document.getElementById('init-target-input').value.trim();
             if (!rawQuery) return alert("검색할 약속장소 또는 주소를 입력하세요.");
 
             const dropdown = document.getElementById('search-dropdown');
-            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400">내 주변 가까운 장소 검색 중...</div>';
+            dropdown.innerHTML = '<div class="p-2.5 text-center text-xs text-slate-400"><i class="fa-solid fa-spinner animate-spin"></i> 주변 매장 및 다중 지점 정밀 검색 중...</div>';
             dropdown.classList.remove('hidden');
 
             const dropdownItems = [];
             const cleanQuery = rawQuery.replace(/\s+/g, '');
 
-            // 1. 로컬 프리스셋 검색
+            // 1. 사전 구성된 지점 매칭 (스타벅스 등 주요 매장 즉시 포함)
             EXTENDED_PRESETS.forEach(item => {
                 const cleanPresetName = item.name.replace(/\s+/g, '');
                 if (cleanPresetName.includes(cleanQuery) || cleanQuery.includes(cleanPresetName)) {
@@ -607,44 +620,92 @@
                 }
             });
 
-            // 2. OpenStreetMap API 호출 (내 주변 위도/경도 바운딩 박스 활용)
+            // 2. 다중 API 쿼리 결합 (Overpass POI + Nominatim 다중 키워드)
             try {
-                let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(rawQuery)}&countrycodes=kr&accept-language=ko&limit=20`;
-                
-                // 내 위치 좌표가 수신되어 있다면 주변 25km 내 범위를 우선 검색
-                if (myPos) {
-                    const viewbox = `${myPos.lng - 0.25},${myPos.lat + 0.25},${myPos.lng + 0.25},${myPos.lat - 0.25}`;
-                    url += `&viewbox=${viewbox}`;
+                let fetchPromises = [];
+
+                // (A) 내 위치 기반 Overpass API로 주변 20km 매장 대량 검색
+                if (myPos && (rawQuery.includes('스타벅스') || rawQuery.includes('카페') || rawQuery.includes('맥도날드') || rawQuery.includes('이디야'))) {
+                    const overpassQuery = `
+                        [out:json][timeout:5];
+                        (
+                          node["name"~"${rawQuery}"](around:20000,${myPos.lat},${myPos.lng});
+                          way["name"~"${rawQuery}"](around:20000,${myPos.lat},${myPos.lng});
+                        );
+                        out center 15;
+                    `;
+                    fetchPromises.push(
+                        fetch('https://overpass-api.de/api/interpreter', {
+                            method: 'POST',
+                            body: overpassQuery
+                        }).then(r => r.json()).then(data => {
+                            if (data && data.elements) {
+                                return data.elements.map(el => {
+                                    const lat = el.lat || (el.center && el.center.lat);
+                                    const lng = el.lon || (el.center && el.center.lon);
+                                    const tags = el.tags || {};
+                                    return {
+                                        name: tags.name || rawQuery,
+                                        address: tags['addr:full'] || tags['addr:street'] || `${tags['addr:city'] || ''} ${tags['addr:suburb'] || ''}`.trim() || '상세 주소 확인 가능',
+                                        lat, lng
+                                    };
+                                }).filter(i => i.lat && i.lng);
+                            }
+                            return [];
+                        }).catch(() => [])
+                    );
                 }
 
-                const res = await fetch(url);
-                const apiData = await res.json();
+                // (B) 지역명 조합 쿼리로 여러 지점 수신
+                const searchVariants = [
+                    rawQuery,
+                    `${rawQuery} 경기`,
+                    `${rawQuery} 서울`,
+                    `${rawQuery} 화성`,
+                    `${rawQuery} 오산`
+                ];
 
-                if (Array.isArray(apiData)) {
-                    apiData.forEach(item => {
-                        const rawParts = item.display_name.split(',');
-                        const nameStr = rawParts[0].trim();
-                        const addrParts = rawParts.slice(1).map(p => p.trim()).filter(p => !/[a-zA-Z]/.test(p)).reverse().join(' ');
-                        
-                        dropdownItems.push({
-                            name: nameStr,
-                            address: addrParts || nameStr,
-                            lat: parseFloat(item.lat),
-                            lng: parseFloat(item.lon)
+                searchVariants.forEach(q => {
+                    let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&countrycodes=kr&accept-language=ko&limit=10`;
+                    if (myPos) {
+                        const vb = `${myPos.lng - 0.3},${myPos.lat + 0.3},${myPos.lng + 0.3},${myPos.lat - 0.3}`;
+                        url += `&viewbox=${vb}`;
+                    }
+                    fetchPromises.push(fetch(url).then(r => r.json()).catch(() => []));
+                });
+
+                const resultsArray = await Promise.all(fetchPromises);
+
+                resultsArray.forEach(arr => {
+                    if (Array.isArray(arr)) {
+                        arr.forEach(item => {
+                            if (item.lat && (item.lon || item.lng)) {
+                                const lat = parseFloat(item.lat);
+                                const lng = parseFloat(item.lon || item.lng);
+                                const rawParts = (item.display_name || '').split(',');
+                                const nameStr = item.name || rawParts[0].trim();
+                                const addrParts = rawParts.slice(1).map(p => p.trim()).filter(p => !/[a-zA-Z]/.test(p)).reverse().join(' ');
+                                dropdownItems.push({
+                                    name: nameStr,
+                                    address: addrParts || nameStr,
+                                    lat, lng
+                                });
+                            }
                         });
-                    });
-                }
+                    }
+                });
             } catch(e) {}
 
-            // 3. 중복 제거 및 내 위치 기준 거리 계산
+            // 3. 중복 제거 및 좌표/이름 정제
             const seenKeys = new Set();
             const processedItems = [];
 
             dropdownItems.forEach(item => {
-                const key = `${item.name}_${item.lat.toFixed(4)}_${item.lng.toFixed(4)}`;
+                if (!item.lat || !item.lng) return;
+                // 정밀 좌표 기반 중복 제거
+                const key = `${item.name.replace(/\s+/g, '')}_${item.lat.toFixed(3)}_${item.lng.toFixed(3)}`;
                 if (!seenKeys.has(key)) {
                     seenKeys.add(key);
-                    
                     let distanceKm = 99999;
                     if (myPos) {
                         distanceKm = getDistanceInKm(myPos.lat, myPos.lng, item.lat, item.lng);
@@ -653,10 +714,10 @@
                 }
             });
 
-            // 4. ✨ 거리순(가까운 순)으로 오름차순 정렬
+            // 4. ✨ 내 위치 기준 가까운 순(거리 오름차순) 정렬
             processedItems.sort((a, b) => a.distanceKm - b.distanceKm);
 
-            // 5. 드롭다운 UI 렌더링
+            // 5. 드롭다운 화면 렌더링
             if (processedItems.length > 0) {
                 dropdown.innerHTML = '';
                 processedItems.forEach(item => {
@@ -685,7 +746,7 @@
                 dropdown.innerHTML = `
                     <div class="p-3 text-center">
                         <p class="text-xs font-bold text-slate-700 mb-1">'${rawQuery}' 검색 결과가 없습니다.</p>
-                        <p class="text-[10px] text-slate-400">상호명 뒤에 지점명을 붙이거나 도로명 주소로 입력해보세요.</p>
+                        <p class="text-[10px] text-slate-400">도로명 주소나 '스타벅스 병점점'처럼 검색해보세요.</p>
                     </div>
                 `;
             }
