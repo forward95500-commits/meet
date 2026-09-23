@@ -48,34 +48,34 @@
         }
         @keyframes bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* ✨ 실사 대신 움직이는 역동적인 그리드 일러스트 패턴 배경 */
-        .live-moving-banner {
-            background-color: #0f172a;
+        /* ☀️ 밝고 화사한 라이트 감성 지도 그리드 배경 */
+        .bright-grid-banner {
+            background-color: #f1f5f9;
             background-image: 
-                radial-gradient(at 15% 20%, rgba(16, 185, 129, 0.45) 0px, transparent 50%),
-                radial-gradient(at 85% 80%, rgba(59, 130, 246, 0.45) 0px, transparent 50%),
-                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px;
-            animation: gridMove 12s linear infinite;
+                radial-gradient(at 10% 20%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                linear-gradient(rgba(203, 213, 225, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+            animation: gridMove 16s linear infinite;
         }
         @keyframes gridMove {
             0% { background-position: 0 0, 0 0, 0 0, 0 0; }
-            100% { background-position: 0 0, 0 0, 24px 24px, 24px 24px; }
+            100% { background-position: 0 0, 0 0, 28px 28px, 28px 28px; }
         }
 
         .char-bounce {
-            animation: charHop 2s ease-in-out infinite;
+            animation: charHop 2.2s ease-in-out infinite;
         }
         @keyframes charHop {
             0%, 100% { transform: translateY(0) rotate(-1deg); }
-            50% { transform: translateY(-6px) rotate(1deg); }
+            50% { transform: translateY(-5px) rotate(1deg); }
         }
 
         .radar-ping {
             position: absolute;
             border-radius: 50%;
-            border: 2px solid rgba(16, 185, 129, 0.7);
+            border: 2px solid rgba(16, 185, 129, 0.5);
             animation: radarPulse 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
         }
         @keyframes radarPulse {
@@ -117,39 +117,39 @@
         </div>
     </header>
 
-    <!-- 📱 1단계: 모임 개설 모달 (실사 제거, 움직이는 캐릭터/이모티콘 일러스트 배너) -->
+    <!-- 📱 1단계: 모임 개설 모달 -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden">
             
-            <!-- ✨ 움직이는 일러스트 배경 + 캐릭터 이모티콘 영역 -->
-            <div class="relative h-44 live-moving-banner flex flex-col justify-between p-4 text-white overflow-hidden">
+            <!-- ☀️ 밝고 화사한 라이트 그리드 & 레이더 배너 영역 (실사 제거 완료) -->
+            <div class="relative h-44 bright-grid-banner flex flex-col justify-between p-4 text-slate-800 overflow-hidden">
                 
                 <div class="flex justify-between items-start z-10">
-                    <div class="inline-flex items-center gap-1.5 bg-emerald-500/20 backdrop-blur-md text-emerald-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-500/40">
-                        <i class="fa-solid fa-face-smile text-amber-300"></i> 스마트 실시간 매핑
+                    <div class="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-md text-emerald-700 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-200 shadow-sm">
+                        <i class="fa-solid fa-map-location-dot text-emerald-600"></i> 실시간 모임 지도
                     </div>
-                    <span class="text-[14px] animate-bounce">📍</span>
+                    <span class="text-[10px] text-slate-500 font-mono tracking-wider bg-white/80 px-2 py-0.5 rounded-md shadow-sm">MAP MODE</span>
                 </div>
 
-                <!-- 🤖 귀여운 움직이는 캐릭터 카드 -->
+                <!-- 🤖 중앙 레이더 & 타이틀 카드 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
                     <div class="radar-ping"></div>
                     <div class="radar-ping" style="animation-delay: 1.2s;"></div>
                     
-                    <div class="char-bounce bg-slate-900/95 text-white px-4 py-2.5 rounded-2xl shadow-xl border border-emerald-400/50 flex items-center gap-3 backdrop-blur-md">
-                        <div class="w-8 h-8 bg-gradient-to-tr from-emerald-500 to-teal-400 text-white rounded-full flex items-center justify-center text-sm font-black shadow-lg shadow-emerald-500/40">
-                            🏃‍♂️
+                    <div class="char-bounce bg-white/95 text-slate-900 px-4 py-2.5 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 backdrop-blur-md">
+                        <div class="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center text-xs font-black shadow-md shadow-emerald-500/30">
+                            <i class="fa-solid fa-location-crosshairs"></i>
                         </div>
                         <div class="text-left">
-                            <div class="text-xs font-extrabold text-emerald-400 leading-tight">어디서 만날까?</div>
-                            <div class="text-[10px] text-slate-300">실시간 위치로 한방에 모이기 ✨</div>
+                            <div class="text-xs font-extrabold text-emerald-600 leading-tight">스마트 약속 모임</div>
+                            <div class="text-[10px] text-slate-500">내 친구 실시간 위치 한눈에</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="relative z-10">
-                    <h2 class="text-xl font-black tracking-tight text-white drop-shadow">여기서 만나</h2>
-                    <p class="text-[11px] text-slate-300 font-medium">위치 공유부터 1/N 회비 정산까지 손쉽게!</p>
+                    <h2 class="text-xl font-black tracking-tight text-slate-900 drop-shadow-sm">여기서 만나</h2>
+                    <p class="text-[11px] text-slate-600 font-medium">위치 공유부터 1/N 회비 정산까지 손쉽게!</p>
                 </div>
             </div>
 
