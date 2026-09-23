@@ -62,7 +62,7 @@
         }
         @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
 
-        /* ✨ 첫 화면 생동감 있는 통통 튀는 애니메이션 */
+        /* ✨ 첫 화면 통통 튀는 애니메이션 */
         .animated-smart-box {
             animation: floatBounce 2.5s infinite ease-in-out;
         }
@@ -79,6 +79,16 @@
                 linear-gradient(rgba(203, 213, 225, 0.4) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
             background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+        }
+
+        /* 🔝 지도 최상단 플로팅 오버레이 고정 클래스 */
+        .top-overlay-bar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 9999 !important;
+            pointer-events: auto;
         }
 
         ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -244,31 +254,31 @@
         </div>
     </div>
 
-    <!-- 🎨 지도 및 플로팅 오버레이 카드가 포함된 메인 레이아웃 -->
+    <!-- 🎨 지도 및 플로팅 오버레이 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
-        <!-- 지도 영역 -->
-        <div id="map" class="relative flex-1">
+        <!-- 지도 컨테이너 -->
+        <div class="relative flex-1 w-full h-full">
 
-            <!-- 📸 지도 위 상단 플로팅 정보 카드 바 (요청 사진과 동일하게 복구)[cite: 20, 23] -->
-            <div class="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 overflow-x-auto pb-1 pointer-events-auto">
+            <!-- 📸 [보구 완료] 지도 최상단 플로팅 카드가 항상 보이는 오버레이 바 -->
+            <div class="top-overlay-bar flex items-center gap-2 overflow-x-auto pb-1">
                 
-                <!-- 1. 모임명 카드[cite: 20, 23] -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[160px] shrink-0">
+                <!-- 1. 모임명 카드 -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[160px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-pen"></i>
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="text-[10px] font-bold text-slate-400">모임명</div>
-                        <input type="text" id="top-room-title" value="a" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full border-b border-transparent focus:border-emerald-500" onchange="updateRoomTitle(this.value)">
+                        <input type="text" id="top-room-title" value="모임방" class="text-xs font-black text-slate-800 bg-transparent focus:outline-none w-full border-b border-transparent focus:border-emerald-500" onchange="updateRoomTitle(this.value)">
                     </div>
                     <button onclick="saveTopTitle()" class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center text-xs hover:bg-emerald-100 transition shrink-0">
                         <i class="fa-solid fa-floppy-disk"></i>
                     </button>
                 </div>
 
-                <!-- 2. 약속 일시 카드[cite: 20, 23] -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[210px] shrink-0">
+                <!-- 2. 약속 일시 카드 -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[210px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-calendar-days"></i>
                     </div>
@@ -278,8 +288,8 @@
                     </div>
                 </div>
 
-                <!-- 3. 목적지 카드[cite: 20, 23] -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
+                <!-- 3. 목적지 카드 -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-location-dot"></i>
                     </div>
@@ -292,8 +302,8 @@
                     </button>
                 </div>
 
-                <!-- 4. 현재 접속 / 최대 인원 카드[cite: 20, 23] -->
-                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[150px] shrink-0">
+                <!-- 4. 현재 접속 / 최대 인원 카드 -->
+                <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-xl flex items-center gap-2.5 min-w-[150px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-user-group"></i>
                     </div>
@@ -315,8 +325,11 @@
 
             </div>
 
+            <!-- 지도 객체 레이어 -->
+            <div id="map"></div>
+
             <!-- 🎯 지도 오른쪽 하단 '내 위치' 플로팅 버튼 -->
-            <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important;" class="absolute bottom-4 right-4 z-20 text-white font-extrabold px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-teal-500/30 hover:scale-105 active:scale-95 transition">
+            <button onclick="panToMyLocation()" style="background-color: #0f4c3a !important; z-index: 9999 !important;" class="absolute bottom-4 right-4 text-white font-extrabold px-3.5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-teal-500/30 hover:scale-105 active:scale-95 transition">
                 <i class="fa-solid fa-crosshairs text-base"></i>
                 <span class="text-xs tracking-tight">내 위치</span>
             </button>
