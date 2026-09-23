@@ -52,7 +52,7 @@
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* 📍 약속 장소 마커 (선명하고 항상 지도 최상단 표시) */
+        /* 📍 약속 장소 마커 */
         .target-marker-container {
             width: 48px; height: 48px;
             background-color: #EF4444; border: 3px solid #ffffff;
@@ -61,6 +61,15 @@
             animation: targetBounce 1s infinite alternate ease-in-out;
         }
         @keyframes targetBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-8px); } }
+
+        /* ✨ 첫 화면 생동감 있는 통통 튀는 애니메이션 */
+        .animated-smart-box {
+            animation: floatBounce 2.5s infinite ease-in-out;
+        }
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.02); }
+        }
 
         .bright-grid-banner {
             background-color: #f1f5f9;
@@ -79,7 +88,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col antialiased">
 
-    <!-- 📱 1단계: 모임 개설 모달 -->
+    <!-- 📱 1단계: 모임 개설 모달 (첫 화면) -->
     <div id="create-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full shadow-2xl my-auto overflow-hidden text-slate-800">
             <div class="relative h-40 bright-grid-banner flex flex-col justify-between p-4 text-slate-800 overflow-hidden">
@@ -89,14 +98,15 @@
                     </div>
                 </div>
 
+                <!-- 🌟 생동감 있게 바운스 움직이는 스마트 박스 -->
                 <div class="relative flex items-center justify-center my-1 z-10">
-                    <div class="bg-white/95 text-slate-900 px-4 py-2 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 backdrop-blur-md">
+                    <div class="animated-smart-box bg-white/95 text-slate-900 px-4 py-2 rounded-2xl shadow-xl border border-emerald-200 flex items-center gap-3 backdrop-blur-md">
                         <div class="w-8 h-8 bg-[#0f4c3a] text-white rounded-full flex items-center justify-center text-xs font-black shadow-md">
-                            <i class="fa-solid fa-location-crosshairs"></i>
+                            <i class="fa-solid fa-location-crosshairs animate-spin" style="animation-duration: 8s;"></i>
                         </div>
                         <div class="text-left">
                             <div class="text-xs font-extrabold text-[#0f4c3a] leading-tight">스마트 약속 모임</div>
-                            <div class="text-[10px] text-slate-500">고정밀 실시간 GPS 지도</div>
+                            <div class="text-[10px] text-slate-500 font-medium">고정밀 실시간 GPS 지도</div>
                         </div>
                     </div>
                 </div>
@@ -234,16 +244,16 @@
         </div>
     </div>
 
-    <!-- 🎨 지도 및 플로팅 컨트롤 레이아웃 -->
+    <!-- 🎨 지도 및 플로팅 오버레이 카드가 포함된 메인 레이아웃 -->
     <main class="flex-1 flex flex-col relative w-full h-full overflow-hidden">
         
         <!-- 지도 영역 -->
         <div id="map" class="relative flex-1">
 
-            <!-- 📸 지도 위 상단 플로팅 정보 카드 바 -->
+            <!-- 📸 지도 위 상단 플로팅 정보 카드 바 (요청 사진과 동일하게 복구)[cite: 20, 23] -->
             <div class="absolute top-3 left-3 right-3 z-20 flex items-center gap-2 overflow-x-auto pb-1 pointer-events-auto">
                 
-                <!-- 1. 모임명 카드 -->
+                <!-- 1. 모임명 카드[cite: 20, 23] -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[160px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-pen"></i>
@@ -257,7 +267,7 @@
                     </button>
                 </div>
 
-                <!-- 2. 약속 일시 카드 -->
+                <!-- 2. 약속 일시 카드[cite: 20, 23] -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[210px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-calendar-days"></i>
@@ -268,7 +278,7 @@
                     </div>
                 </div>
 
-                <!-- 3. 목적지 카드 -->
+                <!-- 3. 목적지 카드[cite: 20, 23] -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[260px] flex-1 shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-location-dot"></i>
@@ -282,7 +292,7 @@
                     </button>
                 </div>
 
-                <!-- 4. 현재 접속 / 최대 인원 카드 -->
+                <!-- 4. 현재 접속 / 최대 인원 카드[cite: 20, 23] -->
                 <div class="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 shadow-lg flex items-center gap-2.5 min-w-[150px] shrink-0">
                     <div class="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                         <i class="fa-solid fa-user-group"></i>
@@ -828,7 +838,7 @@
                 });
             });
 
-            // 🎯 약속장소 실시간 수신 및 지도에 최상단(zIndexOffset: 1000) 붉은 핀 마커 표출
+            // 🎯 약속장소 실시간 수신 및 지도 최상단(zIndexOffset: 1000) 붉은 핀 표출
             db.ref(`rooms/${currentRoomId}/target`).on('value', (snapshot) => {
                 const target = snapshot.val();
                 if (target && target.lat && target.lng) {
@@ -862,7 +872,7 @@
             });
         }
 
-        // 📡 실시간 고정밀 GPS 수신 및 IP 기반 Fallback 내 위치 측정
+        // 📡 실시간 고정밀 GPS 수신 및 IP 기반 Fallback 수신
         function startGPSWatch() {
             if (!("geolocation" in navigator)) {
                 fallbackIPLocation();
@@ -875,9 +885,7 @@
                 maximumAge: 0
             };
 
-            // 1차 고정밀 요청
             navigator.geolocation.getCurrentPosition(handleGPSUpdate, (err) => {
-                // 수신 지연 시 Fallback 처리
                 fallbackIPLocation();
             }, gpsOptions);
 
@@ -885,7 +893,6 @@
             watchId = navigator.geolocation.watchPosition(handleGPSUpdate, handleGPSError, gpsOptions);
         }
 
-        // IP/네트워크 기반 위치 자동 수신 Fallback
         function fallbackIPLocation() {
             if (myPos) return;
             fetch('https://ipapi.co/json/')
